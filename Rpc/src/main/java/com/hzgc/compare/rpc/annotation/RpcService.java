@@ -1,4 +1,4 @@
-package com.hzgc.compare.rpc.server;
+package com.hzgc.compare.rpc.annotation;
 
 import java.lang.annotation.*;
 

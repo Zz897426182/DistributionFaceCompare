@@ -2,6 +2,7 @@ package com.hzgc.compare.rpc.server;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.hzgc.compare.rpc.annotation.RpcServiceScanner;
 import com.hzgc.compare.rpc.protocol.RpcDecoder;
 import com.hzgc.compare.rpc.protocol.RpcEncoder;
 import com.hzgc.compare.rpc.protocol.RpcRequest;
@@ -16,9 +17,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import net.sf.cglib.reflect.FastClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -30,6 +33,7 @@ public class RpcServer {
     private String ipAddress;
     private int port;
     private ServiceRegistry serviceRegistry;
+    private Map<String, FastClass> fastClassMap;
     private Map<String, Object> rpcServiceMap = Maps.newHashMap();
     private static ThreadPoolExecutor threadPoolExecutor;
 
@@ -42,11 +46,12 @@ public class RpcServer {
         this.ipAddress = ipAddress;
         this.port = port;
         this.serviceRegistry = serviceRegistry;
-        scanRpcService(filterList);
+        this.fastClassMap = scanRpcService(filterList);
+        this.rpcServiceMap = registRpcService(this.fastClassMap);
     }
 
 
-    public static void execute(Runnable task) {
+    static void execute(Runnable task) {
         if (threadPoolExecutor == null) {
             synchronized (RpcServer.class) {
                 if (threadPoolExecutor == null) {
@@ -54,16 +59,16 @@ public class RpcServer {
                             16,
                             600L,
                             TimeUnit.SECONDS,
-                            new ArrayBlockingQueue<Runnable>(65535));
+                            new ArrayBlockingQueue<>(65535));
                 }
             }
         }
         threadPoolExecutor.execute(task);
     }
 
-    private void scanRpcService(List<String> filterList) {
+    private Map<String, FastClass> scanRpcService(List<String> filterList) {
         RpcServiceScanner serviceScanner = new RpcServiceScanner();
-        List<Class<?>> classList;
+        Map<String, FastClass> classList;
         if (filterList == null || filterList.size() == 0) {
             classList = serviceScanner.scanner();
         } else {
@@ -72,18 +77,20 @@ public class RpcServer {
         if (classList.size() == 0) {
             logger.warn("The Rpc Service implementation class is not scanned");
         }
-        registRpcService(classList);
+        return classList;
     }
 
-    private void registRpcService(List<Class<?>> classList) {
+    private Map<String, Object> registRpcService(Map<String, FastClass> classList) {
         logger.info("Start regist rpc service implementation into rpcServiceMap");
-        for (Class<?> clz : classList) {
+        Map<String, Object> rpcServiceMap = Maps.newHashMap();
+        for (String clzName : classList.keySet()) {
             try {
-                rpcServiceMap.put(clz.getName(), clz.newInstance());
-            } catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
+                rpcServiceMap.put(clzName, classList.get(clzName).newInstance());
+            } catch (InvocationTargetException e) {
+                logger.error(e.getMessage());
             }
         }
+        return rpcServiceMap;
     }
 
     public void start() {
@@ -103,7 +110,7 @@ public class RpcServer {
                                         0))
                                 .addLast(new RpcDecoder(RpcRequest.class))
                                 .addLast(new RpcEncoder(RpcResponse.class))
-                                .addLast(new RpcHandler(rpcServiceMap));
+                                .addLast(new RpcHandler(rpcServiceMap, fastClassMap));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)

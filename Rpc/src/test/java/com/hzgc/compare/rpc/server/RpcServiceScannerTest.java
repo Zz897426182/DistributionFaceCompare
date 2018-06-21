@@ -1,5 +1,7 @@
 package com.hzgc.compare.rpc.server;
 
+import com.hzgc.compare.rpc.annotation.RpcService;
+import com.hzgc.compare.rpc.annotation.RpcServiceScanner;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
