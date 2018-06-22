@@ -23,6 +23,8 @@
         <guava.version>18.0</guava.version>
         <slf4j-log4j12.version>1.7.7</slf4j-log4j12.version>
         <cglib.version>3.1</cglib.version>
+        <protostuff.version>1.0.8</protostuff.version>
+        <objenesis.version>2.1</objenesis.version>
     </properties>
 
     <dependencyManagement>
@@ -62,6 +64,21 @@
                 <groupId>cglib</groupId>
                 <artifactId>cglib</artifactId>
                 <version>${cglib.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.dyuproject.protostuff</groupId>
+                <artifactId>protostuff-core</artifactId>
+                <version>${protostuff.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.dyuproject.protostuff</groupId>
+                <artifactId>protostuff-runtime</artifactId>
+                <version>${protostuff.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.objenesis</groupId>
+                <artifactId>objenesis</artifactId>
+                <version>${objenesis.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
