@@ -3,8 +3,9 @@ package com.hzgc.compare.rpc.server;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.hzgc.compare.rpc.annotation.RpcServiceScanner;
-import com.hzgc.compare.rpc.protocol.RpcDecoder;
-import com.hzgc.compare.rpc.protocol.RpcEncoder;
+import com.hzgc.compare.rpc.netty.RpcHandler;
+import com.hzgc.compare.rpc.netty.RpcDecoder;
+import com.hzgc.compare.rpc.netty.RpcEncoder;
 import com.hzgc.compare.rpc.protocol.RpcRequest;
 import com.hzgc.compare.rpc.protocol.RpcResponse;
 import com.hzgc.compare.rpc.registry.ServiceRegistry;
@@ -51,7 +52,7 @@ public class RpcServer {
     }
 
 
-    static void execute(Runnable task) {
+    public static void execute(Runnable task) {
         if (threadPoolExecutor == null) {
             synchronized (RpcServer.class) {
                 if (threadPoolExecutor == null) {

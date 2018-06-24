@@ -1,5 +1,7 @@
-package com.hzgc.compare.rpc.protocol;
+package com.hzgc.compare.rpc.netty;
 
+import com.hzgc.compare.rpc.protocol.RpcRequest;
+import com.hzgc.compare.rpc.protocol.SerializationUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,6 +15,7 @@ public class RpcDecoder extends ByteToMessageDecoder {
     private Class<?> genericClass;
 
     public RpcDecoder(Class<RpcRequest> rpcRequestClass) {
+        this.genericClass = rpcRequestClass;
     }
 
     @Override
@@ -23,13 +26,14 @@ public class RpcDecoder extends ByteToMessageDecoder {
             return;
         }
         byteBuf.markReaderIndex();
-        int dataLength = internalBuffer().readInt();
+        int dataLength = byteBuf.readInt();
         if (byteBuf.readableBytes() < dataLength) {
             byteBuf.resetReaderIndex();
             return;
         }
         byte[] data = new byte[dataLength];
         byteBuf.readBytes(data);
-        Object object =
+        Object object = SerializationUtil.deserialize(data, genericClass);
+        list.add(object);
     }
 }

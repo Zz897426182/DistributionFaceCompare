@@ -1,7 +1,8 @@
-package com.hzgc.compare.rpc.server;
+package com.hzgc.compare.rpc.netty;
 
 import com.hzgc.compare.rpc.protocol.RpcRequest;
 import com.hzgc.compare.rpc.protocol.RpcResponse;
+import com.hzgc.compare.rpc.server.RpcServer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.sf.cglib.reflect.FastClass;
@@ -17,7 +18,7 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
     private final Map<String, Object> rpcServiceMap;
     private final Map<String, FastClass> fastClassMap;
 
-    RpcHandler(Map<String, Object> rpcServiceMap, Map<String, FastClass> fastClassMap) {
+    public RpcHandler(Map<String, Object> rpcServiceMap, Map<String, FastClass> fastClassMap) {
         this.rpcServiceMap = rpcServiceMap;
         this.fastClassMap = fastClassMap;
     }

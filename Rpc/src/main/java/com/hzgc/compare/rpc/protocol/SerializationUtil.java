@@ -4,6 +4,7 @@ import com.dyuproject.protostuff.LinkedBuffer;
 import com.dyuproject.protostuff.ProtostuffIOUtil;
 import com.dyuproject.protostuff.Schema;
 import com.dyuproject.protostuff.runtime.RuntimeSchema;
+import net.sf.cglib.reflect.FastClass;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
@@ -47,9 +48,10 @@ public class SerializationUtil {
     /**
      * 反序列化（字节数组 -> 对象）
      */
+    @SuppressWarnings("unchecked")
     public static <T> T deserialize(byte[] data, Class<T> clz) {
         try {
-            T message = objenesis.newInstance(clz);
+            T message = (T) FastClass.create(clz).newInstance();
             Schema<T> schema = getSchema(clz);
             ProtostuffIOUtil.mergeFrom(data, message, schema);
             return message;
