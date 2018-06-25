@@ -1,4 +1,4 @@
-package com.hzgc.compare.rpc.registry;
+package com.hzgc.compare.rpc.regdis;
 
 import org.junit.Before;
 import org.junit.Test;

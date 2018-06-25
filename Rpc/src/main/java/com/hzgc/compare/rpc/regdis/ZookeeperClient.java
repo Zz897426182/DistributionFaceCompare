@@ -1,4 +1,4 @@
-package com.hzgc.compare.rpc.registry;
+package com.hzgc.compare.rpc.regdis;
 
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
@@ -29,5 +29,11 @@ class ZookeeperClient {
         zkClient.start();
         logger.info("Connect zookeeper successfull, zk address is {} ", zkAddress);
         return zkClient;
+    }
+
+    public void stop() {
+        if (zkClient != null) {
+            zkClient.close();
+        }
     }
 }

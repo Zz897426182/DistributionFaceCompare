@@ -1,4 +1,4 @@
-package com.hzgc.compare.rpc.registry;
+package com.hzgc.compare.rpc.regdis;
 
 import com.google.common.base.Strings;
 import org.apache.zookeeper.CreateMode;

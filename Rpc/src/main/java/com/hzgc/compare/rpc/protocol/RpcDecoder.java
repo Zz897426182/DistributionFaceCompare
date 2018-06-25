@@ -1,4 +1,4 @@
-package com.hzgc.compare.rpc.netty;
+package com.hzgc.compare.rpc.protocol;
 
 import com.hzgc.compare.rpc.protocol.RpcRequest;
 import com.hzgc.compare.rpc.protocol.SerializationUtil;
@@ -14,8 +14,8 @@ import java.util.List;
 public class RpcDecoder extends ByteToMessageDecoder {
     private Class<?> genericClass;
 
-    public RpcDecoder(Class<RpcRequest> rpcRequestClass) {
-        this.genericClass = rpcRequestClass;
+    public RpcDecoder(Class<?> genericClass) {
+        this.genericClass = genericClass;
     }
 
     @Override

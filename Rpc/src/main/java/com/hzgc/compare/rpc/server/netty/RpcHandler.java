@@ -1,4 +1,4 @@
-package com.hzgc.compare.rpc.netty;
+package com.hzgc.compare.rpc.server.netty;
 
 import com.hzgc.compare.rpc.protocol.RpcRequest;
 import com.hzgc.compare.rpc.protocol.RpcResponse;

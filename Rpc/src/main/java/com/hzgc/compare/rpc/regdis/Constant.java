@@ -1,4 +1,4 @@
-package com.hzgc.compare.rpc.registry;
+package com.hzgc.compare.rpc.regdis;
 
 public interface Constant {
     int ZK_SESSION_TIMEOUT = 6000;

@@ -1,7 +1,9 @@
 package com.hzgc.compare.rpc.client;
 
+import com.hzgc.compare.rpc.client.connect.ConnectManager;
+import com.hzgc.compare.rpc.client.proxy.AsyncObjectProxy;
 import com.hzgc.compare.rpc.client.proxy.ObjectProxy;
-import com.hzgc.compare.rpc.registry.ServiceDiscovery;
+import com.hzgc.compare.rpc.regdis.ServiceDiscovery;
 
 import java.lang.reflect.Proxy;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -29,5 +31,19 @@ public class RpcClient {
         return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(),
                 new Class<?>[]{interfaceClass},
                 new ObjectProxy<T>(interfaceClass));
+    }
+
+    public static <T> AsyncObjectProxy createAsync(Class<T> interfaceClass) {
+        return new ObjectProxy<>(interfaceClass);
+    }
+
+    public static void submit(Runnable task) {
+        threadPoolExecutor.execute(task);
+    }
+
+    public void stop() {
+        threadPoolExecutor.shutdown();;
+        serviceDiscovery.stop();
+        ConnectManager.getInstance().stop();
     }
 }

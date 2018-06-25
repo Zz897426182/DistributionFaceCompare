@@ -1,4 +1,4 @@
-package com.hzgc.compare.rpc.netty;
+package com.hzgc.compare.rpc.protocol;
 
 import com.hzgc.compare.rpc.protocol.RpcResponse;
 import com.hzgc.compare.rpc.protocol.SerializationUtil;
@@ -11,8 +11,8 @@ import io.netty.util.concurrent.EventExecutorGroup;
 public class RpcEncoder extends MessageToByteEncoder {
     private Class<?> genericClass;
 
-    public RpcEncoder(Class<RpcResponse> rpcResponseClass) {
-        this.genericClass = rpcResponseClass;
+    public RpcEncoder(Class<?> genericClass) {
+        this.genericClass = genericClass;
     }
 
     @Override
