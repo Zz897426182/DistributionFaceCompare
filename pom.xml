@@ -10,9 +10,9 @@
     <version>1.0</version>
     <modules>
         <module>Rpc</module>
-        <module>Server</module>
         <module>Client</module>
         <module>Worker</module>
+        <module>Api</module>
     </modules>
 
     <properties>
@@ -25,6 +25,7 @@
         <cglib.version>3.1</cglib.version>
         <protostuff.version>1.0.8</protostuff.version>
         <objenesis.version>2.1</objenesis.version>
+        <jackson.version>2.7.2</jackson.version>
     </properties>
 
     <dependencyManagement>
@@ -79,6 +80,16 @@
                 <groupId>org.objenesis</groupId>
                 <artifactId>objenesis</artifactId>
                 <version>${objenesis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

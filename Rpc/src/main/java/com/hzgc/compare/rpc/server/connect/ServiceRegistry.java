@@ -1,6 +1,8 @@
-package com.hzgc.compare.rpc.regdis;
+package com.hzgc.compare.rpc.server.connect;
 
 import com.google.common.base.Strings;
+import com.hzgc.compare.rpc.zookeepr.Constant;
+import com.hzgc.compare.rpc.zookeepr.ZookeeperClient;
 import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

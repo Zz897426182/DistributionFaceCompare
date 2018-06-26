@@ -27,7 +27,8 @@ public class RpcServiceScanner {
                 if (isContains(classInfo.getPackageName(), packageList)) {
                     Class<?> aClass = classInfo.load();
                     if (aClass.isAnnotationPresent(RpcService.class)) {
-                        classList.put(aClass.getName(), FastClass.create(aClass));
+                        classList.put(aClass.getAnnotation(RpcService.class).value().getName(), FastClass.create(aClass));
+                        logger.info("Annotation RpcService is found, class name is:{}", aClass.getName());
                     }
                 }
             }

@@ -1,6 +1,7 @@
-package com.hzgc.compare.rpc.client.netty;
+package com.hzgc.compare.rpc.client.connect;
 
 import com.hzgc.compare.rpc.client.proxy.RPCFuture;
+import com.hzgc.compare.rpc.protocol.JsonUtil;
 import com.hzgc.compare.rpc.protocol.RpcRequest;
 import com.hzgc.compare.rpc.protocol.RpcResponse;
 import io.netty.buffer.Unpooled;
@@ -40,6 +41,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
+        logger.debug("RpcResponse is " + JsonUtil.objectToJson(rpcResponse));
         String requestId = rpcResponse.getRequestId();
         RPCFuture rpcFuture = pendingRPC.get(requestId);
         rpcFuture.done(rpcResponse);

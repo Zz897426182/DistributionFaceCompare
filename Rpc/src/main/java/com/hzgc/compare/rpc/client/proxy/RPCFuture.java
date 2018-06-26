@@ -1,7 +1,7 @@
 package com.hzgc.compare.rpc.client.proxy;
 
 import com.google.common.collect.Lists;
-import com.hzgc.compare.rpc.client.RpcClient;
+import com.hzgc.compare.rpc.client.connect.RpcClient;
 import com.hzgc.compare.rpc.protocol.RpcRequest;
 import com.hzgc.compare.rpc.protocol.RpcResponse;
 import org.slf4j.Logger;
@@ -108,7 +108,7 @@ public class RPCFuture implements Future<Object> {
         return this;
     }
 
-    private void runCallback(AsyncRPCCallback callback) {
+    private void runCallback(final AsyncRPCCallback callback) {
         final RpcResponse response = this.rpcResponse;
         RpcClient.submit(() -> {
             if (!response.isError()) {
@@ -127,6 +127,11 @@ public class RPCFuture implements Future<Object> {
         @Override
         protected boolean tryAcquire(int arg) {
             return getState() != pending || compareAndSetState(pending, done);
+        }
+
+        @Override
+        protected boolean tryRelease(int arg) {
+            return getState() != pending || compareAndSetState(this.pending, this.done);
         }
 
         boolean isDone() {

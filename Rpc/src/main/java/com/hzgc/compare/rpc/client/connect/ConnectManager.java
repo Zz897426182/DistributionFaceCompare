@@ -3,7 +3,6 @@ package com.hzgc.compare.rpc.client.connect;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.hzgc.compare.rpc.client.netty.RpcClientHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -39,7 +38,6 @@ public class ConnectManager {
     private Map<InetSocketAddress, RpcClientHandler> connectedServerNodes = Maps.newConcurrentMap();
     private ReentrantLock lock = new ReentrantLock();
     private Condition connected = lock.newCondition();
-    private long connectTimeoutMillis = 6000;
     private AtomicInteger roundRobin = new AtomicInteger(0);
     private volatile boolean isRuning = true;
 
@@ -147,14 +145,14 @@ public class ConnectManager {
             connected.signalAll();
         } finally {
             lock.unlock();
-            ;
         }
     }
 
     private boolean waitingForHandler() throws InterruptedException {
         lock.lock();
         try {
-            return connected.await(this.connectTimeoutMillis, TimeUnit.MILLISECONDS);
+            long connectTimeoutMillis = 6000;
+            return connected.await(connectTimeoutMillis, TimeUnit.MILLISECONDS);
         } finally {
             lock.unlock();
         }
@@ -177,7 +175,7 @@ public class ConnectManager {
         return connectedHandlers.get(index);
     }
 
-    public void stop() {
+    void stop() {
         isRuning = false;
         for (RpcClientHandler connectedServerHandler : connectedHandlers) {
             connectedServerHandler.close();

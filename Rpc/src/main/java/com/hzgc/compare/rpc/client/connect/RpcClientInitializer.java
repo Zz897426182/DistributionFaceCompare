@@ -1,6 +1,5 @@
 package com.hzgc.compare.rpc.client.connect;
 
-import com.hzgc.compare.rpc.client.netty.RpcClientHandler;
 import com.hzgc.compare.rpc.protocol.RpcDecoder;
 import com.hzgc.compare.rpc.protocol.RpcEncoder;
 import com.hzgc.compare.rpc.protocol.RpcRequest;

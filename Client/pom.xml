@@ -12,5 +12,21 @@
     <groupId>com.hzgc.compare</groupId>
     <artifactId>facecompare-client</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>com.hzgc.compare</groupId>
+            <artifactId>facecompare-api</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hzgc.compare</groupId>
+            <artifactId>facecompare-rpc</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hzgc.compare</groupId>
+            <artifactId>facecompare-worker</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+    </dependencies>
 </project>

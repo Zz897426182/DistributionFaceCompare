@@ -1,4 +1,4 @@
-package com.hzgc.compare.rpc.regdis;
+package com.hzgc.compare.rpc.zookeepr;
 
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
@@ -7,12 +7,12 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class ZookeeperClient {
+public class ZookeeperClient {
     private static final Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
-    CuratorFramework zkClient;
+    protected CuratorFramework zkClient;
     private String zkAddress;
 
-    ZookeeperClient(String zkAddress) {
+    protected ZookeeperClient(String zkAddress) {
         this.zkAddress = zkAddress;
         this.zkClient = connectZookeeper();
     }
@@ -24,9 +24,13 @@ class ZookeeperClient {
                 .builder()
                 .connectString(zkAddress)
                 .retryPolicy(retryPolicy)
-                .namespace(Constant.ZK_REGISTRY_ROOT_NAMESPACE)
                 .build();
         zkClient.start();
+        try {
+            zkClient.checkExists().forPath(Constant.ZK_REGISTRY_ROOT_PATH);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         logger.info("Connect zookeeper successfull, zk address is {} ", zkAddress);
         return zkClient;
     }

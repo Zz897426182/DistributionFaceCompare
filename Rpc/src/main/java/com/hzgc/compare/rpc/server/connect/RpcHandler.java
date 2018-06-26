@@ -1,8 +1,10 @@
-package com.hzgc.compare.rpc.server.netty;
+package com.hzgc.compare.rpc.server.connect;
 
+import com.hzgc.compare.rpc.protocol.JsonUtil;
 import com.hzgc.compare.rpc.protocol.RpcRequest;
 import com.hzgc.compare.rpc.protocol.RpcResponse;
-import com.hzgc.compare.rpc.server.RpcServer;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.sf.cglib.reflect.FastClass;
@@ -24,7 +26,7 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, final RpcRequest rpcRequest) throws Exception {
+    protected void channelRead0(final ChannelHandlerContext ctx, final RpcRequest rpcRequest) throws Exception {
         RpcServer.execute(() -> {
             logger.info("Receive request, request id is:{}", rpcRequest.getRequestId());
             RpcResponse response = new RpcResponse();
@@ -36,6 +38,12 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
                 response.setError(throwable.getMessage());
                 logger.error("Rpc server handle request error ", throwable);
             }
+            ctx.writeAndFlush(response).addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                    logger.debug("Send response for request " + JsonUtil.objectToJson(response));
+                }
+            });
         });
     }
 

@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.hzgc.compare</groupId>
-    <artifactId>facecompare-server</artifactId>
+    <artifactId>facecompare-api</artifactId>
 
 
 </project>
