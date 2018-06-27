@@ -17,6 +17,7 @@ public class ServiceDiscovery extends ZookeeperClient {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDiscovery.class);
     private volatile List<String> workerList = new ArrayList<String>();
     //启动时存在多次启动的情况，需要解决
+    // FIXME: 18-6-27 
     public ServiceDiscovery(String zkAddress) {
         super(zkAddress);
         initPathCache(zkClient);

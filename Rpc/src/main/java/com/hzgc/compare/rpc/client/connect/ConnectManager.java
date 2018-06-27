@@ -69,6 +69,7 @@ public class ConnectManager {
                         newAllServerNodeSet.add(remotePeer);
                     }
                 }
+                // FIXME: 18-6-27 
                 for (final InetSocketAddress serverNodeAddress : newAllServerNodeSet) {
                     if (!connectedServerNodes.keySet().contains(serverNodeAddress)) {
                         connectServerNode(serverNodeAddress);
@@ -89,7 +90,7 @@ public class ConnectManager {
                     }
                 }
             } else {
-                logger.error("No avaliable server node, all server nodes are down");
+                logger.error("No avaliable server node, all server nodes are down or not start");
                 for (final RpcClientHandler connectedServerHandler : connectedHandlers) {
                     SocketAddress remotePeer = connectedServerHandler.getRemotePeer();
                     RpcClientHandler handler = connectedServerNodes.get(remotePeer);
@@ -149,30 +150,36 @@ public class ConnectManager {
     }
 
     private boolean waitingForHandler() throws InterruptedException {
+        long connectTimeoutMillis = 6000;
+        return connected.await(connectTimeoutMillis, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 选择一个可用RPC服务,当前在选择服务时只使用了轮询的方式
+     * @return 可用RPC服务
+     */
+    public RpcClientHandler chooseHandler() {
         lock.lock();
         try {
-            long connectTimeoutMillis = 6000;
-            return connected.await(connectTimeoutMillis, TimeUnit.MILLISECONDS);
+            int size = connectedHandlers.size();
+            while (isRuning && size <= 0) {
+                try {
+                    logger.warn("Waiting for handler, current handler is 0");
+                    boolean available = waitingForHandler();
+                    if (available) {
+                        size = connectedHandlers.size();
+                    }
+                } catch (InterruptedException e) {
+                    logger.error("Waiting for available node is interrupted", e);
+                    throw new RuntimeException("Cant't connect any servers", e);
+                }
+            }
+            int index = (roundRobin.getAndAdd(1) + size) % size;
+            return connectedHandlers.get(index);
         } finally {
             lock.unlock();
         }
-    }
 
-    public RpcClientHandler chooseHandler() {
-        int size = connectedHandlers.size();
-        while (isRuning && size <= 0) {
-            try {
-                boolean available = waitingForHandler();
-                if (available) {
-                    size = connectedHandlers.size();
-                }
-            } catch (InterruptedException e) {
-                logger.error("Waiting for available node is interrupted", e);
-                throw new RuntimeException("Cant't connect any servers", e);
-            }
-        }
-        int index = (roundRobin.getAndAdd(1) + size) % size;
-        return connectedHandlers.get(index);
     }
 
     void stop() {

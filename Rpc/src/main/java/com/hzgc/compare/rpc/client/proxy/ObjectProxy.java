@@ -51,8 +51,7 @@ public class ObjectProxy<T> implements InvocationHandler, AsyncObjectProxy {
     public RPCFuture call(String funcName, Object... args) {
         RpcClientHandler handler = ConnectManager.getInstance().chooseHandler();
         RpcRequest request = createRequest(this.clazz.getName(), funcName, args);
-        RPCFuture rpcFuture = handler.sendRequest(request);
-        return rpcFuture;
+        return handler.sendRequest(request);
     }
 
     private RpcRequest createRequest(String className, String methodName, Object[] args) {
