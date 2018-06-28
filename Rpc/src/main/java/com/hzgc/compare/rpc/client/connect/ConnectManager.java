@@ -41,7 +41,6 @@ public class ConnectManager {
     private AtomicInteger roundRobin = new AtomicInteger(0);
     private volatile boolean isRuning = true;
 
-
     private ConnectManager() {
     }
 
@@ -57,48 +56,52 @@ public class ConnectManager {
     }
 
     public void updateConnectedServer(List<String> allServerddress) {
-        if (allServerddress != null) {
-            if (allServerddress.size() > 0) {
-                HashSet<InetSocketAddress> newAllServerNodeSet = Sets.newHashSet();
-                for (String address : allServerddress) {
-                    String[] array = address.split(":");
-                    if (array.length == 2) {
-                        String host = array[0];
-                        int port = Integer.parseInt(array[1]);
-                        final InetSocketAddress remotePeer = new InetSocketAddress(host, port);
-                        newAllServerNodeSet.add(remotePeer);
-                    }
+        if (allServerddress != null && allServerddress.size() > 0) {
+            HashSet<InetSocketAddress> newAllServerNodeSet = Sets.newHashSet();
+            for (String address : allServerddress) {
+                String[] array = address.split(":");
+                if (array.length == 2) {
+                    String host = array[0];
+                    int port = Integer.parseInt(array[1]);
+                    InetSocketAddress remotePeer = new InetSocketAddress(host, port);
+                    newAllServerNodeSet.add(remotePeer);
                 }
-                // FIXME: 18-6-27 
-                for (final InetSocketAddress serverNodeAddress : newAllServerNodeSet) {
-                    if (!connectedServerNodes.keySet().contains(serverNodeAddress)) {
-                        connectServerNode(serverNodeAddress);
-                    }
-                }
-
-                for (int i = 0; i < connectedHandlers.size(); i++) {
-                    RpcClientHandler connectedServerHandler = connectedHandlers.get(i);
-                    SocketAddress remotePeer = connectedServerHandler.getRemotePeer();
-                    if (!newAllServerNodeSet.contains(remotePeer)) {
-                        logger.info("Remove invalid server node {}", remotePeer);
-                        RpcClientHandler handler = connectedServerNodes.get(remotePeer);
-                        if (handler != null) {
-                            handler.close();
-                        }
-                        connectedServerNodes.remove(remotePeer);
-                        connectedHandlers.remove(connectedServerHandler);
-                    }
-                }
-            } else {
-                logger.error("No avaliable server node, all server nodes are down or not start");
-                for (final RpcClientHandler connectedServerHandler : connectedHandlers) {
-                    SocketAddress remotePeer = connectedServerHandler.getRemotePeer();
-                    RpcClientHandler handler = connectedServerNodes.get(remotePeer);
-                    handler.close();
-                    connectedServerNodes.remove(connectedServerHandler);
-                }
-                connectedHandlers.clear();
             }
+            // FIXME: 18-6-27
+            //需要考虑handler里面存在网络断开链接的情况
+            for (final InetSocketAddress serverNodeAddress : newAllServerNodeSet) {
+                RpcClientHandler rpcClientHandler = connectedServerNodes.get(serverNodeAddress);
+                if (rpcClientHandler == null) {
+                    connectServerNode(serverNodeAddress);
+                } else {
+                    logger.warn("Current server node address already exists, host is {}, port is {}",
+                            serverNodeAddress.getHostString(),
+                            serverNodeAddress.getPort());
+                }
+            }
+
+            for (int i = 0; i < connectedHandlers.size(); i++) {
+                RpcClientHandler connectedServerHandler = connectedHandlers.get(i);
+                SocketAddress remotePeer = connectedServerHandler.getRemotePeer();
+                if (!newAllServerNodeSet.contains(remotePeer)) {
+                    logger.info("Remove invalid server node {}", remotePeer);
+                    RpcClientHandler handler = connectedServerNodes.get(remotePeer);
+                    if (handler != null) {
+                        handler.close();
+                    }
+                    connectedServerNodes.remove(remotePeer);
+                    connectedHandlers.remove(connectedServerHandler);
+                }
+            }
+        } else {
+            logger.error("No avaliable server node, all server nodes are down or not start");
+            for (final RpcClientHandler connectedServerHandler : connectedHandlers) {
+                SocketAddress remotePeer = connectedServerHandler.getRemotePeer();
+                RpcClientHandler handler = connectedServerNodes.get(remotePeer);
+                handler.close();
+                connectedServerNodes.remove(connectedServerHandler);
+            }
+            connectedHandlers.clear();
         }
     }
 
@@ -156,6 +159,7 @@ public class ConnectManager {
 
     /**
      * 选择一个可用RPC服务,当前在选择服务时只使用了轮询的方式
+     *
      * @return 可用RPC服务
      */
     public RpcClientHandler chooseHandler() {
@@ -164,7 +168,7 @@ public class ConnectManager {
             int size = connectedHandlers.size();
             while (isRuning && size <= 0) {
                 try {
-                    logger.warn("Waiting for handler, current handler is 0");
+                    logger.warn("Waiting for available node, current available node size is 0");
                     boolean available = waitingForHandler();
                     if (available) {
                         size = connectedHandlers.size();
