@@ -1,12 +1,8 @@
 package com.hzgc.compare.rpc.protocol;
 
-import com.hzgc.compare.rpc.protocol.RpcResponse;
-import com.hzgc.compare.rpc.protocol.SerializationUtil;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import io.netty.util.concurrent.EventExecutorGroup;
 
 public class RpcEncoder extends MessageToByteEncoder {
     private Class<?> genericClass;

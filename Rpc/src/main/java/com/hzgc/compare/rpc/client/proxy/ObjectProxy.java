@@ -3,6 +3,7 @@ package com.hzgc.compare.rpc.client.proxy;
 import com.hzgc.compare.rpc.client.connect.ConnectManager;
 import com.hzgc.compare.rpc.client.connect.RpcClientHandler;
 import com.hzgc.compare.rpc.protocol.JsonUtil;
+import com.hzgc.compare.rpc.protocol.MsgType;
 import com.hzgc.compare.rpc.protocol.RpcRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ public class ObjectProxy<T> implements InvocationHandler, AsyncObjectProxy {
             }
         }
         RpcRequest request = new RpcRequest();
+        request.setType(MsgType.ASK);
         request.setRequestId(UUID.randomUUID().toString());
         request.setClassName(method.getDeclaringClass().getName());
         request.setMethodName(method.getName());
@@ -56,6 +58,7 @@ public class ObjectProxy<T> implements InvocationHandler, AsyncObjectProxy {
 
     private RpcRequest createRequest(String className, String methodName, Object[] args) {
         RpcRequest request = new RpcRequest();
+        request.setType(MsgType.ASK);
         request.setRequestId(UUID.randomUUID().toString());
         request.setClassName(className);
         request.setMethodName(methodName);

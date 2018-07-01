@@ -32,7 +32,7 @@ public class SerializationUtil {
      *  序列化（对象 -> 字节数组）
      */
     @SuppressWarnings("unchecked")
-    public static <T> byte[] serialize(T obj) {
+    static <T> byte[] serialize(T obj) {
         Class<T> clz = (Class<T>) obj.getClass();
         LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
         try {
@@ -49,9 +49,9 @@ public class SerializationUtil {
      * 反序列化（字节数组 -> 对象）
      */
     @SuppressWarnings("unchecked")
-    public static <T> T deserialize(byte[] data, Class<T> clz) {
+    static <T> T deserialize(byte[] data, Class<T> clz) {
         try {
-            T message = (T) FastClass.create(clz).newInstance();
+            T message = objenesis.newInstance(clz);
             Schema<T> schema = getSchema(clz);
             ProtostuffIOUtil.mergeFrom(data, message, schema);
             return message;

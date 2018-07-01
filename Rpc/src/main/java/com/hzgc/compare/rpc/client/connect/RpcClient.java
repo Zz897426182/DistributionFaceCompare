@@ -37,7 +37,7 @@ public class RpcClient {
      * @return 代理对象
      */
     @SuppressWarnings("unchecked")
-    public static <T> T create(Class<T> interfaceClass) {
+    public <T> T create(Class<T> interfaceClass) {
         logger.info("Create this class proxy object, class name is:", interfaceClass.getName());
         return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(),
                 new Class<?>[]{interfaceClass},
@@ -53,7 +53,7 @@ public class RpcClient {
      * @return 代理对象
      */
     @SuppressWarnings("unchecked")
-    public static <T> T createAll(Class<T> interfaceClass) {
+    public <T> T createAll(Class<T> interfaceClass) {
         logger.info("Create this class proxy object, class name is:", interfaceClass.getName());
         logger.info("The current proxy object will get the data set of all service nodes");
         return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(),
@@ -61,7 +61,7 @@ public class RpcClient {
                 new AllObjectProxy<>(interfaceClass));
     }
 
-    public static <T> AsyncObjectProxy createAsync(Class<T> interfaceClass) {
+    public <T> AsyncObjectProxy createAsync(Class<T> interfaceClass) {
         logger.info("Create this class proxy object by async, class name is:", interfaceClass.getName());
         return new ObjectProxy<>(interfaceClass);
     }

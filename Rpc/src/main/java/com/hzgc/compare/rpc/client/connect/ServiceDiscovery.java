@@ -1,6 +1,7 @@
 package com.hzgc.compare.rpc.client.connect;
 
 import com.google.common.collect.Lists;
+import com.hzgc.compare.rpc.protocol.JsonUtil;
 import com.hzgc.compare.rpc.zookeepr.Constant;
 import com.hzgc.compare.rpc.zookeepr.ZookeeperClient;
 import org.apache.curator.framework.CuratorFramework;
@@ -16,19 +17,17 @@ import java.util.List;
 public class ServiceDiscovery extends ZookeeperClient {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDiscovery.class);
     private volatile List<String> workerList = new ArrayList<String>();
-    //启动时存在多次启动的情况，需要解决
-    // FIXME: 18-6-27 
     public ServiceDiscovery(String zkAddress) {
         super(zkAddress);
         initPathCache(zkClient);
-        updateConnectedServer();
     }
 
     private void initPathCache(CuratorFramework zkClient) {
         final PathChildrenCache pathCache =
                 new PathChildrenCache(zkClient, Constant.ZK_REGISTRY_ROOT_PATH, true);
         try {
-            pathCache.start();
+            //此种类型的StartMode意思为已存在节点不作为变化事件
+            pathCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);
             pathCache.getListenable().addListener((client, event) -> {
                 logger.info("Child event [type:{}, path:{}]",
                         event.getType(),
@@ -47,6 +46,8 @@ public class ServiceDiscovery extends ZookeeperClient {
                         break;
                 }
             });
+            //尝试第一次刷新节点下数据
+            refreshData(pathCache.getCurrentData());
         } catch (Exception e) {
             logger.error(e.getMessage());
         }

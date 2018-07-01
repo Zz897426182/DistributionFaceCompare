@@ -3,12 +3,18 @@ package com.hzgc.compare.rpc.client.connect;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.hzgc.compare.rpc.protocol.RpcDecoder;
+import com.hzgc.compare.rpc.protocol.RpcEncoder;
+import com.hzgc.compare.rpc.protocol.RpcRequest;
+import com.hzgc.compare.rpc.protocol.RpcResponse;
+import com.hzgc.compare.rpc.server.annotation.RpcService;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +40,8 @@ public class ConnectManager {
             600L,
             TimeUnit.SECONDS,
             new ArrayBlockingQueue<>(65535));
-    private CopyOnWriteArrayList<RpcClientHandler> connectedHandlers = Lists.newCopyOnWriteArrayList();
-    private Map<InetSocketAddress, RpcClientHandler> connectedServerNodes = Maps.newConcurrentMap();
+    CopyOnWriteArrayList<RpcClientHandler> connectedHandlers = Lists.newCopyOnWriteArrayList();
+    Map<InetSocketAddress, RpcClientHandler> connectedServerNodes = Maps.newConcurrentMap();
     private ReentrantLock lock = new ReentrantLock();
     private Condition connected = lock.newCondition();
     private AtomicInteger roundRobin = new AtomicInteger(0);
@@ -120,7 +126,29 @@ public class ConnectManager {
                 Bootstrap bootstrap = new Bootstrap();
                 bootstrap.group(eventLoopGroup)
                         .channel(NioSocketChannel.class)
-                        .handler(new RpcClientInitializer());
+                        .option(ChannelOption.SO_BACKLOG, 1024)
+                        .handler(new ChannelInitializer<SocketChannel>() {
+                            @Override
+                            protected void initChannel(SocketChannel socketChannel) throws Exception {
+                                ChannelPipeline channelPipeline = socketChannel.pipeline();
+                                //添加心跳机制
+                                channelPipeline.addLast(new IdleStateHandler(0,
+                                        4,
+                                        0,
+                                        TimeUnit.SECONDS));
+                                //添加编码器
+                                channelPipeline.addLast(new RpcEncoder(RpcRequest.class));
+                                //解决粘包问题
+                                channelPipeline.addLast(new LengthFieldBasedFrameDecoder(65536,
+                                        0,
+                                        4,
+                                        0,
+                                        0));
+                                //粘包处理后进行解码
+                                channelPipeline.addLast(new RpcDecoder(RpcResponse.class));
+                                channelPipeline.addLast(new RpcClientHandler());
+                            }
+                        });
                 ChannelFuture channelFuture = bootstrap.connect(remotePeer);
                 channelFuture.addListener(new ChannelFutureListener() {
                     @Override
@@ -194,5 +222,23 @@ public class ConnectManager {
         signalAvailableHandler();
         threadPoolExecutor.shutdown();
         eventLoopGroup.shutdownGracefully();
+    }
+
+    void removeRpcClientHandler(RpcClientHandler handler) {
+        if (connectedHandlers.contains(handler)) {
+            logger.info("ConnectedHandlers contains this invalid handler:{}, remove it", handler.toString());
+            connectedHandlers.remove(handler);
+        } else {
+            logger.warn("ConnectedHandlers is not contains this invalid handler:{}", handler.toString());
+        }
+    }
+
+    void removeConnectedServerNodes(InetSocketAddress socketAddress) {
+        if (connectedServerNodes.containsKey(socketAddress)) {
+            logger.info("ConnectedServerNodes contains this invalid socketAddress:{}, remove it", socketAddress.toString());
+            connectedServerNodes.remove(socketAddress);
+        } else {
+            logger.warn("ConnectedServerNodes contains this invalid socketAddress:{}", socketAddress.toString());
+        }
     }
 }

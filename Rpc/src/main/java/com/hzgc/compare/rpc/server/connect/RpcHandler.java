@@ -1,12 +1,15 @@
 package com.hzgc.compare.rpc.server.connect;
 
 import com.hzgc.compare.rpc.protocol.JsonUtil;
+import com.hzgc.compare.rpc.protocol.MsgType;
 import com.hzgc.compare.rpc.protocol.RpcRequest;
 import com.hzgc.compare.rpc.protocol.RpcResponse;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 import org.slf4j.Logger;
@@ -27,24 +30,35 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
 
     @Override
     protected void channelRead0(final ChannelHandlerContext ctx, final RpcRequest rpcRequest) throws Exception {
-        RpcServer.execute(() -> {
-            logger.info("Receive request, request id is:{}", rpcRequest.getRequestId());
-            RpcResponse response = new RpcResponse();
-            response.setRequestId(rpcRequest.getRequestId());
-            try {
-                Object result = handle(rpcRequest);
-                response.setResult(result);
-            } catch (Throwable throwable) {
-                response.setError(throwable.getMessage());
-                logger.error("Rpc server handle request error ", throwable);
-            }
-            ctx.writeAndFlush(response).addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                    logger.debug("Send response for request " + JsonUtil.objectToJson(response));
-                }
-            });
-        });
+        switch (rpcRequest.getType()) {
+            case ASK:
+                RpcServer.execute(() -> {
+                    logger.info("Receive request, request id is:{}", rpcRequest.getRequestId());
+                    RpcResponse response = new RpcResponse();
+                    response.setType(MsgType.ASK);
+                    response.setRequestId(rpcRequest.getRequestId());
+                    try {
+                        Object result = handle(rpcRequest);
+                        response.setResult(result);
+                    } catch (Throwable throwable) {
+                        response.setError(throwable.getMessage());
+                        logger.error("Rpc server handle request error ", throwable);
+                    }
+                    ctx.writeAndFlush(response).addListener(new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                            logger.debug("Send response for request " + JsonUtil.objectToJson(response));
+                        }
+                    });
+                });
+                break;
+            case PING:
+                RpcResponse response = new RpcResponse();
+                response.setType(MsgType.PONG);
+                ctx.writeAndFlush(response);
+                break;
+        }
+
     }
 
     private Object handle(RpcRequest rpcRequest) throws Throwable {

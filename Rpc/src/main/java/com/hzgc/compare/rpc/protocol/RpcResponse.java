@@ -1,6 +1,6 @@
 package com.hzgc.compare.rpc.protocol;
 
-public class RpcResponse {
+public class RpcResponse extends BaseMsg {
     private String requestId;
     private String error;
     private Object result;
