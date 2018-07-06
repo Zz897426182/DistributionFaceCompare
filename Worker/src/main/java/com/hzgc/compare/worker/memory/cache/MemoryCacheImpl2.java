@@ -1,4 +1,4 @@
 package com.hzgc.compare.worker.memory.cache;
 
-public interface MemoryCache {
+public class MemoryCacheImpl2 {
 }
