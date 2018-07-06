@@ -33,7 +33,7 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
         switch (rpcRequest.getType()) {
             case ASK:
                 RpcServer.execute(() -> {
-                    logger.info("Receive request, request id is:{}", rpcRequest.getRequestId());
+                    logger.debug("Receive request, request id is:{}", rpcRequest.getRequestId());
                     RpcResponse response = new RpcResponse();
                     response.setType(MsgType.ASK);
                     response.setRequestId(rpcRequest.getRequestId());
@@ -70,7 +70,7 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
             Class<?>[] requestParameterTypes = rpcRequest.getParameterTypes();
             Object[] requestParameters = rpcRequest.getParameters();
             FastMethod fastMethod = fastClass.getMethod(requestMethodName, requestParameterTypes);
-            logger.info("Call rpc service, name is:{}, method name is:{}", className, requestMethodName);
+            logger.debug("Call rpc service, name is:{}, method name is:{}", className, requestMethodName);
             logger.debug(Arrays.toString(requestParameterTypes));
             logger.debug(Arrays.toString(requestParameters));
             return fastMethod.invoke(serviceBean, requestParameters);

@@ -1,7 +1,6 @@
 package com.hzgc.compare.rpc.client.connect;
 
 import com.google.common.collect.Lists;
-import com.hzgc.compare.rpc.protocol.JsonUtil;
 import com.hzgc.compare.rpc.zookeepr.Constant;
 import com.hzgc.compare.rpc.zookeepr.ZookeeperClient;
 import org.apache.curator.framework.CuratorFramework;
@@ -16,12 +15,17 @@ import java.util.List;
 
 public class ServiceDiscovery extends ZookeeperClient {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDiscovery.class);
-    private volatile List<String> workerList = new ArrayList<String>();
+    private volatile List<String> workerList = new ArrayList<>();
     public ServiceDiscovery(String zkAddress) {
         super(zkAddress);
         initPathCache(zkClient);
     }
 
+    /**
+     * 初始化节点缓存,这里的PathChildrenCache可以理解为Zookeeper的Watcher的封装
+     *
+     * @param zkClient zookeeper客户端
+     */
     private void initPathCache(CuratorFramework zkClient) {
         final PathChildrenCache pathCache =
                 new PathChildrenCache(zkClient, Constant.ZK_REGISTRY_ROOT_PATH, true);
@@ -53,6 +57,12 @@ public class ServiceDiscovery extends ZookeeperClient {
         }
     }
 
+    /**
+     * 刷新节点数据,将ChildData对象集合转为节点数据集合
+     * 刷新节点数据,将ChildData对象集合转为节点数据集合,同时更新服务端连接信息
+     *
+     * @param currenDataList ChildData对象集合,表示当前节点下的数据
+     */
     private void refreshData(List<ChildData> currenDataList) {
         if (currenDataList != null && !currenDataList.isEmpty()) {
             final List<String> newWorkerList = Lists.newArrayList();
@@ -60,10 +70,14 @@ public class ServiceDiscovery extends ZookeeperClient {
                 newWorkerList.add(new String(event.getData()));
             });
             this.workerList = newWorkerList;
+            //更新服务端连接信息
             updateConnectedServer();
         }
     }
 
+    /**
+     * 此方法会调用ConnectManager的updateConnectedServer方法用来更新连接信息
+     */
     private void updateConnectedServer() {
         logger.info("Service discovery triggered updating connected server nodes:{}", Arrays.toString(this.workerList.toArray()));
         if (this.workerList.size() > 0) {

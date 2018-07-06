@@ -1,15 +1,20 @@
 package com.hzgc.compare.worker;
 
-import com.hzgc.compare.api.Person;
+import com.hzgc.compare.rpc.client.proxy.AllReturn;
 import com.hzgc.compare.rpc.server.annotation.RpcService;
 
 @RpcService(Person.class)
-public class PersonImpl implements Person {
-    public void say() {
-        System.out.println(Thread.currentThread().getName() + ": say hello");
+public class PersonImpl implements Person{
+
+    @Override
+    public AllReturn<String> giveMore() {
+        return new AllReturn<>("1234");
     }
 
-    public String give() {
-        return "give me five";
+    @Override
+    public AllReturn<Five> getFive() {
+
+        Five five = new Five();
+        return new AllReturn<>(five);
     }
 }

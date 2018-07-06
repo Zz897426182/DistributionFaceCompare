@@ -104,13 +104,13 @@ public class RpcServer {
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         socketChannel.pipeline()
                                 .addLast(new IdleStateHandler(4, 4, 4))
+                                .addLast(new RpcEncoder(RpcResponse.class))
                                 .addLast(new LengthFieldBasedFrameDecoder(65535,
                                         0,
                                         4,
                                         0,
                                         0))
                                 .addLast(new RpcDecoder(RpcRequest.class))
-                                .addLast(new RpcEncoder(RpcResponse.class))
                                 .addLast(new RpcHandler(rpcServiceMap, fastClassMap));
                     }
                 })

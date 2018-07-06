@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Proxy;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -58,7 +57,7 @@ public class RpcClient {
         logger.info("The current proxy object will get the data set of all service nodes");
         return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(),
                 new Class<?>[]{interfaceClass},
-                new AllObjectProxy<>(interfaceClass));
+                new AllObjectProxy());
     }
 
     public <T> AsyncObjectProxy createAsync(Class<T> interfaceClass) {

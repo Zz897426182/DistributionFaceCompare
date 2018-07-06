@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,29 +24,48 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     private static final Logger logger = LoggerFactory.getLogger(RpcClientHandler.class);
     private ConcurrentHashMap<String, RPCFuture> pendingRPC = new ConcurrentHashMap<>();
     private volatile Channel channel;
-    private SocketAddress remotePeer;
+    private InetSocketAddress remotePeer;
     private final AtomicInteger pingCount = new AtomicInteger(0);
 
-    public Channel getChannel() {
+    Channel getChannel() {
         return channel;
     }
 
-    public SocketAddress getRemotePeer() {
+    InetSocketAddress getRemotePeer() {
         return remotePeer;
     }
 
+    /**
+     * 连接成功后调用此方法
+     *
+     * @param ctx RpcClientHandler上下文
+     * @throws Exception 可能抛出的异样
+     */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        this.remotePeer = this.channel.remoteAddress();
+        this.remotePeer = (InetSocketAddress) this.channel.remoteAddress();
     }
 
+    /**
+     * channel被注册后调用此方法
+     *
+     * @param ctx RpcClientHandler上下文
+     * @throws Exception 可能抛出的异样
+     */
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         super.channelRegistered(ctx);
         this.channel = ctx.channel();
     }
 
+    /**
+     * 当有数据写入时调用此方法
+     *
+     * @param channelHandlerContext RpcClientHandler上下文
+     * @param rpcResponse 请求消息对象
+     * @throws Exception 可能抛出的异样
+     */
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
         switch (rpcResponse.getType()) {
@@ -60,31 +78,56 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
             case PONG:
                 pingCount.set(0);
                 if (pingCount.get() == 0) {
-                    logger.info("Check the server side connection successfull, reset pingCount");
+                    logger.debug("Check the server side connection successfull, reset pingCount");
                 }
         }
     }
 
+    /**
+     * 当channel断开连接或者中断时会调用此方法
+     * @param ctx RpcClientHandler上下文
+     * @throws Exception 可能抛出的异样
+     */
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+        logger.info("The Channel has an exception and may have been disconnected");
         removeCurrentHandler(ctx);
     }
 
+    /**
+     * 用来捕捉链路中可能产生的异常不让他向下一个链路抛
+     *
+     * @param ctx RpcClientHandler上下文
+     * @param cause Throwable对象
+     * @throws Exception 可能抛出的异样
+     */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error("Client caugth exception", cause);
         ctx.close();
     }
 
+    /**
+     * 关闭channel
+     */
     void close() {
         channel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
     }
 
+    /**
+     * 向服务端发送请求
+     *
+     * @param rpcRequest rpc请求消息体
+     * @return 异步返回Future调用对象
+     */
     public RPCFuture sendRequest(RpcRequest rpcRequest) {
+        //使用CountDownLatch来确认消息已发送
         final CountDownLatch latch = new CountDownLatch(1);
         RPCFuture rpcFuture = new RPCFuture(rpcRequest);
+        //将异步请求结果添加至请求待完成集合中\
         pendingRPC.put(rpcRequest.getRequestId(), rpcFuture);
-        channel.writeAndFlush(rpcRequest).addListener((ChannelFutureListener) channelFuture -> latch.countDown());
+        //通过当前channel发送请求
+        this.channel.writeAndFlush(rpcRequest).addListener((ChannelFutureListener) channelFuture -> latch.countDown());
         try {
             latch.await();
         } catch (InterruptedException e) {
@@ -93,6 +136,13 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         return rpcFuture;
     }
 
+    /**
+     * 当发生读写超时的时候,即一定时间内没有调用读方法或写方法就会调用此方法
+     *
+     * @param ctx RpcClientHandler上下文
+     * @param evt 触发事件
+     * @throws Exception 可能抛出的异常
+     */
     @SuppressWarnings("SuspiciousMethodCalls")
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -106,10 +156,15 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
                     countDownLatch.countDown();
                 });
                 countDownLatch.await();
-                logger.info("Try to check the server side connection, current attempts is:{}", pingCount.get());
+                logger.debug("Try to check the server side connection, current attempts is:{}", pingCount.get());
             } else {
                 IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
                 if (idleStateEvent.state() == IdleState.WRITER_IDLE) {
+                    logger.info("Failed to get heartbeat from worker, worker ip is:{}, port is:{}, " +
+                                    "more than {} retry attempts",
+                            this.remotePeer.getHostString(),
+                            this.remotePeer.getPort(),
+                            pingCount.get());
                     removeCurrentHandler(ctx);
                 }
             }
@@ -118,16 +173,17 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         }
     }
 
+    /**
+     * 从ConnectManager中移除失效的RpcClientHandler
+     * @param ctx RpcClientHandler上下文
+     */
     private void removeCurrentHandler(ChannelHandlerContext ctx) {
-        InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-        logger.info("Failed to get heartbeat from worker, worker ip is:{}, port is:{}",
-                socketAddress.getHostString(),
-                socketAddress.getPort());
+
         logger.info("Start closd current RpcClienthandler");
         ctx.channel().close();
         logger.info("Start remove current handler from ConnectManager");
         ConnectManager.getInstance().removeRpcClientHandler(this);
-        ConnectManager.getInstance().removeConnectedServerNodes((InetSocketAddress) this.getRemotePeer());
+        ConnectManager.getInstance().removeConnectedServerNodes(this.getRemotePeer());
     }
 
     @Override
