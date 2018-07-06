@@ -28,6 +28,9 @@ public class Config {
     public static final String KAFKA_BOOTSTRAP_SERVERS = "kafka.bootstrap.servers";
     public static final String KAFKA_GROUP_ID = "kafka.group.id";
     public static final String KAFKA_MAXIMUM_TIME = "kafka.maximum.time";
+    public static final String ZOOKEEPER_ADDRESS = "zookeeper.address";
+    public static final String WORKER_ADDRESS = "worker.address";
+    public static final String WORKER_RPC_PORT = "worker.rpc.port";
 
     public Config(Properties ps){
         this.ps = ps;

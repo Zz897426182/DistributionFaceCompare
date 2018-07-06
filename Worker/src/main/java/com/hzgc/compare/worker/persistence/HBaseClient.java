@@ -15,6 +15,10 @@ public class HBaseClient {
     private Config conf;
     private Long timeToWrite = 1000L; //任务执行时间间隔，默认1秒
 
+    public HBaseClient(Config conf){
+        this.conf = conf;
+    }
+
     /**
      * 启动任务，定期读取内存中的recordToHBase，保存在HBase中，并生成元数据保存入内存的buffer
      */

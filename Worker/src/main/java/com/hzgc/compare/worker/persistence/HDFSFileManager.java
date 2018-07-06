@@ -21,11 +21,11 @@ public class HDFSFileManager implements FileManager {
 
     }
 
-    public void checkFile(Config conf) {
+    public void checkFile() {
 
     }
 
-    public void checkTaskTodo(Config conf) {
+    public void checkTaskTodo() {
 
     }
 }

@@ -14,8 +14,8 @@ import java.util.Map;
  * 从kafka读入的数据先存储在recordToHBase，再由持久化模块不断将recordToHBase中的数据存入HBase中，然后生成元数据，将它保存在buffer中
  * 当buffer数据量达到一定时，将buffer持久化，并加入cacheRecords，buffer清空
  */
-public class MemoryCache{
-    private static MemoryCache memoryCache;
+public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String, String>, List<Pair<String, byte[]>>>>{
+    private static MemoryCacheImpl1 memoryCache;
     private Config conf;
     private Integer bufferSizeMax = 500; // buffer存储上限，默认500
     private List<FaceObject> recordToHBase;
@@ -23,14 +23,14 @@ public class MemoryCache{
     private List<Quintuple<String, String, String, String, byte[]>> buffer;
 
 
-    private MemoryCache(Config conf){
+    private MemoryCacheImpl1(Config conf){
         this.conf = conf;
         init(conf);
     }
 
-    public static MemoryCache getInstance(Config conf){
+    public static MemoryCacheImpl1 getInstance(Config conf){
         if(memoryCache == null){
-            memoryCache = new MemoryCache(conf);
+            memoryCache = new MemoryCacheImpl1(conf);
         }
         return memoryCache;
     }

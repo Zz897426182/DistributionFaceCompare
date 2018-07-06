@@ -1,7 +1,6 @@
 package com.hzgc.compare.worker.persistence;
 
 
-import com.hzgc.compare.worker.conf.Config;
 
 /**
  * FilterManager主要用于管理本地文件（或HDFS文件），主要作用是内存持久化，本地文件的创建和删除
@@ -25,11 +24,11 @@ public interface FileManager {
     /**
      * 启动定期任务，检查文件是否存在过期，并删除过期文件
      */
-    void checkFile(Config conf);
+    void checkFile();
 
     /**
      * 启动定时任务，定期查看TaskToHandle中有无FlushTask，如果有，则flush其中的记录，并删除该FlushTask
      */
-    void checkTaskTodo(Config conf);
+    void checkTaskTodo();
 
 }

@@ -4,7 +4,7 @@ package com.hzgc.compare.worker.comsumer;
 
 import com.hzgc.compare.worker.common.FaceObject;
 import com.hzgc.compare.worker.conf.Config;
-import com.hzgc.compare.worker.memory.cache.MemoryCache;
+import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl1;
 import com.hzgc.compare.worker.util.FaceObjectUtil;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -18,7 +18,7 @@ import java.util.Properties;
 
 public class Comsumer extends Thread{
     private static Logger LOG = Logger.getLogger(Comsumer.class);
-    private MemoryCache memoryCache;
+    private MemoryCacheImpl1 memoryCache;
     private Config conf;
     private KafkaConsumer<String, String> comsumer;
 

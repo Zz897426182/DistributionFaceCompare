@@ -3,14 +3,19 @@ package com.hzgc.compare.worker;
 
 import com.hzgc.compare.rpc.server.connect.RpcServer;
 import com.hzgc.compare.rpc.server.connect.ServiceRegistry;
-import com.hzgc.compare.worker.common.TaskToHandle;
 import com.hzgc.compare.worker.comsumer.Comsumer;
 import com.hzgc.compare.worker.conf.Config;
-import com.hzgc.compare.worker.memory.cache.MemoryCache;
+import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl1;
+import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl2;
 import com.hzgc.compare.worker.memory.manager.MemoryManager;
 import com.hzgc.compare.worker.persistence.FileManager;
 import com.hzgc.compare.worker.persistence.FileReader;
 import com.hzgc.compare.worker.persistence.HBaseClient;
+import com.hzgc.compare.worker.persistence.LocalFileManager;
+import com.hzgc.compare.worker.util.PropertiesUtil;
+import com.hzgc.compare.worker.util.ZookeeperUtil;
+
+import java.util.Properties;
 
 
 /**
@@ -18,24 +23,35 @@ import com.hzgc.compare.worker.persistence.HBaseClient;
  */
 public class Worker {
     private Config conf;
-
     private Comsumer comsumer;
-    private MemoryCache memoryCache;
     private MemoryManager memoryManager;
     private FileManager fileManager;
-    private FileReader fileReader;
     private HBaseClient hBaseClient;
-    private TaskToHandle taskToHandle;
-    private ServiceImpl service;
 
     private void init(){
+        Properties prop = PropertiesUtil.getProperties();
+        conf = new Config(prop);
+        ZookeeperUtil.registered();
+        comsumer = new Comsumer(conf);
+        MemoryCacheImpl1.getInstance(conf);
+        memoryManager = new MemoryManager(conf);
+        if(Config.SAVE_TO_LOCAL == conf.getValue(Config.WORKER_FILE_SAVE_SYSTEM, 0)){
+            fileManager = new LocalFileManager(conf);
+        }
+        hBaseClient = new HBaseClient(conf);
 
+        FileReader fileReader = new FileReader(conf);
+        fileReader.loadRecord();
     }
 
     private void start(){
-
-        ServiceRegistry registry = new ServiceRegistry("172.18.18.105");
-        RpcServer rpcServer = new RpcServer("172.18.18.146", 4086, registry);
+        comsumer.start();
+        memoryManager.startToCheck();
+        fileManager.checkFile();
+        hBaseClient.timeToWrite();
+        ServiceRegistry registry = new ServiceRegistry(conf.getValue(Config.ZOOKEEPER_ADDRESS));
+        RpcServer rpcServer = new RpcServer(conf.getValue(Config.WORKER_ADDRESS),
+                conf.getValue(Config.WORKER_RPC_PORT, 4086), registry);
         rpcServer.start();
     }
 
