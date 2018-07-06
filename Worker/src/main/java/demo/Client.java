@@ -1,4 +1,4 @@
-package com.hzgc.compare.worker;
+package demo;
 
 import com.hzgc.compare.api.Person;
 import com.hzgc.compare.rpc.client.connect.RpcClient;
