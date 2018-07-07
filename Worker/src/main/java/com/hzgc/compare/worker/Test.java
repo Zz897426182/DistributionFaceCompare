@@ -1,7 +1,5 @@
 package com.hzgc.compare.worker;
 
-import com.hzgc.compare.rpc.client.proxy.RPCFuture;
-
 import java.util.concurrent.ExecutionException;
 
 public class Test {

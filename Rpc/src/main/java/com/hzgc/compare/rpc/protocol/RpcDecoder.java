@@ -6,6 +6,9 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 
 import java.util.List;
 
+/**
+ * 消息解码器，属于入站handler
+ */
 public class RpcDecoder extends ByteToMessageDecoder {
     private Class<?> genericClass;
 

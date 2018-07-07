@@ -1,15 +1,14 @@
-package com.hzgc.compare.rpc.server.connect;
+package com.hzgc.compare.rpc.server.netty;
 
 import com.hzgc.compare.rpc.protocol.JsonUtil;
 import com.hzgc.compare.rpc.protocol.MsgType;
 import com.hzgc.compare.rpc.protocol.RpcRequest;
 import com.hzgc.compare.rpc.protocol.RpcResponse;
+import com.hzgc.compare.rpc.server.RpcServer;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.timeout.IdleState;
-import io.netty.handler.timeout.IdleStateEvent;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 import org.slf4j.Logger;
@@ -18,12 +17,15 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.Map;
 
-public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
-    private static final Logger logger = LoggerFactory.getLogger(RpcHandler.class);
+/**
+ * server端handler，用来处理出入站消息
+ */
+public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
+    private static final Logger logger = LoggerFactory.getLogger(RpcServerHandler.class);
     private final Map<String, Object> rpcServiceMap;
     private final Map<String, FastClass> fastClassMap;
 
-    public RpcHandler(Map<String, Object> rpcServiceMap, Map<String, FastClass> fastClassMap) {
+    public RpcServerHandler(Map<String, Object> rpcServiceMap, Map<String, FastClass> fastClassMap) {
         this.rpcServiceMap = rpcServiceMap;
         this.fastClassMap = fastClassMap;
     }
@@ -44,12 +46,8 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
                         response.setError(throwable.getMessage());
                         logger.error("Rpc server handle request error ", throwable);
                     }
-                    ctx.writeAndFlush(response).addListener(new ChannelFutureListener() {
-                        @Override
-                        public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                            logger.debug("Send response for request " + JsonUtil.objectToJson(response));
-                        }
-                    });
+                    ctx.writeAndFlush(response).addListener((ChannelFutureListener) channelFuture ->
+                            logger.debug("Send response for request " + JsonUtil.objectToJson(response)));
                 });
                 break;
             case PING:
@@ -61,6 +59,13 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
 
     }
 
+    /**
+     * 请求处理方法并返回处理结果
+     *
+     * @param rpcRequest 消息请求对象
+     * @return 请求结果
+     * @throws Throwable 可能抛出的异常
+     */
     private Object handle(RpcRequest rpcRequest) throws Throwable {
         String className = rpcRequest.getClassName();
         if (rpcServiceMap.containsKey(className) && fastClassMap.containsKey(className)) {

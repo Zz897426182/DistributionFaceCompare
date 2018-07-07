@@ -1,8 +1,7 @@
 package com.hzgc.compare.worker;
 
-import com.hzgc.compare.rpc.client.connect.RpcClient;
-import com.hzgc.compare.rpc.client.proxy.AllReturn;
-import com.hzgc.compare.rpc.protocol.JsonUtil;
+import com.hzgc.compare.rpc.client.RpcClient;
+import com.hzgc.compare.rpc.client.result.AllReturn;
 
 public class Client {
     public static void main(String[] args) {

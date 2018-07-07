@@ -1,7 +1,7 @@
 package com.hzgc.compare.worker;
 
-import com.hzgc.compare.rpc.server.connect.RpcServer;
-import com.hzgc.compare.rpc.server.connect.ServiceRegistry;
+import com.hzgc.compare.rpc.server.RpcServer;
+import com.hzgc.compare.rpc.server.zk.ServiceRegistry;
 
 public class Server {
     public static void main(String[] args) {

@@ -1,4 +1,4 @@
-package com.hzgc.compare.rpc.client.proxy;
+package com.hzgc.compare.rpc.client.result;
 
 import com.hzgc.compare.rpc.protocol.RpcRequest;
 import com.hzgc.compare.rpc.protocol.RpcResponse;

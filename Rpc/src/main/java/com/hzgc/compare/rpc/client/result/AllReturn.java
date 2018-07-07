@@ -1,4 +1,4 @@
-package com.hzgc.compare.rpc.client.proxy;
+package com.hzgc.compare.rpc.client.result;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
  * @param <T>
  */
 public class AllReturn<T> {
-    List<T> result;
+    private List<T> result;
 
     public AllReturn(T ret) {
         result = new ArrayList<>();

@@ -11,6 +11,10 @@ import org.objenesis.ObjenesisStd;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 序列化反序列化对象，使用了Objenesis，即java字节码技术，可以在不使用
+ * 构造器的情况下初始化一个对象
+ */
 public class SerializationUtil {
     private static Map<Class<?>, Schema<?>> classSchema = new ConcurrentHashMap<>();
     private static Objenesis objenesis = new ObjenesisStd(true);

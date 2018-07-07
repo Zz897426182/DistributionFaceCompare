@@ -1,8 +1,9 @@
-package com.hzgc.compare.rpc.client.connect;
+package com.hzgc.compare.rpc.client.zk;
 
 import com.google.common.collect.Lists;
-import com.hzgc.compare.rpc.zookeepr.Constant;
-import com.hzgc.compare.rpc.zookeepr.ZookeeperClient;
+import com.hzgc.compare.rpc.client.ConnectManager;
+import com.hzgc.compare.rpc.util.Constant;
+import com.hzgc.compare.rpc.util.ZookeeperClient;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
@@ -13,6 +14,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * 用于节点发现,用来监听zk节点下服务端注册情况，当出现子节点添加或者子节点删除等事件
+ * 将会通知ConnectManager来刷新连接
+ */
 public class ServiceDiscovery extends ZookeeperClient {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDiscovery.class);
     private volatile List<String> workerList = new ArrayList<>();

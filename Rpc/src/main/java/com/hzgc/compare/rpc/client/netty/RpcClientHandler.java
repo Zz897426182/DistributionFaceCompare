@@ -1,6 +1,7 @@
-package com.hzgc.compare.rpc.client.connect;
+package com.hzgc.compare.rpc.client.netty;
 
-import com.hzgc.compare.rpc.client.proxy.RPCFuture;
+import com.hzgc.compare.rpc.client.ConnectManager;
+import com.hzgc.compare.rpc.client.result.RPCFuture;
 import com.hzgc.compare.rpc.protocol.JsonUtil;
 import com.hzgc.compare.rpc.protocol.MsgType;
 import com.hzgc.compare.rpc.protocol.RpcRequest;
@@ -27,11 +28,11 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     private InetSocketAddress remotePeer;
     private final AtomicInteger pingCount = new AtomicInteger(0);
 
-    Channel getChannel() {
+    public Channel getChannel() {
         return channel;
     }
 
-    InetSocketAddress getRemotePeer() {
+    public InetSocketAddress getRemotePeer() {
         return remotePeer;
     }
 
@@ -110,7 +111,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     /**
      * 关闭channel
      */
-    void close() {
+    public void close() {
         channel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
     }
 

@@ -1,5 +1,6 @@
-package com.hzgc.compare.rpc.client.connect;
+package com.hzgc.compare.rpc.client;
 
+import com.hzgc.compare.rpc.client.zk.ServiceDiscovery;
 import com.hzgc.compare.rpc.client.proxy.AllObjectProxy;
 import com.hzgc.compare.rpc.client.proxy.AsyncObjectProxy;
 import com.hzgc.compare.rpc.client.proxy.ObjectProxy;

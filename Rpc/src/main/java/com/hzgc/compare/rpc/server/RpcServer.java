@@ -1,4 +1,4 @@
-package com.hzgc.compare.rpc.server.connect;
+package com.hzgc.compare.rpc.server;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -7,6 +7,8 @@ import com.hzgc.compare.rpc.protocol.RpcEncoder;
 import com.hzgc.compare.rpc.protocol.RpcRequest;
 import com.hzgc.compare.rpc.protocol.RpcResponse;
 import com.hzgc.compare.rpc.server.annotation.RpcServiceScanner;
+import com.hzgc.compare.rpc.server.zk.ServiceRegistry;
+import com.hzgc.compare.rpc.server.netty.RpcServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -38,6 +40,22 @@ public class RpcServer {
     private static ThreadPoolExecutor threadPoolExecutor;
 
 
+    public RpcServer(String ipAddress, int port, String zkHosts) {
+        this.ipAddress = ipAddress;
+        this.port = port;
+        this.serviceRegistry = new ServiceRegistry(zkHosts);
+        this.fastClassMap = scanRpcService(Lists.newArrayList());
+        this.rpcServiceMap = registRpcService(this.fastClassMap);
+    }
+
+    public RpcServer(String ipAddress, int port, String zkHosts, List<String> filterList) {
+        this.ipAddress = ipAddress;
+        this.port = port;
+        this.serviceRegistry = new ServiceRegistry(zkHosts);
+        this.fastClassMap = scanRpcService(filterList);
+        this.rpcServiceMap = registRpcService(this.fastClassMap);
+    }
+
     public RpcServer(String ipAddress, int port, ServiceRegistry serviceRegistry) {
         this(ipAddress, port, serviceRegistry, Lists.newArrayList());
     }
@@ -55,6 +73,7 @@ public class RpcServer {
         if (threadPoolExecutor == null) {
             synchronized (RpcServer.class) {
                 if (threadPoolExecutor == null) {
+                    // FIXME: 2018/7/7 需要添加配置类
                     threadPoolExecutor = new ThreadPoolExecutor(16,
                             16,
                             600L,
@@ -111,7 +130,7 @@ public class RpcServer {
                                         0,
                                         0))
                                 .addLast(new RpcDecoder(RpcRequest.class))
-                                .addLast(new RpcHandler(rpcServiceMap, fastClassMap));
+                                .addLast(new RpcServerHandler(rpcServiceMap, fastClassMap));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)

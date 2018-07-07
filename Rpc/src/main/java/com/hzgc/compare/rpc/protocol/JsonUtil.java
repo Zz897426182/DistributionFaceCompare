@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
+/**
+ * Json工具类，使用了jackson序列化
+ */
 public class JsonUtil {
     private static ObjectMapper objMapper = new ObjectMapper();
 

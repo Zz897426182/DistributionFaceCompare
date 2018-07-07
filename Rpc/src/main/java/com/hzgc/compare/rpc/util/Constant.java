@@ -1,4 +1,4 @@
-package com.hzgc.compare.rpc.zookeepr;
+package com.hzgc.compare.rpc.util;
 
 public interface Constant {
     int ZK_SESSION_TIMEOUT = 6000;

@@ -1,7 +1,8 @@
 package com.hzgc.compare.rpc.client.proxy;
 
-import com.hzgc.compare.rpc.client.connect.ConnectManager;
-import com.hzgc.compare.rpc.client.connect.RpcClientHandler;
+import com.hzgc.compare.rpc.client.ConnectManager;
+import com.hzgc.compare.rpc.client.netty.RpcClientHandler;
+import com.hzgc.compare.rpc.client.result.RPCFuture;
 import com.hzgc.compare.rpc.protocol.JsonUtil;
 import com.hzgc.compare.rpc.protocol.MsgType;
 import com.hzgc.compare.rpc.protocol.RpcRequest;

@@ -1,6 +1,6 @@
 package com.hzgc.compare.worker;
 
-import com.hzgc.compare.rpc.client.proxy.AllReturn;
+import com.hzgc.compare.rpc.client.result.AllReturn;
 import com.hzgc.compare.rpc.server.annotation.RpcService;
 
 @RpcService(Person.class)
