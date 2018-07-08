@@ -28,6 +28,7 @@ public class RpcServiceScanner {
 
     /**
      * 使用此方法可扫描自定义包路径下以及子包的注解
+     *
      * @param packageList 需要扫描的包路径集合
      * @return 接口类名称以及对应实现类的封装，此处使用了FastClass，比原生java反射效率高
      */

@@ -5,7 +5,6 @@ import com.hzgc.compare.rpc.protocol.MsgType;
 import com.hzgc.compare.rpc.protocol.RpcRequest;
 import com.hzgc.compare.rpc.protocol.RpcResponse;
 import com.hzgc.compare.rpc.server.RpcServer;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

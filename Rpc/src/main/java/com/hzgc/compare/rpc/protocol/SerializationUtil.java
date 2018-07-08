@@ -4,7 +4,6 @@ import com.dyuproject.protostuff.LinkedBuffer;
 import com.dyuproject.protostuff.ProtostuffIOUtil;
 import com.dyuproject.protostuff.Schema;
 import com.dyuproject.protostuff.runtime.RuntimeSchema;
-import net.sf.cglib.reflect.FastClass;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
@@ -15,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 序列化反序列化对象，使用了Objenesis，即java字节码技术，可以在不使用
  * 构造器的情况下初始化一个对象
  */
-public class SerializationUtil {
+class SerializationUtil {
     private static Map<Class<?>, Schema<?>> classSchema = new ConcurrentHashMap<>();
     private static Objenesis objenesis = new ObjenesisStd(true);
 
