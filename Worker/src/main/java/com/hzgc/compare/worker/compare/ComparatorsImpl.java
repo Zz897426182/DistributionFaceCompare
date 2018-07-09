@@ -21,22 +21,24 @@ public class ComparatorsImpl implements Comparators{
     }
 
     @Override
-    public List<Pair<String, byte[]>> filter(String arg1, String arg2, String dateStart, String dateEnd) {
+    public List<Pair<String, byte[]>> filter(List<String> arg1List, String arg2, String dateStart, String dateEnd) {
         List<Pair<String, byte[]>> result = new ArrayList<>();
         Map<Triplet<String, String, String>, List<Pair<String, byte[]>>> cacheRecords =
                 MemoryCacheImpl1.getInstance(conf).getCacheRecords();
         Iterator<Triplet<String, String, String> > iterator =  cacheRecords.keySet().iterator();
         Long start = System.currentTimeMillis();
-        while (iterator.hasNext()){
-            Triplet<String, String, String> key = iterator.next();
-            String key1 = key.getFirst();
-            String key2 = key.getSecond();
-            String key3 = key.getThird();
-            if((key1 == null || key1.equals(arg1)) &&
-                    (key2 == null || key2.equals(arg2)) &&
-                    key3.compareTo(dateStart) > 0 &&
-                    key3.compareTo(dateEnd) < 0){
-                result.addAll(cacheRecords.get(key));
+        for(String arg1 : arg1List) {
+            while (iterator.hasNext()) {
+                Triplet<String, String, String> key = iterator.next();
+                String key1 = key.getFirst();
+                String key2 = key.getSecond();
+                String key3 = key.getThird();
+                if ((key1 == null || key1.equals(arg1)) &&
+                        (key2 == null || key2.equals(arg2)) &&
+                        key3.compareTo(dateStart) > 0 &&
+                        key3.compareTo(dateEnd) < 0) {
+                    result.addAll(cacheRecords.get(key));
+                }
             }
         }
 
@@ -45,7 +47,7 @@ public class ComparatorsImpl implements Comparators{
     }
 
     @Override
-    public List<Pair<String, byte[]>> filter(String arg1, String arg2RangStart, String arg2RangEnd, String dateStart, String dateEnd) {
+    public List<Pair<String, byte[]>> filter(List<String> arg1List, String arg2RangStart, String arg2RangEnd, String dateStart, String dateEnd) {
         return null;
     }
 

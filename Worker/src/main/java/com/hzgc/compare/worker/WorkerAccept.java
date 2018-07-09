@@ -11,13 +11,14 @@ import java.net.Socket;
 
 public class WorkerAccept {
     private static Logger LOG = Logger.getLogger(WorkerAccept.class);
-    private int port = 8888;
+    private int port;
     private Worker worker;
     private Config conf;
 
     public WorkerAccept(Worker worker){
         this.worker = worker;
         this.conf = worker.getConf();
+        port = conf.getValue(Config.WORKER_PORT, 8888);
     }
 
     public void accept()  {

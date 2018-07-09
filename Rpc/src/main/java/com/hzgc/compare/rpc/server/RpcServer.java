@@ -68,6 +68,9 @@ public class RpcServer {
         this.rpcServiceMap = registRpcService(this.fastClassMap);
     }
 
+    public Map<String, Object> getRpcServiceMap() {
+        return rpcServiceMap;
+    }
 
     public static void execute(Runnable task) {
         if (threadPoolExecutor == null) {

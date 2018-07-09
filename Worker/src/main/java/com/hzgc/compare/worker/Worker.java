@@ -15,6 +15,7 @@ import com.hzgc.compare.worker.util.PropertiesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.Properties;
 
 
@@ -53,6 +54,8 @@ public class Worker {
         ServiceRegistry registry = new ServiceRegistry(conf.getValue(Config.ZOOKEEPER_ADDRESS));
         RpcServer rpcServer = new RpcServer(conf.getValue(Config.WORKER_ADDRESS),
                 conf.getValue(Config.WORKER_RPC_PORT, 4086), registry);
+        Map<String, Object> objs = rpcServer.getRpcServiceMap();
+        ((ServiceImpl) objs.get("service")).init(conf);
         rpcServer.start();
     }
 
