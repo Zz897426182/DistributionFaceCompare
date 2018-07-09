@@ -1,5 +1,6 @@
 package com.hzgc.compare.worker.compare;
 
+import com.hzgc.compare.worker.common.FaceObject;
 import com.hzgc.compare.worker.common.SearchResult;
 import javafx.util.Pair;
 
@@ -47,5 +48,5 @@ public interface Comparators {
      * @param data
      * @return
      */
-    SearchResult compareSecond(float[] feature, float sim, List<Pair<String, float[]>> data);
+    SearchResult compareSecond(float[] feature, float sim, List<FaceObject> data);
 }

@@ -12,7 +12,11 @@ public class FaceObjectUtil {
         return gson.fromJson(json, FaceObject.class);
     }
 
-    public static String ObjectTojson(Object obj){
+    public static float[] jsonToArray(String json) {return  gson.fromJson(json, float[].class); }
+
+    public static String objectToJson(Object obj){
         return gson.toJson(obj);
     }
+
+    public static String arrayToJson(float[] feature) { return  gson.toJson(feature); }
 }
