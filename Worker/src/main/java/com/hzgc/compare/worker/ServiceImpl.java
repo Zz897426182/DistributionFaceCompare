@@ -1,9 +1,6 @@
 package com.hzgc.compare.worker;
 
-
-import com.hzgc.compare.api.Service;
 import com.hzgc.compare.rpc.server.annotation.RpcService;
-
 import java.util.List;
 
 @RpcService(Service.class)

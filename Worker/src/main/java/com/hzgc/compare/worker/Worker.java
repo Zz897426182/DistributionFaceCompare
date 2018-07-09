@@ -1,8 +1,8 @@
 package com.hzgc.compare.worker;
 
 
-import com.hzgc.compare.rpc.server.connect.RpcServer;
-import com.hzgc.compare.rpc.server.connect.ServiceRegistry;
+import com.hzgc.compare.rpc.server.RpcServer;
+import com.hzgc.compare.rpc.server.zk.ServiceRegistry;
 import com.hzgc.compare.worker.comsumer.Comsumer;
 import com.hzgc.compare.worker.conf.Config;
 import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl1;
@@ -12,7 +12,6 @@ import com.hzgc.compare.worker.persistence.FileReader;
 import com.hzgc.compare.worker.persistence.HBaseClient;
 import com.hzgc.compare.worker.persistence.LocalFileManager;
 import com.hzgc.compare.worker.util.PropertiesUtil;
-import com.hzgc.compare.worker.util.ZookeeperUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +32,6 @@ public class Worker {
     private void init(){
         Properties prop = PropertiesUtil.getProperties();
         conf = new Config(prop);
-        ZookeeperUtil.registered();
         comsumer = new Comsumer(conf);
         MemoryCacheImpl1.getInstance(conf);
         memoryManager = new MemoryManager(conf);
