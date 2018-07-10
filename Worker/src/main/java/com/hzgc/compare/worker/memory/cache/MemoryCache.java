@@ -28,7 +28,7 @@ public interface MemoryCache<T> {
     /**
      * 增加recordToHBase
      */
-    public void recordToHBase(FaceObject obj);
+    public void recordToHBase(List<FaceObject> objs);
 
     /**
      * 将buffer加入到CacheRecords

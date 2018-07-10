@@ -1,5 +1,6 @@
 package com.hzgc.compare.worker.memory.cache;
 
+import com.hzgc.compare.worker.common.CustomizeBlockingQueue;
 import com.hzgc.compare.worker.common.FaceObject;
 import com.hzgc.compare.worker.common.Quintuple;
 import com.hzgc.compare.worker.conf.Config;
@@ -15,7 +16,7 @@ public class MemoryCacheImpl2 implements MemoryCache<List<Quintuple<String, Stri
     private static MemoryCacheImpl2 memoryCache;
     private Config conf;
     private Integer bufferSizeMax = 500; // buffer存储上限，默认500
-    private List<FaceObject> recordToHBase;
+    private CustomizeBlockingQueue<FaceObject> recordToHBase; //这里应该是一个类似阻塞队列的集合
     private List<Quintuple<String, String, String, String, byte[]>> cacheRecords;
     private List<Quintuple<String, String, String, String, byte[]>> buffer;
 
@@ -63,7 +64,7 @@ public class MemoryCacheImpl2 implements MemoryCache<List<Quintuple<String, Stri
     /**
      * 增加recordToHBase
      */
-    public void recordToHBase(FaceObject obj) {
+    public void recordToHBase(List<FaceObject> objs) {
 
     }
 
