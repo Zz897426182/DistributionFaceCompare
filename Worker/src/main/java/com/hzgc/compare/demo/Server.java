@@ -1,4 +1,4 @@
-package com.hzgc.compare.worker;
+package com.hzgc.compare.demo;
 
 import com.hzgc.compare.rpc.server.RpcServer;
 import com.hzgc.compare.rpc.server.zk.ServiceRegistry;
