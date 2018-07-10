@@ -69,13 +69,6 @@ public class MemoryCacheImpl2 implements MemoryCache<List<Quintuple<String, Stri
     }
 
     /**
-     * 将buffer加入到CacheRecords
-     */
-    public void addCacheRecords() {
-
-    }
-
-    /**
      * 增加多条record
      * @param records
      */

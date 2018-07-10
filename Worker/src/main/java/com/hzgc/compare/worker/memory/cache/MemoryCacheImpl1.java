@@ -1,12 +1,11 @@
 package com.hzgc.compare.worker.memory.cache;
 
-import com.hzgc.compare.worker.common.CustomizeBlockingQueue;
-import com.hzgc.compare.worker.common.FaceObject;
-import com.hzgc.compare.worker.common.Quintuple;
-import com.hzgc.compare.worker.common.Triplet;
+import com.hzgc.compare.worker.common.*;
 import com.hzgc.compare.worker.conf.Config;
 import javafx.util.Pair;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +36,10 @@ public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String,
     }
 
     private void init(Config conf) {
-
+        bufferSizeMax = conf.getValue(Config.WORKER_BUFFER_SIZE_MAX, bufferSizeMax);
+        recordToHBase = new CustomizeBlockingQueue<>();
+        cacheRecords = new HashMap<>();
+        buffer = new ArrayList<>();
     }
 
     /**
@@ -45,6 +47,7 @@ public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String,
      * @return
      */
     public List<FaceObject> getObjects() {
+        recordToHBase.pop(500);
         return null;
     }
 
@@ -53,7 +56,7 @@ public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String,
      * @return
      */
     public Map<Triplet<String, String, String>, List<Pair<String, byte[]>>> getCacheRecords() {
-        return null;
+        return cacheRecords;
     }
 
     /**
@@ -61,21 +64,14 @@ public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String,
      * @return
      */
     public List<Quintuple<String, String, String, String, byte[]>> getBuffer() {
-        return null;
+        return buffer;
     }
 
     /**
      * 增加recordToHBase
      */
     public void recordToHBase(List<FaceObject> objs) {
-
-    }
-
-    /**
-     * 将buffer加入到CacheRecords
-     */
-    public void addCacheRecords() {
-
+        recordToHBase.add(objs);
     }
 
     /**
@@ -83,7 +79,16 @@ public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String,
      * @param records
      */
     public void loadCacheRecords(Map<Triplet<String, String, String>, List<Pair<String, byte[]>>> records) {
-
+        for(Map.Entry<Triplet<String, String, String>, List<Pair<String, byte[]>>> entry : records.entrySet()){
+            Triplet<String, String, String> key = entry.getKey();
+            List<Pair<String, byte[]>> value = entry.getValue();
+            List<Pair<String, byte[]>> list = cacheRecords.get(key);
+            if(list == null || list.size() == 0){
+                cacheRecords.put(key, value);
+            }else {
+                list.addAll(value);
+            }
+        }
     }
 
     /**
@@ -91,20 +96,40 @@ public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String,
      * @param records
      */
     public void addBuffer(List<Quintuple<String, String, String, String, byte[]>> records) {
-
+        if(buffer == null || buffer.size() == 0){
+            buffer = records;
+        }else {
+            buffer.addAll(records);
+        }
+        check();
     }
 
     /**
      * 检查buffer是否满了, 如果满了，则在TaskToHandle中添加一个FlushTask任务,并将buffer加入cacheRecords，buffer重新创建
      */
     public void check() {
-
+        if(buffer.size() >= bufferSizeMax){
+            TaskToHandle.addTask(new TaskToHandle.FlushTask(buffer));
+            moveBufferToCacheRecords();
+        }
     }
 
     /**
      * 将buffer中的数据加入cacheRecords
      */
     public void moveBufferToCacheRecords() {
+        for(Quintuple<String, String, String, String, byte[]> record : buffer){
+            Triplet<String, String, String> key =
+                    new Triplet<>(record.getFirst(), record.getSecond(), record.getThird());
 
+            Pair<String, byte[]> value = new Pair<>(record.getFourth(), record.getFifth());
+            List<Pair<String, byte[]>> list = cacheRecords.get(key);
+            if(list == null){
+                list = new ArrayList<>();
+                cacheRecords.put(key, list);
+            }
+            list.add(value);
+        }
+        buffer = new ArrayList<>();
     }
 }

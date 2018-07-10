@@ -21,7 +21,7 @@ public class TaskToHandle {
         tasks.remove(handle);
     }
 
-    public class FlushTask extends TaskToHandle {
+    public static class FlushTask extends TaskToHandle {
         private List<Quintuple<String, String, String, String, byte[]>> records;
         public FlushTask(List<Quintuple<String, String, String, String, byte[]>> records){
             this.records = records;
