@@ -31,11 +31,6 @@ public interface MemoryCache<T> {
     public void recordToHBase(List<FaceObject> objs);
 
     /**
-     * 将buffer加入到CacheRecords
-     */
-    public void addCacheRecords();
-
-    /**
      * 增加多条record
      */
     public void loadCacheRecords(T records);
