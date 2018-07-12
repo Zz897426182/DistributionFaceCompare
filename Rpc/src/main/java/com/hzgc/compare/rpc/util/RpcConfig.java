@@ -10,9 +10,9 @@ import java.util.Properties;
 public class RpcConfig {
     private static final Logger logger = LoggerFactory.getLogger(RpcConfig.class);
     private static Properties properties;
-    private static long curatorBaseSleepTime;
-    private static long curatorMaxRetries;
-    private static long zkSessionTime;
+    private static int curatorBaseSleepTime;
+    private static int curatorMaxRetries;
+    private static int zkSessionTime;
     private static int rpcServerThreadPoolSize;
     private static int rpcServerThreadPoolMaxSize;
     private static long rpcServerThreadPoolKeepAliveTime;
@@ -20,44 +20,52 @@ public class RpcConfig {
     private static long rpcClientResponseTimeThreshold;
     private static long rpcConnectManagerConnectTimeout;
     static {
-        InputStream stream = RpcConfig.class.getResourceAsStream("rpc.properties");
+        InputStream stream = RpcConfig.class.getClassLoader().getResourceAsStream("rpc.properties");
         properties = new Properties();
         try {
             if (stream != null) {
+                logger.info("Find rpc.properties in classpath, load it");
                 properties.load(stream);
             } else {
-                stream = RpcConfig.class.getResourceAsStream("META-INF/rpc.properties");
+                logger.info("Not find rpc.properties in classpath, load default file from META-INF/rpc.propertites");
+                stream = RpcConfig.class.getClassLoader().getResourceAsStream("META-INF/rpc.properties");
                 properties.load(stream);
             }
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
-        setCuratorBaseSleepTime(Long.parseLong(properties.getProperty(ProperConstant.curatorBaseSleepTime)));
-        setCuratorMaxRetries(Long.parseLong(properties.getProperty(ProperConstant.curatorMaxRetries)));
-        setZkSessionTime(Long.parseLong(properties.getProperty(ProperConstant.zkSessionTime)));
+        setCuratorBaseSleepTime(Integer.parseInt(properties.getProperty(ProperConstant.curatorBaseSleepTime)));
+        setCuratorMaxRetries(Integer.parseInt(properties.getProperty(ProperConstant.curatorMaxRetries)));
+        setZkSessionTime(Integer.parseInt(properties.getProperty(ProperConstant.zkSessionTime)));
+        setRpcServerThreadPoolSize(Integer.parseInt(properties.getProperty(ProperConstant.rpcServerThreadPoolSize)));
+        setRpcServerThreadPoolMaxSize(Integer.parseInt(properties.getProperty(ProperConstant.rpcServerThreadPoolMaxSize)));
+        setRpcServerThreadPoolKeepAliveTime(Long.parseLong(properties.getProperty(ProperConstant.rpcServerThreadPoolKeepAliveTime)));
+        setRpcServerThreadPollQueueSize(Integer.parseInt(properties.getProperty(ProperConstant.rpcServerThreadPollQueueSize)));
+        setRpcClientResponseTimeThreshold(Long.parseLong(properties.getProperty(ProperConstant.rpcClientResponseTimeThreshold)));
+        setRpcConnectManagerConnectTimeout(Long.parseLong(properties.getProperty(ProperConstant.rpcConnectManagerConnectTimeout)));
     }
 
-    public static long getCuratorBaseSleepTime() {
+    public static int getCuratorBaseSleepTime() {
         return curatorBaseSleepTime;
     }
 
-    public static void setCuratorBaseSleepTime(long curatorBaseSleepTime) {
+    public static void setCuratorBaseSleepTime(int curatorBaseSleepTime) {
         RpcConfig.curatorBaseSleepTime = curatorBaseSleepTime;
     }
 
-    public static long getCuratorMaxRetries() {
+    public static int getCuratorMaxRetries() {
         return curatorMaxRetries;
     }
 
-    public static void setCuratorMaxRetries(long curatorMaxRetries) {
+    public static void setCuratorMaxRetries(int curatorMaxRetries) {
         RpcConfig.curatorMaxRetries = curatorMaxRetries;
     }
 
-    public static long getZkSessionTime() {
+    public static int getZkSessionTime() {
         return zkSessionTime;
     }
 
-    public static void setZkSessionTime(long zkSessionTime) {
+    public static void setZkSessionTime(int zkSessionTime) {
         RpcConfig.zkSessionTime = zkSessionTime;
     }
 

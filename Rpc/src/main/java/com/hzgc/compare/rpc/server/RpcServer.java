@@ -9,6 +9,7 @@ import com.hzgc.compare.rpc.protocol.RpcResponse;
 import com.hzgc.compare.rpc.server.annotation.RpcServiceScanner;
 import com.hzgc.compare.rpc.server.zk.ServiceRegistry;
 import com.hzgc.compare.rpc.server.netty.RpcServerHandler;
+import com.hzgc.compare.rpc.util.RpcConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -76,12 +77,11 @@ public class RpcServer {
         if (threadPoolExecutor == null) {
             synchronized (RpcServer.class) {
                 if (threadPoolExecutor == null) {
-                    // FIXME: 2018/7/7 需要添加配置类
-                    threadPoolExecutor = new ThreadPoolExecutor(16,
-                            16,
-                            600L,
+                    threadPoolExecutor = new ThreadPoolExecutor(RpcConfig.getRpcServerThreadPoolSize(),
+                            RpcConfig.getRpcServerThreadPoolMaxSize(),
+                            RpcConfig.getRpcServerThreadPoolKeepAliveTime(),
                             TimeUnit.SECONDS,
-                            new ArrayBlockingQueue<>(65535));
+                            new ArrayBlockingQueue<>(RpcConfig.getRpcServerThreadPollQueueSize()));
                 }
             }
         }

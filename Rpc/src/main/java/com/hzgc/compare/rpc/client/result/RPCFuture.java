@@ -2,6 +2,7 @@ package com.hzgc.compare.rpc.client.result;
 
 import com.hzgc.compare.rpc.protocol.RpcRequest;
 import com.hzgc.compare.rpc.protocol.RpcResponse;
+import com.hzgc.compare.rpc.util.RpcConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,9 +113,7 @@ public class RPCFuture implements Future<Object> {
         this.rpcResponse = rpcResponse;
         countDownLatch.countDown();
         long responseTime = System.currentTimeMillis() - this.startTime;
-        // FIXME: 18-7-4
-        long responseTimeThreshold = 5000;
-        if (responseTime > responseTimeThreshold) {
+        if (responseTime > RpcConfig.getRpcClientResponseTimeThreshold()) {
             logger.warn("Service response time is too slow, request id is:{}, response time is:{}ms",
                     rpcResponse.getRequestId(), responseTime);
         } else {
