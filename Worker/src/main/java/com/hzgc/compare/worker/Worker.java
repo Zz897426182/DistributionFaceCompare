@@ -11,6 +11,7 @@ import com.hzgc.compare.worker.persistence.FileManager;
 import com.hzgc.compare.worker.persistence.FileReader;
 import com.hzgc.compare.worker.persistence.HBaseClient;
 import com.hzgc.compare.worker.persistence.LocalFileManager;
+import com.hzgc.compare.worker.util.HBaseHelper;
 import com.hzgc.compare.worker.util.PropertiesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,7 @@ public class Worker {
 
         FileReader fileReader = new FileReader(conf);
         fileReader.loadRecord();
+        HBaseHelper.getHBaseConnection();
         logger.info("");
     }
 

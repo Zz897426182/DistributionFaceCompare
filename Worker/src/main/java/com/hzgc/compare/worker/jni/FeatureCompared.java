@@ -10,7 +10,7 @@ import java.util.List;
 
 public class FeatureCompared {
 
-    public static native List<String> compareFirst(List<Pair<String, byte[]>> dataToCompare, byte[] feature, float sim);
+    public static native List<String> compareFirst(List<Pair<String, byte[]>> dataToCompare, byte[] feature, int num);
 
 //    public static native SearchResult compareSecond(List<FaceObject> data, float[] feature, float sim);
 

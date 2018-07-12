@@ -52,10 +52,10 @@ public class ComparatorsImpl implements Comparators{
     }
 
     @Override
-    public List<String> compareFirst(byte[] feature, float sim, List<Pair<String, byte[]>> data) {
+    public List<String> compareFirst(byte[] feature,  int num, List<Pair<String, byte[]>> data) {
         Long start = System.currentTimeMillis();
         System.out.println("The time first compare used is : " + (System.currentTimeMillis() - start));
-        return FeatureCompared.compareFirst(data, feature, sim);
+        return FeatureCompared.compareFirst(data, feature, num);
     }
 
     @Override

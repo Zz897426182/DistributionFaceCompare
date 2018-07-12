@@ -22,6 +22,9 @@ public class SearchResult {
      * @return
      */
     public SearchResult take(int num){
+        if(num > records.length){
+            return this;
+        }
         Record[] recordsTemp = new Record[num];
         System.arraycopy(records, 0, new Record[num], 0, num);
         return new SearchResult(recordsTemp);

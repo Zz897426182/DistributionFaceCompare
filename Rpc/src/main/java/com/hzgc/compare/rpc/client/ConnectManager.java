@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
@@ -142,14 +143,21 @@ public class ConnectManager {
                 .channel(NioSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG, 1024)
                 .handler(new ClientChannelInitializer());
-        ChannelFuture channelFuture = bootstrap.connect(remotePeer);
-        channelFuture.addListener((ChannelFutureListener) channelFuture1 -> {
-            if (channelFuture1.isSuccess()) {
-                logger.info("Successfully connect to remote server, remote peer = {}", remotePeer);
-                RpcClientHandler handler = channelFuture1.channel().pipeline().get(RpcClientHandler.class);
-                addHandler(handler);
-            }
-        });
+        try {
+            ChannelFuture channelFuture = bootstrap.connect(remotePeer).sync();
+            final CountDownLatch latch = new CountDownLatch(1);
+            channelFuture.addListener((ChannelFutureListener) channelFuture1 -> {
+                if (channelFuture1.isSuccess()) {
+                    logger.info("Successfully connect to remote server, remote peer = {}", remotePeer);
+                    RpcClientHandler handler = channelFuture1.channel().pipeline().get(RpcClientHandler.class);
+                    addHandler(handler);
+                    latch.countDown();
+                }
+            });
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
