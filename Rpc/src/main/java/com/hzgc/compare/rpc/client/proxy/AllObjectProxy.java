@@ -62,7 +62,7 @@ public class AllObjectProxy implements InvocationHandler, AsyncObjectProxy {
         request.setMethodName(method.getName());
         request.setParameterTypes(method.getParameterTypes());
         request.setParameters(args);
-        logger.debug("Invoke method is:" + JsonUtil.objectToJson(method));
+//        logger.debug("Invoke method is:" + JsonUtil.objectToJson(method));
         //从连接管理中拿出所有可用的连接
         CopyOnWriteArrayList<RpcClientHandler> handlersList = ConnectManager.getInstance().getConnectedHandlers();
         List<RPCFuture> rpcFutureList = new ArrayList<>();

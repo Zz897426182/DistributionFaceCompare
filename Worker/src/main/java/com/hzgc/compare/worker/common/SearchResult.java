@@ -1,5 +1,7 @@
 package com.hzgc.compare.worker.common;
 
+import com.hzgc.compare.rpc.client.result.AllReturn;
+
 import java.util.Arrays;
 
 public class SearchResult {

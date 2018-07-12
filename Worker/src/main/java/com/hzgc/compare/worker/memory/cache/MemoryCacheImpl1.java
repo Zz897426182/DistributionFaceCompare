@@ -35,6 +35,14 @@ public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String,
         return memoryCache;
     }
 
+    public static MemoryCacheImpl1 getInstance(){
+        if(memoryCache == null){
+            Config config = Config.getConf();
+            memoryCache = new MemoryCacheImpl1(config);
+        }
+        return memoryCache;
+    }
+
     private void init(Config conf) {
         bufferSizeMax = conf.getValue(Config.WORKER_BUFFER_SIZE_MAX, bufferSizeMax);
         recordToHBase = new CustomizeBlockingQueue<>();
@@ -57,6 +65,11 @@ public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String,
      */
     public Map<Triplet<String, String, String>, List<Pair<String, byte[]>>> getCacheRecords() {
         return cacheRecords;
+    }
+
+    @Override
+    public void setBufferSizeMax(int size) {
+        this.bufferSizeMax = size;
     }
 
     /**

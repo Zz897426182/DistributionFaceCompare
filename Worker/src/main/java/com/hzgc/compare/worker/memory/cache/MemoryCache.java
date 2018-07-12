@@ -20,6 +20,12 @@ public interface MemoryCache<T> {
     public T getCacheRecords();
 
     /**
+     * 运行时手动更改参数
+     * @param size
+     */
+    public void setBufferSizeMax(int size);
+
+    /**
      * 返回buffer
      * @return
      */

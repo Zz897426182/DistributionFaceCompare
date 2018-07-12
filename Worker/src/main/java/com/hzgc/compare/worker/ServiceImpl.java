@@ -1,5 +1,6 @@
 package com.hzgc.compare.worker;
 
+import com.hzgc.compare.rpc.client.result.AllReturn;
 import com.hzgc.compare.rpc.server.annotation.RpcService;
 import com.hzgc.compare.worker.common.FaceObject;
 import com.hzgc.compare.worker.common.SearchResult;
@@ -14,27 +15,28 @@ import java.util.List;
 @RpcService(Service.class)
 public class ServiceImpl implements Service{
     private int resultDefaultCount = 10;
-    private int compareSize = 5000;
+    private int compareSize = 50000;
     private Config conf;
-    public void init(Config conf){
-        this.conf = conf;
+
+    public ServiceImpl(){
+        this.conf = Config.getConf();
         resultDefaultCount = conf.getValue("", resultDefaultCount);
         compareSize = conf.getValue("", compareSize);
     }
-    public SearchResult retrieval(List<String> arg1List, String arg2RangStart,
-                                  String arg2RangEnd, byte[] feature1, float[] feature2, int resultCount){
-        return null;
+    public AllReturn<SearchResult> retrieval(List<String> arg1List, String arg2RangStart,
+                                             String arg2RangEnd, byte[] feature1, float[] feature2, int resultCount){
+        return new AllReturn<>(null);
     }
 
     @Override
-    public SearchResult retrieval(List<String> ipcIdList, List<String> arg2List, String dateStart, String dateEnd,
-                                  byte[] feature1, float sim1, float[] feature2, float sim2, int resultCount) {
+    public AllReturn<SearchResult> retrieval(List<String> ipcIdList, List<String> arg2List, String dateStart, String dateEnd,
+                                             byte[] feature1, float sim1, float[] feature2, float sim2, int resultCount) {
         if (resultCount == 0){
             resultCount = resultDefaultCount;
         }
         SearchResult result;
-        HBaseClient client = new HBaseClient(conf);
-        Comparators comparators = new ComparatorsImpl(conf);
+        HBaseClient client = new HBaseClient();
+        Comparators comparators = new ComparatorsImpl();
         // 根据条件过滤
         List<Pair<String, byte[]>> dataFilterd =  comparators.filter(ipcIdList, null, dateStart, dateStart);
         if(dataFilterd.size() > compareSize){
@@ -57,6 +59,6 @@ public class ServiceImpl implements Service{
             //取相似度最高的几个
             result = result.take(resultCount);
         }
-        return result;
+        return new AllReturn<>(result);
     }
 }

@@ -53,6 +53,11 @@ public class MemoryCacheImpl2 implements MemoryCache<List<Quintuple<String, Stri
         return null;
     }
 
+    @Override
+    public void setBufferSizeMax(int size) {
+
+    }
+
     /**
      * 返回buffer
      * @return

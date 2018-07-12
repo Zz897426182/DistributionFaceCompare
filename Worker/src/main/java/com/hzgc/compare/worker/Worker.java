@@ -31,15 +31,14 @@ public class Worker {
     private HBaseClient hBaseClient;
 
     private void init(){
-        Properties prop = PropertiesUtil.getProperties();
-        conf = new Config(prop);
-        comsumer = new Comsumer(conf);
-        MemoryCacheImpl1.getInstance(conf);
-        memoryManager = new MemoryManager(conf);
+        conf = Config.getConf();
+        comsumer = new Comsumer();
+        MemoryCacheImpl1.getInstance();
+        memoryManager = new MemoryManager();
         if(Config.SAVE_TO_LOCAL == conf.getValue(Config.WORKER_FILE_SAVE_SYSTEM, 0)){
             fileManager = new LocalFileManager(conf);
         }
-        hBaseClient = new HBaseClient(conf);
+        hBaseClient = new HBaseClient();
 
         FileReader fileReader = new FileReader(conf);
         fileReader.loadRecord();
@@ -55,15 +54,10 @@ public class Worker {
         RpcServer rpcServer = new RpcServer(conf.getValue(Config.WORKER_ADDRESS),
                 conf.getValue(Config.WORKER_RPC_PORT, 4086), registry);
         Map<String, Object> objs = rpcServer.getRpcServiceMap();
-        ((ServiceImpl) objs.get("service")).init(conf);
         rpcServer.start();
     }
 
     void stop() {
-    }
-
-    public Config getConf(){
-        return conf;
     }
 
     public static void main(String args[]){

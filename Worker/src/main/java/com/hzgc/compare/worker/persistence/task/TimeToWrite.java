@@ -8,8 +8,6 @@ import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl1;
 import com.hzgc.compare.worker.util.FaceObjectUtil;
 import com.hzgc.compare.worker.util.HBaseHelper;
 import com.hzgc.compare.worker.util.UuidUtil;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -36,11 +34,10 @@ public class TimeToWrite extends Thread{
                 MemoryCacheImpl1 cache = MemoryCacheImpl1.getInstance(conf);
                 List<FaceObject> recordToHBase = cache.getObjects();
                 System.out.println("The record num from kafka is :" + recordToHBase.size());
-                Connection conn = HBaseHelper.getHBaseConnection();
                 List<Quintuple<String, String, String, String, byte[]>> bufferList = new ArrayList<>();
                 try {
                     List<Put> putList = new ArrayList<>();
-                    Table table = conn.getTable(TableName.valueOf(FaceInfoTable.TABLE_NAME));
+                    Table table = HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
                     for (FaceObject record : recordToHBase) {
                         String rowkey = record.getDate() + "-" + record.getIpcId() + UuidUtil.getUuid().substring(0, 24);
                         Put put = new Put(Bytes.toBytes(rowkey));

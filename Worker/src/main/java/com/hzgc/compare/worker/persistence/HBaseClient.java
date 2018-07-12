@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
+import java.util.concurrent.ExecutorService;
 
 
 /**
@@ -28,8 +29,8 @@ import java.util.Timer;
 public class HBaseClient {
     private Config conf;
 
-    public HBaseClient(Config conf){
-        this.conf = conf;
+    public HBaseClient(){
+        this.conf = Config.getConf();
     }
 
     /**
@@ -48,9 +49,8 @@ public class HBaseClient {
     public List<FaceObject> readFromHBase(List<String> rowkeys){
         List<FaceObject> list = new ArrayList<>();
         long start = System.currentTimeMillis();
-        Connection conn = HBaseHelper.getHBaseConnection();
         try {
-            Table table = conn.getTable(TableName.valueOf(FaceInfoTable.TABLE_NAME));
+            Table table = HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
             List<Get> gets = new ArrayList<>();
             for(String rowkey : rowkeys){
                 gets.add(new Get(Bytes.toBytes(rowkey)));
@@ -77,9 +77,8 @@ public class HBaseClient {
     public List<FaceObject> readFromHBase2(List<Pair<String, byte[]>> records){
         List<FaceObject> list = new ArrayList<>();
         long start = System.currentTimeMillis();
-        Connection conn = HBaseHelper.getHBaseConnection();
         try {
-            Table table = conn.getTable(TableName.valueOf(FaceInfoTable.TABLE_NAME));
+            Table table = HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
             List<Get> gets = new ArrayList<>();
             for(Pair<String, byte[]> record : records){
                 gets.add(new Get(Bytes.toBytes(record.getKey())));

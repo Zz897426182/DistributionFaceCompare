@@ -16,8 +16,8 @@ import java.util.Map;
 public class ComparatorsImpl implements Comparators{
     private Config conf;
 
-    public ComparatorsImpl(Config conf) {
-        this.conf = conf;
+    public ComparatorsImpl() {
+        this.conf = Config.getConf();
     }
 
     @Override
