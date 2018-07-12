@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.hzgc.compare.rpc.client.netty.ClientChannelInitializer;
 import com.hzgc.compare.rpc.client.netty.RpcClientHandler;
+import com.hzgc.compare.rpc.util.RpcConfig;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -186,8 +187,7 @@ public class ConnectManager {
      * @throws InterruptedException 可能抛出的异常
      */
     private boolean waitingForHandler() throws InterruptedException {
-        long connectTimeoutMillis = 6000;
-        return connected.await(connectTimeoutMillis, TimeUnit.MILLISECONDS);
+        return connected.await(RpcConfig.getRpcConnectManagerConnectTimeout(), TimeUnit.MILLISECONDS);
     }
 
     /**

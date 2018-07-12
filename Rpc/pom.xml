@@ -12,6 +12,15 @@
     <groupId>com.hzgc.compare</groupId>
     <artifactId>facecompare-rpc</artifactId>
     <build>
+        <resources>
+            <resource>
+                <targetPath>${project.build.directory}/META-INF</targetPath>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

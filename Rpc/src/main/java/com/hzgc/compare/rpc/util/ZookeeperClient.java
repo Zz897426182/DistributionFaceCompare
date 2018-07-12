@@ -19,12 +19,12 @@ public class ZookeeperClient {
 
     private CuratorFramework connectZookeeper() {
         CuratorFramework zkClient;
-        RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
+        RetryPolicy retryPolicy = new ExponentialBackoffRetry(RpcConfig.getCuratorBaseSleepTime(), RpcConfig.getCuratorMaxRetries());
         zkClient = CuratorFrameworkFactory
                 .builder()
                 .connectString(zkAddress)
                 .retryPolicy(retryPolicy)
-                .sessionTimeoutMs(1000)
+                .sessionTimeoutMs(RpcConfig.getZkSessionTime())
                 .build();
         zkClient.start();
         try {
