@@ -53,7 +53,7 @@ public class Comsumer extends Thread{
             for(ConsumerRecord<String, String> record : records){
                 FaceObject obj = FaceObjectUtil.jsonToObject(record.value());
 //                System.out.println(record.value());
-                LOG.info(record.value());
+//                LOG.info(record.value());
                 objList.add(obj);
             }
             memoryCache.recordToHBase(objList);

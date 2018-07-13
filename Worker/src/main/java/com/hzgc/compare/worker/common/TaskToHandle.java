@@ -14,10 +14,16 @@ public class TaskToHandle {
     }
 
     public synchronized static void addTask(TaskToHandle handle){
+        if(tasks == null){
+            tasks = new ArrayList<TaskToHandle>();
+        }
         tasks.add(handle);
     }
 
     public synchronized static void remove(TaskToHandle handle){
+        if(tasks == null){
+            tasks = new ArrayList<TaskToHandle>();
+        }
         tasks.remove(handle);
     }
 

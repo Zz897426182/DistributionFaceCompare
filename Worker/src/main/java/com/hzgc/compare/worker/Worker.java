@@ -24,6 +24,7 @@ import java.util.Properties;
  * 整合所有组件
  */
 public class Worker {
+    private String workId;
     private static final Logger logger = LoggerFactory.getLogger(Worker.class);
     private Config conf;
     private Comsumer comsumer;
@@ -34,14 +35,15 @@ public class Worker {
     private void init(){
         conf = Config.getConf();
         comsumer = new Comsumer();
+        workId = conf.getValue(Config.WORKER_ID);
         MemoryCacheImpl1.getInstance();
         memoryManager = new MemoryManager();
         if(Config.SAVE_TO_LOCAL == conf.getValue(Config.WORKER_FILE_SAVE_SYSTEM, 0)){
-            fileManager = new LocalFileManager(conf);
+            fileManager = new LocalFileManager();
         }
         hBaseClient = new HBaseClient();
 
-        FileReader fileReader = new FileReader(conf);
+        FileReader fileReader = new FileReader();
         fileReader.loadRecord();
         HBaseHelper.getHBaseConnection();
         logger.info("");

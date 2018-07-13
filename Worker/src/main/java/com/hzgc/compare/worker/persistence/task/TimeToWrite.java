@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * 定期读取内存中的recordToHBase，保存在HBase中，并生成元数据保存入内存的buffer
  */
-public class TimeToWrite extends Thread{
+public class TimeToWrite implements Runnable{
     private Config conf;
     private Long timeToWrite = 1000L; //任务执行时间间隔，默认1秒
 
@@ -27,13 +27,18 @@ public class TimeToWrite extends Thread{
         this.conf = conf;
         this.timeToWrite = conf.getValue(Config.WORKER_HBASE_WRITE_TIME, this.timeToWrite);
     }
+    @Override
     public void run() {
         while (true) {
             try {
                 Thread.sleep(timeToWrite);
+                System.out.println("To Write record into HBase");
                 MemoryCacheImpl1 cache = MemoryCacheImpl1.getInstance(conf);
                 List<FaceObject> recordToHBase = cache.getObjects();
                 System.out.println("The record num from kafka is :" + recordToHBase.size());
+                if(recordToHBase.size() == 0){
+                    continue;
+                }
                 List<Quintuple<String, String, String, String, byte[]>> bufferList = new ArrayList<>();
                 try {
                     List<Put> putList = new ArrayList<>();

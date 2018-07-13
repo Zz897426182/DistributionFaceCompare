@@ -38,7 +38,8 @@ public class HBaseClient {
      */
     public void timeToWrite(){
         TimeToWrite task = new TimeToWrite(conf);
-        task.start();
+        Thread thread = new Thread(task);
+        thread.start();
     }
 
     /**

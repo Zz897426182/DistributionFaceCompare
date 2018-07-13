@@ -26,6 +26,6 @@ public class Client {
         AllReturn<SearchResult> resultAllReturn = service.retrieval(param);
         System.out.println("++++++++++++++++++++++++++++++++++");
         System.out.println(System.currentTimeMillis() - star);
-        System.out.println(resultAllReturn.getResult());
+        System.out.println(JsonUtil.objectToJson(resultAllReturn.getResult()));
     }
 }

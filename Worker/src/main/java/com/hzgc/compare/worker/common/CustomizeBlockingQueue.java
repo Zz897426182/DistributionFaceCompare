@@ -10,7 +10,6 @@ import java.util.List;
 public class CustomizeBlockingQueue<T> {
 
     private LinkedList<T> list = new LinkedList <>();
-    private LinkedList<T> outList = new LinkedList <>();
     private int size = 1000;
 
     /**
@@ -18,8 +17,10 @@ public class CustomizeBlockingQueue<T> {
      * @param list
      * @return
      */
-    public synchronized boolean add(List<T> list){
-        return this.list.addAll(list);
+    public synchronized void add(List<T> list){
+//        System.out.println("Push some record in to the Queue !");
+        this.list.addAll(list);
+        notify();
     }
 
     /**
@@ -30,6 +31,7 @@ public class CustomizeBlockingQueue<T> {
     public synchronized List<T> pop(int size){
         while(this.list.size() == 0){
             try {
+                System.out.println("There is no data in the Queue !");
                 wait();
             } catch (InterruptedException e) {
 
@@ -37,11 +39,18 @@ public class CustomizeBlockingQueue<T> {
             }
         }
         if (this.list.size() >= size){
-            for (int i =0;i<size;i++){
-                outList.add(list.get(i));
-                list.remove(i);
+            System.out.println("The num of record in The Queue  is " + list.size());
+            List<T> tempList = list.subList(0, size - 1);
+            for (int i = 0; i  < size - 1; i++) {
+                list.remove(0);
             }
+            return tempList;
         }
-        return outList;
+        return new LinkedList<>();
     }
+
+//    public static void main(String args[]){
+//        CustomizeBlockingQueue<String> queue = new CustomizeBlockingQueue<>();
+//        queue.add()
+//    }
 }
