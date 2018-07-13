@@ -116,7 +116,7 @@ public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String,
         }else {
             buffer.addAll(records);
         }
-        check();
+//        check();
     }
 
     /**
