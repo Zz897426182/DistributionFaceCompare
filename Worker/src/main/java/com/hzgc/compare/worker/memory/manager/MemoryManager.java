@@ -66,9 +66,14 @@ public class MemoryManager {
                 e.printStackTrace();
             }
         }
+        System.out.println("The Num of Memory Cache is : " + count);
         if(count > cacheNumMax){
             removeTimeOut(timeOut - 1);
         }
+    }
+
+    public void timeToCheckFlush(){
+        new Timer().schedule(new TimeToFlushBuffer(), 5000, 5000);
     }
 
     /**

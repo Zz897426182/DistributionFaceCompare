@@ -1,24 +1,41 @@
 package com.hzgc.compare.demo;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Test2 {
     public static void main(String[] args) throws InterruptedException {
-        LinkedList<String> list = new LinkedList<>();
-        list.add("1");
-        list.add("2");
-        list.add("3");
-        list.add("4");
-        list.add("5");
-        list.add("6");
-        List<String> pp = list.subList(0, 3);
-        System.out.println(pp);
-//        System.out.println(pp);
-//        System.out.println(list);
-        for (int i = 0; i < 3; i++) {
-            list.remove(0);
+        List<AAA> arr = new ArrayList<>();
+        arr.add(new BBB());
+        arr.add(new CCC());
+        arr.add(new DDD());
+        Class clazz = DDD.class;
+        for(AAA data : arr){
+            if(data.getClass() == clazz){
+                data.aa();
+            }
         }
-        System.out.println(list);
+    }
+
+}
+
+class AAA{
+    public void aa(){
+    }
+}
+class BBB extends AAA{
+    public void aa(){
+        System.out.println("bbb");
+    }
+}
+class CCC extends AAA{
+    public void aa(){
+        System.out.println("ccc");
+    }
+}
+class DDD extends AAA{
+    public void aa(){
+        System.out.println("ddd");
     }
 }

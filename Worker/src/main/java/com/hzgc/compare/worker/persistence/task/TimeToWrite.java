@@ -23,8 +23,8 @@ public class TimeToWrite implements Runnable{
     private Config conf;
     private Long timeToWrite = 1000L; //任务执行时间间隔，默认1秒
 
-    public TimeToWrite(Config conf){
-        this.conf = conf;
+    public TimeToWrite(){
+        this.conf = Config.getConf();
         this.timeToWrite = conf.getValue(Config.WORKER_HBASE_WRITE_TIME, this.timeToWrite);
     }
     @Override

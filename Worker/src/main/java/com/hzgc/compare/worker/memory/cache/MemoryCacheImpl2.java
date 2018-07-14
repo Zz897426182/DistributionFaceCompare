@@ -59,14 +59,6 @@ public class MemoryCacheImpl2 implements MemoryCache<List<Quintuple<String, Stri
     }
 
     /**
-     * 返回buffer
-     * @return
-     */
-    public List<Quintuple<String, String, String, String, byte[]>> getBuffer() {
-        return null;
-    }
-
-    /**
      * 增加recordToHBase
      */
     public void recordToHBase(List<FaceObject> objs) {
@@ -99,7 +91,7 @@ public class MemoryCacheImpl2 implements MemoryCache<List<Quintuple<String, Stri
     /**
      * 将buffer中的数据加入cacheRecords
      */
-    public void moveBufferToCacheRecords() {
+    public void moveToCacheRecords(List<Quintuple<String, String, String, String, byte[]>> records) {
 
     }
 }

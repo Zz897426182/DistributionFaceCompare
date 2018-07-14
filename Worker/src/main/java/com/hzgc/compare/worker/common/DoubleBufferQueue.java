@@ -46,4 +46,17 @@ public class DoubleBufferQueue<T> {
         }
     }
 
+    public List<T> getWithoutRemove(){
+        writeLock.lock();
+        try {
+            int currentSize = writeList.size();
+            if (currentSize == 0) {
+                return new ArrayList<>();
+            }
+            return writeList;
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
 }

@@ -26,12 +26,6 @@ public interface MemoryCache<T> {
     public void setBufferSizeMax(int size);
 
     /**
-     * 返回buffer
-     * @return
-     */
-    public List<Quintuple<String, String, String, String, byte[]>> getBuffer();
-
-    /**
      * 增加recordToHBase
      */
     public void recordToHBase(List<FaceObject> objs);
@@ -54,6 +48,6 @@ public interface MemoryCache<T> {
     /**
      * 将buffer中的数据加入cacheRecords
      */
-    public void moveBufferToCacheRecords();
+    public void moveToCacheRecords(List<Quintuple<String, String, String, String, byte[]>> records);
 
 }

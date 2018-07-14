@@ -52,6 +52,9 @@ public class Worker {
     private void start(){
         comsumer.start();
         memoryManager.startToCheck();
+        if(conf.getValue(Config.WORKER_FLUSH_PROGRAM, 0) == 0){
+            memoryManager.timeToCheckFlush();
+        }
         fileManager.checkFile();
         hBaseClient.timeToWrite();
         ServiceRegistry registry = new ServiceRegistry(conf.getValue(Config.ZOOKEEPER_ADDRESS));
@@ -68,7 +71,5 @@ public class Worker {
         Worker worker = new Worker();
         worker.init();
         worker.start();
-        WorkerAccept workerAccept = new WorkerAccept(worker);
-        workerAccept.accept();
     }
 }

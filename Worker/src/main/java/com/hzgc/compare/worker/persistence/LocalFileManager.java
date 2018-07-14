@@ -30,6 +30,11 @@ public class LocalFileManager implements FileManager{
 
     }
 
+    @Override
+    public void timeToFlush() {
+
+    }
+
     public void checkTaskTodo() {
 
     }

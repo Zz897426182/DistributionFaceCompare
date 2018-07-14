@@ -37,7 +37,7 @@ public class HBaseClient {
      * 启动任务，定期读取内存中的recordToHBase，保存在HBase中，并生成元数据保存入内存的buffer
      */
     public void timeToWrite(){
-        TimeToWrite task = new TimeToWrite(conf);
+        TimeToWrite task = new TimeToWrite();
         Thread thread = new Thread(task);
         thread.start();
     }

@@ -1,6 +1,8 @@
 package com.hzgc.compare.worker.memory.cache;
 
 import com.hzgc.compare.worker.common.*;
+import com.hzgc.compare.worker.common.taskhandle.FlushTask;
+import com.hzgc.compare.worker.common.taskhandle.TaskToHandleQueue;
 import com.hzgc.compare.worker.conf.Config;
 import javafx.util.Pair;
 
@@ -17,10 +19,11 @@ import java.util.Map;
 public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String, String>, List<Pair<String, byte[]>>>>{
     private static MemoryCacheImpl1 memoryCache;
     private Config conf;
-    private Integer bufferSizeMax = 500; // buffer存储上限，默认500
+    private int flushProgram = 0; //flush 方案 0 定期flush  1 定量flush
+    private Integer bufferSizeMax = 1000; // buffer存储上限，默认500
     private DoubleBufferQueue<FaceObject> recordToHBase; //这里应该是一个类似阻塞队列的集合
     private Map<Triplet<String, String, String>, List<Pair<String, byte[]>>> cacheRecords;
-    private List<Quintuple<String, String, String, String, byte[]>> buffer;
+    private DoubleBufferQueue<Quintuple<String, String, String, String, byte[]>> buffer;
 
 
     private MemoryCacheImpl1(Config conf){
@@ -47,7 +50,7 @@ public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String,
         bufferSizeMax = conf.getValue(Config.WORKER_BUFFER_SIZE_MAX, bufferSizeMax);
         recordToHBase = new DoubleBufferQueue<>();
         cacheRecords = new HashMap<>();
-        buffer = new ArrayList<>();
+        buffer = new DoubleBufferQueue<>();
     }
 
     /**
@@ -70,14 +73,6 @@ public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String,
     @Override
     public void setBufferSizeMax(int size) {
         this.bufferSizeMax = size;
-    }
-
-    /**
-     * 返回buffer
-     * @return
-     */
-    public List<Quintuple<String, String, String, String, byte[]>> getBuffer() {
-        return buffer;
     }
 
     /**
@@ -111,29 +106,41 @@ public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String,
      * @param records
      */
     public void addBuffer(List<Quintuple<String, String, String, String, byte[]>> records) {
-        if(buffer == null || buffer.size() == 0){
-            buffer = records;
-        }else {
-            buffer.addAll(records);
+//        if(buffer == null || buffer.size() == 0){
+//            buffer = records;
+//        }else {
+//            buffer.addAll(records);
+//        }
+        buffer.push(records);
+        if(flushProgram == 1){
+            check();
         }
-//        check();
     }
 
     /**
      * 检查buffer是否满了, 如果满了，则在TaskToHandle中添加一个FlushTask任务,并将buffer加入cacheRecords，buffer重新创建
      */
     public void check() {
-        if(buffer.size() >= bufferSizeMax){
-            TaskToHandle.addTask(new TaskToHandle.FlushTask(buffer));
-            moveBufferToCacheRecords();
+        System.out.println("To check The Buferr if it is to be flushed.");
+        if(buffer.getWriteListSize() >= bufferSizeMax){
+            TaskToHandleQueue.getTaskQueue().addTask(new FlushTask(buffer.getWithoutRemove()));
+            moveToCacheRecords(buffer.get());
+        }
+    }
+
+    public void flush(){
+        if(buffer.getWriteListSize() >= 0) {
+            System.out.println("To flush the buffer.");
+            TaskToHandleQueue.getTaskQueue().addTask(new FlushTask(buffer.getWithoutRemove()));
+            moveToCacheRecords(buffer.get());
         }
     }
 
     /**
-     * 将buffer中的数据加入cacheRecords
+     * 将数据加入cacheRecords
      */
-    public void moveBufferToCacheRecords() {
-        for(Quintuple<String, String, String, String, byte[]> record : buffer){
+    public void moveToCacheRecords(List<Quintuple<String, String, String, String, byte[]>> records) {
+        for(Quintuple<String, String, String, String, byte[]> record : records){
             Triplet<String, String, String> key =
                     new Triplet<>(record.getFirst(), record.getSecond(), record.getThird());
 
@@ -145,6 +152,5 @@ public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String,
             }
             list.add(value);
         }
-        buffer = new ArrayList<>();
     }
 }
