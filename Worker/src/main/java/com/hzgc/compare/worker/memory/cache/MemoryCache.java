@@ -20,10 +20,10 @@ public interface MemoryCache<T> {
     public T getCacheRecords();
 
     /**
-     * 返回buffer
-     * @return
+     * 运行时手动更改参数
+     * @param size
      */
-    public List<Quintuple<String, String, String, String, byte[]>> getBuffer();
+    public void setBufferSizeMax(int size);
 
     /**
      * 增加recordToHBase
@@ -48,6 +48,6 @@ public interface MemoryCache<T> {
     /**
      * 将buffer中的数据加入cacheRecords
      */
-    public void moveBufferToCacheRecords();
+    public void moveToCacheRecords(List<Quintuple<String, String, String, String, byte[]>> records);
 
 }

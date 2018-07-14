@@ -21,9 +21,9 @@ public class HBaseHelper {
 
     public HBaseHelper() {
         initHBaseConfiguration();
-        LOG.info("init configuration is successful");
+        LOG.info("Init configuration is successful");
         initHBaseConnection();
-        LOG.info("init connection is successful");
+        LOG.info("Init connection is successful");
     }
 
     /**

@@ -17,15 +17,14 @@ public class MemoryManager {
     private Long checkTime = 1000L * 60 * 30; //内存检查时间间隔， 默认30分钟
     private Integer recordTimeOut = 360; //一级过期时间，单位： 天 ， 默认12个月，为了一次就删除到0.8以下，需要根据实际情况设置好这个值
     private SimpleDateFormat sdf;
-    public MemoryManager(Config conf){
-        this.conf = conf;
-        init(conf);
+    public MemoryManager(){
+        init();
     }
     /**
      * 根据conf中的参数，来设置MemeryManager需要的参数
-     * @param conf
      */
-    void init(Config conf){
+    void init(){
+        conf = Config.getConf();
         cacheNumMax = conf.getValue(Config.WORKER_CACHE_SIZE_MAX, cacheNumMax);
         checkTime = conf.getValue(Config.WORKER_MEMORY_CHECK_TIME, checkTime);
         recordTimeOut = conf.getValue(Config.WORKER_RECORD_TIME_OUT, recordTimeOut);
@@ -67,9 +66,14 @@ public class MemoryManager {
                 e.printStackTrace();
             }
         }
+        System.out.println("The Num of Memory Cache is : " + count);
         if(count > cacheNumMax){
             removeTimeOut(timeOut - 1);
         }
+    }
+
+    public void timeToCheckFlush(){
+        new Timer().schedule(new TimeToFlushBuffer(), 5000, 5000);
     }
 
     /**
@@ -88,5 +92,9 @@ public class MemoryManager {
             }
         }
         return time.compareTo(oldest) >= 0;
+    }
+
+    public void setRecordTimeOut(int days){
+        this.recordTimeOut = days;
     }
 }

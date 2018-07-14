@@ -22,8 +22,7 @@ public class Comsumer extends Thread{
     private Config conf;
     private KafkaConsumer<String, String> comsumer;
 
-    public Comsumer(Config conf){
-        this.conf = conf;
+    public Comsumer(){
         init();
     }
 
@@ -31,6 +30,7 @@ public class Comsumer extends Thread{
      * 初始化
      */
     private void init(){
+        conf = Config.getConf();
         Properties prop = new Properties();
         prop.put("bootstrap.servers", conf.getValue(Config.KAFKA_BOOTSTRAP_SERVERS));
         prop.put("group.id", conf.getValue(Config.KAFKA_GROUP_ID));
@@ -38,7 +38,7 @@ public class Comsumer extends Thread{
         prop.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         comsumer = new KafkaConsumer<String, String>(prop);
         LOG.info("Kafka comsumer is init.");
-        memoryCache = null;
+        memoryCache = MemoryCacheImpl1.getInstance(conf);
     }
     /**
      * 接收从kafka传来的数据
@@ -53,7 +53,7 @@ public class Comsumer extends Thread{
             for(ConsumerRecord<String, String> record : records){
                 FaceObject obj = FaceObjectUtil.jsonToObject(record.value());
 //                System.out.println(record.value());
-                LOG.debug(record.value());
+//                LOG.info(record.value());
                 objList.add(obj);
             }
             memoryCache.recordToHBase(objList);

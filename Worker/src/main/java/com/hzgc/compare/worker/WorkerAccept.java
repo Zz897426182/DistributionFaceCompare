@@ -17,7 +17,7 @@ public class WorkerAccept {
 
     public WorkerAccept(Worker worker){
         this.worker = worker;
-        this.conf = worker.getConf();
+        this.conf = Config.getConf();
         port = conf.getValue(Config.WORKER_PORT, 8888);
     }
 

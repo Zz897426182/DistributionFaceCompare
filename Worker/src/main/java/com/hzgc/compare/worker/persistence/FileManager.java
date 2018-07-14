@@ -29,6 +29,6 @@ public interface FileManager {
     /**
      * 启动定时任务，定期查看TaskToHandle中有无FlushTask，如果有，则flush其中的记录，并删除该FlushTask
      */
-    void checkTaskTodo();
+    void timeToFlush();
 
 }

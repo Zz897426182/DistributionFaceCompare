@@ -1,5 +1,6 @@
 package com.hzgc.compare.worker.common;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -8,13 +9,18 @@ import java.util.List;
  */
 public class CustomizeBlockingQueue<T> {
 
+    private LinkedList<T> list = new LinkedList <>();
+    private int size = 1000;
+
     /**
      * 将多个元素加入到阻塞队列中，阻塞队列大小无限制
      * @param list
      * @return
      */
-    public boolean add(List<T> list){
-        return false;
+    public synchronized void add(List<T> list){
+//        System.out.println("Push some record in to the Queue !");
+        this.list.addAll(list);
+        notify();
     }
 
     /**
@@ -22,7 +28,29 @@ public class CustomizeBlockingQueue<T> {
      * @param size
      * @return
      */
-    public List<T> pop(int size){
-        return null;
+    public synchronized List<T> pop(int size){
+        while(this.list.size() == 0){
+            try {
+                System.out.println("There is no data in the Queue !");
+                wait();
+            } catch (InterruptedException e) {
+
+                e.printStackTrace();
+            }
+        }
+        if (this.list.size() >= size){
+            System.out.println("The num of record in The Queue  is " + list.size());
+            List<T> tempList = list.subList(0, size - 1);
+            for (int i = 0; i  < size - 1; i++) {
+                list.remove(0);
+            }
+            return tempList;
+        }
+        return new LinkedList<>();
     }
+
+//    public static void main(String args[]){
+//        CustomizeBlockingQueue<String> queue = new CustomizeBlockingQueue<>();
+//        queue.add()
+//    }
 }

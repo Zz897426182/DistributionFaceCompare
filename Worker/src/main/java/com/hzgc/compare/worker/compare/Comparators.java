@@ -35,11 +35,11 @@ public interface Comparators {
     /**
      * 若数据量过大则需要第一次对比
      * @param feature
-     * @param sim
+     * @param num
      * @param data
      * @return List<rowkey>
      */
-    List<String> compareFirst(byte[] feature, float sim, List<Pair<String, byte[]>> data);
+    List<String> compareFirst(byte[] feature, int num, List<Pair<String, byte[]>> data);
 
     /**
      * 把从HBase读取的数据，进行第二次对比

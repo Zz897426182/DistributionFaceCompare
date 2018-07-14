@@ -11,6 +11,7 @@ import com.hzgc.compare.worker.persistence.FileManager;
 import com.hzgc.compare.worker.persistence.FileReader;
 import com.hzgc.compare.worker.persistence.HBaseClient;
 import com.hzgc.compare.worker.persistence.LocalFileManager;
+import com.hzgc.compare.worker.util.HBaseHelper;
 import com.hzgc.compare.worker.util.PropertiesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ import java.util.Properties;
  * 整合所有组件
  */
 public class Worker {
+    private String workId;
     private static final Logger logger = LoggerFactory.getLogger(Worker.class);
     private Config conf;
     private Comsumer comsumer;
@@ -31,46 +33,43 @@ public class Worker {
     private HBaseClient hBaseClient;
 
     private void init(){
-        Properties prop = PropertiesUtil.getProperties();
-        conf = new Config(prop);
-        comsumer = new Comsumer(conf);
-        MemoryCacheImpl1.getInstance(conf);
-        memoryManager = new MemoryManager(conf);
+        conf = Config.getConf();
+        comsumer = new Comsumer();
+        workId = conf.getValue(Config.WORKER_ID);
+        MemoryCacheImpl1.getInstance();
+        memoryManager = new MemoryManager();
         if(Config.SAVE_TO_LOCAL == conf.getValue(Config.WORKER_FILE_SAVE_SYSTEM, 0)){
-            fileManager = new LocalFileManager(conf);
+            fileManager = new LocalFileManager();
         }
-        hBaseClient = new HBaseClient(conf);
+        hBaseClient = new HBaseClient();
 
-        FileReader fileReader = new FileReader(conf);
+        FileReader fileReader = new FileReader();
         fileReader.loadRecord();
+        HBaseHelper.getHBaseConnection();
         logger.info("");
     }
 
     private void start(){
         comsumer.start();
         memoryManager.startToCheck();
+        if(conf.getValue(Config.WORKER_FLUSH_PROGRAM, 0) == 0){
+            memoryManager.timeToCheckFlush();
+        }
         fileManager.checkFile();
         hBaseClient.timeToWrite();
         ServiceRegistry registry = new ServiceRegistry(conf.getValue(Config.ZOOKEEPER_ADDRESS));
         RpcServer rpcServer = new RpcServer(conf.getValue(Config.WORKER_ADDRESS),
                 conf.getValue(Config.WORKER_RPC_PORT, 4086), registry);
         Map<String, Object> objs = rpcServer.getRpcServiceMap();
-        ((ServiceImpl) objs.get("service")).init(conf);
         rpcServer.start();
     }
 
     void stop() {
     }
 
-    public Config getConf(){
-        return conf;
-    }
-
     public static void main(String args[]){
         Worker worker = new Worker();
         worker.init();
         worker.start();
-        WorkerAccept workerAccept = new WorkerAccept(worker);
-        workerAccept.accept();
     }
 }

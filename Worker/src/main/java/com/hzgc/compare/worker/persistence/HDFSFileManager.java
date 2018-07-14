@@ -25,6 +25,11 @@ public class HDFSFileManager implements FileManager {
 
     }
 
+    @Override
+    public void timeToFlush() {
+
+    }
+
     public void checkTaskTodo() {
 
     }

@@ -10,8 +10,8 @@ public class LocalFileManager implements FileManager{
     private Long fileCheckTime = 1000L * 60 * 30; //任务执行时间间隔，默认30分钟
     private Long timeToCheckTask = 1000L; //任务间隔时间，默认1秒
 
-    public LocalFileManager(Config conf){
-        this.conf = conf;
+    public LocalFileManager(){
+        this.conf = Config.getConf();
     }
 
     public void init() {
@@ -27,6 +27,11 @@ public class LocalFileManager implements FileManager{
     }
 
     public void checkFile() {
+
+    }
+
+    @Override
+    public void timeToFlush() {
 
     }
 
