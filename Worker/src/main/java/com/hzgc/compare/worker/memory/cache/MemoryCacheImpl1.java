@@ -129,7 +129,7 @@ public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String,
     }
 
     public void flush(){
-        if(buffer.getWriteListSize() >= 0) {
+        if(buffer.getWriteListSize() > 0) {
             System.out.println("To flush the buffer.");
             TaskToHandleQueue.getTaskQueue().addTask(new FlushTask(buffer.getWithoutRemove()));
             moveToCacheRecords(buffer.get());
