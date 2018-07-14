@@ -16,7 +16,7 @@ import java.util.List;
 @RpcService(Service.class)
 public class ServiceImpl implements Service{
     private int resultDefaultCount = 10;
-    private int compareSize = 50000;
+    private int compareSize = 500000;
     private Config conf;
 
     public ServiceImpl(){
@@ -60,12 +60,15 @@ public class ServiceImpl implements Service{
         }else {
             //若过滤结果比较小，则直接进行第二次对比
             List<FaceObject> objs = client.readFromHBase2(dataFilterd);
+//            System.out.println("过滤结果" + objs.size() + " , " + objs.get(0));
             result = comparators.compareSecond(feature2, sim, objs);
             //结果排序
+//            System.out.println("对比结果" + result.getRecords().length + " , " + result.getRecords()[0]);
             result.sortBySim();
             //取相似度最高的几个
             result = result.take(resultCount);
         }
+//        System.out.println("对比结果2" + result.getRecords().length + " , " + result.getRecords()[0]);
         return new AllReturn<>(result);
     }
 }
