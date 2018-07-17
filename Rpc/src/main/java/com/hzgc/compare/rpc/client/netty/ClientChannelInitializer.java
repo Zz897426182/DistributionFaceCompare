@@ -24,7 +24,7 @@ public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> 
         //添加编码器
         channelPipeline.addLast(new RpcEncoder(RpcRequest.class));
         //解决粘包问题
-        channelPipeline.addLast(new LengthFieldBasedFrameDecoder(65536,
+        channelPipeline.addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,
                 0,
                 4,
                 0,

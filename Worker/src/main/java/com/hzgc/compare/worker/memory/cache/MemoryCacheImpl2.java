@@ -1,11 +1,14 @@
 package com.hzgc.compare.worker.memory.cache;
 
-import com.hzgc.compare.worker.common.CustomizeBlockingQueue;
+import com.hzgc.compare.worker.common.DoubleBufferQueue;
 import com.hzgc.compare.worker.common.FaceObject;
 import com.hzgc.compare.worker.common.Quintuple;
+import com.hzgc.compare.worker.common.Triplet;
 import com.hzgc.compare.worker.conf.Config;
+import javafx.util.Pair;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 内存缓存模块，单例模式，内部存储三种数据buffer和cacheRecords，以及recordToHBase
@@ -16,9 +19,9 @@ public class MemoryCacheImpl2 implements MemoryCache<List<Quintuple<String, Stri
     private static MemoryCacheImpl2 memoryCache;
     private Config conf;
     private Integer bufferSizeMax = 500; // buffer存储上限，默认500
-    private CustomizeBlockingQueue<FaceObject> recordToHBase; //这里应该是一个类似阻塞队列的集合
-    private List<Quintuple<String, String, String, String, byte[]>> cacheRecords;
-    private List<Quintuple<String, String, String, String, byte[]>> buffer;
+    private DoubleBufferQueue<FaceObject> recordToHBase; //这里应该是一个类似阻塞队列的集合
+    private Map<Triplet<String, String, String>, List<Pair<String, float[]>>> cacheRecords;
+    private List<Quintuple<String, String, String, String, float[]>> buffer;
 
 
     private MemoryCacheImpl2(Config conf){

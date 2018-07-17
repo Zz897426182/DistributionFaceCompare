@@ -1,4 +1,4 @@
-package com.hzgc.compare.demo;
+package com.hzgc.compare.worker.common;
 
 import java.util.List;
 
@@ -7,18 +7,19 @@ public class CompareParam {
     private List<String> arg2List;
     private String dateStart;
     private String dateEnd;
-    private byte[] feature1;
-    private float[] feature2;
+    private List<Feature> features;
     private float sim;
     private int resultCount;
+    private boolean isTheSamePerson;
 
-    public CompareParam(List<String> arg1List, List<String> arg2List, String dateStart, String dateEnd, byte[] feature1, float[] feature2, float sim, int resultCount) {
+    public CompareParam(List<String> arg1List, List<String> arg2List, String dateStart, String dateEnd,
+                        List<Feature> features, float sim, int resultCount, boolean isTheSamePerson) {
         this.arg1List = arg1List;
         this.arg2List = arg2List;
         this.dateStart = dateStart;
         this.dateEnd = dateEnd;
-        this.feature1 = feature1;
-        this.feature2 = feature2;
+        this.features = features;
+        this.isTheSamePerson = isTheSamePerson;
         this.sim = sim;
         this.resultCount = resultCount;
     }
@@ -39,12 +40,12 @@ public class CompareParam {
         return dateEnd;
     }
 
-    public byte[] getFeature1() {
-        return feature1;
+    public List<Feature> getFeatures() {
+        return features;
     }
 
-    public float[] getFeature2() {
-        return feature2;
+    public boolean isTheSamePerson() {
+        return isTheSamePerson;
     }
 
     public float getSim() {

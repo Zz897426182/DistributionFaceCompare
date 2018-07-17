@@ -27,6 +27,21 @@ public class ComparatorsImpl implements Comparators{
                 MemoryCacheImpl1.getInstance(conf).getCacheRecords();
         Iterator<Triplet<String, String, String> > iterator =  cacheRecords.keySet().iterator();
         Long start = System.currentTimeMillis();
+        if(arg1List == null || arg1List.size() == 0){
+            while (iterator.hasNext()) {
+                Triplet<String, String, String> key = iterator.next();
+                String key1 = key.getFirst();
+                String key2 = key.getSecond();
+                String key3 = key.getThird();
+                if ((key2 == null || key2.equals(arg2)) &&
+                        key3.compareTo(dateStart) > 0 &&
+                        key3.compareTo(dateEnd) < 0) {
+                    result.addAll(cacheRecords.get(key));
+                }
+            }
+            System.out.println("The time used to filter is : " + (System.currentTimeMillis() - start));
+            return result;
+        }
         for(String arg1 : arg1List) {
             while (iterator.hasNext()) {
                 Triplet<String, String, String> key = iterator.next();
@@ -41,7 +56,6 @@ public class ComparatorsImpl implements Comparators{
                 }
             }
         }
-
         System.out.println("The time used to filter is : " + (System.currentTimeMillis() - start));
         return result;
     }

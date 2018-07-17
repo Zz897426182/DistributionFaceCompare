@@ -62,6 +62,10 @@ public class MemoryCacheImpl1 implements MemoryCache<Map<Triplet<String, String,
         return  objs;
     }
 
+    public List<Quintuple<String, String, String, String, byte[]>> getBuffer(){
+        return buffer.get();
+    }
+
     /**
      * 返回cacheRecords
      * @return

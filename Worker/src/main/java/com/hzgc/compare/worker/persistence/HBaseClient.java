@@ -1,5 +1,6 @@
 package com.hzgc.compare.worker.persistence;
 
+import com.hzgc.compare.worker.common.Feature;
 import com.hzgc.compare.worker.common.FaceInfoTable;
 import com.hzgc.compare.worker.common.FaceObject;
 import com.hzgc.compare.worker.conf.Config;
@@ -9,18 +10,13 @@ import com.hzgc.compare.worker.util.HBaseHelper;
 import javafx.util.Pair;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.concurrent.ExecutorService;
+import java.util.*;
 
 
 /**
@@ -43,7 +39,7 @@ public class HBaseClient {
     }
 
     /**
-     * 根据过滤结果，查询HBase中的数据
+     * 根据第一次比较的结果，查询HBase中的数据
      * @param rowkeys
      * @return
      */
@@ -52,6 +48,8 @@ public class HBaseClient {
         long start = System.currentTimeMillis();
         try {
             Table table = HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
+            long getTable = System.currentTimeMillis();
+            System.out.println("The time used to get table is : " + (getTable - start));
             List<Get> gets = new ArrayList<>();
             for(String rowkey : rowkeys){
                 gets.add(new Get(Bytes.toBytes(rowkey)));
@@ -63,7 +61,7 @@ public class HBaseClient {
                     list.add(value);
                 }
             }
-            System.out.println("The time used to get data from hbase is : " + (System.currentTimeMillis() - start));
+            System.out.println("The time used to get data from hbase is : " + (System.currentTimeMillis() - getTable));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -72,6 +70,56 @@ public class HBaseClient {
 
     /**
      * 根据第一次比较的结果，查询HBase中的数据
+     * @param data
+     * @return
+     */
+    public Map<Feature, List<FaceObject>> readFromHBase(Map<Feature, List<String>> data){
+        Map<Feature, List<FaceObject>> result = new HashMap<>();
+        Table table = HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
+        List<Get> gets = new ArrayList<>();
+
+        for(Map.Entry<Feature, List<String>> entry : data.entrySet()){
+            List<String> rowkeys = entry.getValue();
+            for(String rowkey : rowkeys){
+                Get get = new Get(Bytes.toBytes(rowkey));
+                if(!gets.contains(get)) {
+                    gets.add(get);
+                }
+            }
+        }
+        Map<String, FaceObject> temp = new HashMap<>();
+        Result[]  results = new Result[0];
+        try {
+            results = table.get(gets);
+            for (Result res : results){//对返回的结果集进行操作
+                for (Cell kv : res.rawCells()) {
+                    FaceObject value = FaceObjectUtil.jsonToObject(Bytes.toString(CellUtil.cloneValue(kv))) ;
+                    String key = Bytes.toString(CellUtil.cloneRow(kv));
+                    temp.put(key, value);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for(Map.Entry<Feature, List<String>> entry : data.entrySet()){
+            List<String> rowkeys = entry.getValue();
+            for(String rowkey : rowkeys){
+                FaceObject face = temp.get(rowkey);
+                List<FaceObject> list = result.get(entry.getKey());
+                if(list == null){
+                    list = new ArrayList<>();
+                    result.put(entry.getKey(), list);
+                }
+                list.add(face);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * 根据过滤结果，查询HBase中的数据
      * @param records
      * @return
      */
@@ -80,6 +128,8 @@ public class HBaseClient {
         long start = System.currentTimeMillis();
         try {
             Table table = HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
+            long getTable = System.currentTimeMillis();
+            System.out.println("The time used to get table is : " + (getTable - start));
             List<Get> gets = new ArrayList<>();
             for(Pair<String, byte[]> record : records){
                 gets.add(new Get(Bytes.toBytes(record.getKey())));
@@ -91,7 +141,7 @@ public class HBaseClient {
                     list.add(value);
                 }
             }
-            System.out.println("The time used to get data from hbase is : " + (System.currentTimeMillis() - start));
+            System.out.println("The time used to get data from hbase is : " + (System.currentTimeMillis() - getTable));
         } catch (IOException e) {
             e.printStackTrace();
         }

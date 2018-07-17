@@ -3,6 +3,7 @@ package com.hzgc.compare.worker;
 
 import com.hzgc.compare.rpc.server.RpcServer;
 import com.hzgc.compare.rpc.server.zk.ServiceRegistry;
+import com.hzgc.compare.worker.common.FaceInfoTable;
 import com.hzgc.compare.worker.comsumer.Comsumer;
 import com.hzgc.compare.worker.conf.Config;
 import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl1;
@@ -45,7 +46,7 @@ public class Worker {
 
         FileReader fileReader = new FileReader();
         fileReader.loadRecord();
-        HBaseHelper.getHBaseConnection();
+        HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
         logger.info("");
     }
 
