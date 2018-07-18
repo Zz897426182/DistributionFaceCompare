@@ -2,7 +2,7 @@ package com.hzgc.compare.worker.memory.manager;
 
 import com.hzgc.compare.worker.common.Triplet;
 import com.hzgc.compare.worker.conf.Config;
-import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl1;
+import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
 import javafx.util.Pair;
 
 import java.text.ParseException;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 
-public class MemoryManager {
+public class MemoryManager<A1,A2,D> {
     private Config conf;
     private Long cacheNumMax = 30000000L; //内存中存储数据的上限，默认值3000万，根据实际内存设置
     private Long checkTime = 1000L * 60 * 30; //内存检查时间间隔， 默认30分钟
@@ -51,9 +51,9 @@ public class MemoryManager {
 
     private void removeTimeOut(long timeOut){
         long count = 0L;
-        MemoryCacheImpl1 cache = MemoryCacheImpl1.getInstance(conf);
-        Map<Triplet<String, String, String>, List<Pair<String, byte[]>>> records = cache.getCacheRecords();
-        for(Triplet<String, String, String> key : records.keySet()){
+        MemoryCacheImpl cache = MemoryCacheImpl.getInstance(conf);
+        Map<Triplet<A1, A2, String>, List<Pair<String, D>>> records = cache.getCacheRecords();
+        for(Triplet<A1, A2, String> key : records.keySet()){
             String date = key.getThird();
             try {
                 long time = sdf.parse(date).getTime();
@@ -83,9 +83,9 @@ public class MemoryManager {
      */
     public boolean isOutOfTime(String time){
         String oldest = "";
-        MemoryCacheImpl1 cache = MemoryCacheImpl1.getInstance(conf);
-        Map<Triplet<String, String, String>, List<Pair<String, byte[]>>> records = cache.getCacheRecords();
-        for(Triplet<String, String, String> key : records.keySet()){
+        MemoryCacheImpl cache = MemoryCacheImpl.getInstance(conf);
+        Map<Triplet<A1, A2, String>, List<Pair<String, D>>> records = cache.getCacheRecords();
+        for(Triplet<A1, A2, String> key : records.keySet()){
             String date = key.getThird();
             if(oldest.compareTo(date) < 0){
                 oldest = date;

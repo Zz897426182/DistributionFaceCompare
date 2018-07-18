@@ -5,6 +5,7 @@ import com.hzgc.compare.rpc.client.result.AllReturn;
 import com.hzgc.compare.worker.common.SearchResult;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Service {
 
@@ -27,7 +28,7 @@ public interface Service {
      * @param paramt
      * @return
      */
-    AllReturn<List<SearchResult>> retrievalNotSamePerson(CompareParam paramt);
+    AllReturn<Map<String, SearchResult>> retrievalNotSamePerson(CompareParam paramt);
 
     void stopTheWorker();
 }

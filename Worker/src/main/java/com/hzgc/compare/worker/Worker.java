@@ -6,25 +6,23 @@ import com.hzgc.compare.rpc.server.zk.ServiceRegistry;
 import com.hzgc.compare.worker.common.FaceInfoTable;
 import com.hzgc.compare.worker.comsumer.Comsumer;
 import com.hzgc.compare.worker.conf.Config;
-import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl1;
+import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
 import com.hzgc.compare.worker.memory.manager.MemoryManager;
 import com.hzgc.compare.worker.persistence.FileManager;
 import com.hzgc.compare.worker.persistence.FileReader;
 import com.hzgc.compare.worker.persistence.HBaseClient;
 import com.hzgc.compare.worker.persistence.LocalFileManager;
 import com.hzgc.compare.worker.util.HBaseHelper;
-import com.hzgc.compare.worker.util.PropertiesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.Properties;
 
 
 /**
  * 整合所有组件
  */
-public class Worker {
+public class Worker<A1, A2, D> {
     private String workId;
     private static final Logger logger = LoggerFactory.getLogger(Worker.class);
     private Config conf;
@@ -37,8 +35,8 @@ public class Worker {
         conf = Config.getConf();
         comsumer = new Comsumer();
         workId = conf.getValue(Config.WORKER_ID);
-        MemoryCacheImpl1.getInstance();
-        memoryManager = new MemoryManager();
+        MemoryCacheImpl.<A1, A2, D>getInstance();
+        memoryManager = new MemoryManager<A1, A2, D>();
         if(Config.SAVE_TO_LOCAL == conf.getValue(Config.WORKER_FILE_SAVE_SYSTEM, 0)){
             fileManager = new LocalFileManager();
         }
@@ -57,11 +55,10 @@ public class Worker {
             memoryManager.timeToCheckFlush();
         }
         fileManager.checkFile();
-        hBaseClient.timeToWrite();
+        hBaseClient.timeToWrite2();
         ServiceRegistry registry = new ServiceRegistry(conf.getValue(Config.ZOOKEEPER_ADDRESS));
         RpcServer rpcServer = new RpcServer(conf.getValue(Config.WORKER_ADDRESS),
                 conf.getValue(Config.WORKER_RPC_PORT, 4086), registry);
-        Map<String, Object> objs = rpcServer.getRpcServiceMap();
         rpcServer.start();
     }
 
@@ -69,7 +66,7 @@ public class Worker {
     }
 
     public static void main(String args[]){
-        Worker worker = new Worker();
+        Worker worker = new Worker<String, String, float[]>();
         worker.init();
         worker.start();
     }

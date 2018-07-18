@@ -2,6 +2,7 @@ package com.hzgc.compare.demo;
 
 import com.hzgc.compare.rpc.client.RpcClient;
 import com.hzgc.compare.rpc.client.result.AllReturn;
+import com.hzgc.compare.rpc.protocol.JsonUtil;
 import com.hzgc.compare.worker.Service;
 import com.hzgc.compare.worker.common.CompareParam;
 import com.hzgc.compare.worker.common.Feature;
@@ -25,23 +26,22 @@ public class Client {
         long star = System.currentTimeMillis();
         List<Feature> features = new ArrayList<>();
         features.add(new Feature(null, featute));
-        CompareParam param = new CompareParam(new ArrayList<String>(), null,"2018-07-16", "2018-07-18", features, 0.8f, 25, true);
+//        CompareParam param = new CompareParam(new ArrayList<String>(), null,"2018-07-16", "2018-07-18", features, 0.8f, 25, true);
+//        AllReturn<SearchResult> resultAllReturn = service.retrievalOnePerson(param);
+//        System.out.println("++++++++++++++++++++++++++++++++++");
+//        System.out.println("compare1 "+ (System.currentTimeMillis() - star));
+//        Thread.sleep(1000 * 20);
 
-        AllReturn<SearchResult> resultAllReturn = service.retrievalOnePerson(param);
-        System.out.println("++++++++++++++++++++++++++++++++++");
-        System.out.println("compare1 "+ (System.currentTimeMillis() - star));
-        Thread.sleep(1000 * 20);
-
-        long compare1 = System.currentTimeMillis();
-        CompareParam param2 = new CompareParam(ipcIds, null,"2018-07-16", "2018-07-18", features, 0.8f, 25, true);
-        AllReturn<SearchResult> resultAllReturn2 = service.retrievalOnePerson(param2);
-        System.out.println("compare2 "+ (System.currentTimeMillis() - compare1));
-        Thread.sleep(1000 * 20);
+//        long compare1 = System.currentTimeMillis();
+//        CompareParam param2 = new CompareParam(ipcIds, null,"2018-07-16", "2018-07-18", features, 0.8f, 25, true);
+//        AllReturn<SearchResult> resultAllReturn2 = service.retrievalOnePerson(param2);
+//        System.out.println("compare2 "+ (System.currentTimeMillis() - compare1));
+//        Thread.sleep(1000 * 20);
 
         long compare2 = System.currentTimeMillis();
-        CompareParam param3 = new CompareParam(ipcIds, null,"2018-07-16", "2018-07-18", features, 0.8f, 25, true);
-        AllReturn<SearchResult> resultAllReturn3 = service.retrievalOnePerson(param2);
+        CompareParam param3 = new CompareParam(ipcIds, null,"2018-07-18", "2018-07-20", features, 0.9f, 25, true);
+        AllReturn<SearchResult> resultAllReturn3 = service.retrievalOnePerson(param3);
         System.out.println("compare3 "+ (System.currentTimeMillis() - compare2));
-//        System.out.println(JsonUtil.objectToJson(resultAllReturn.getResult()));
+        System.out.println(JsonUtil.objectToJson(resultAllReturn3.getResult()));
     }
 }

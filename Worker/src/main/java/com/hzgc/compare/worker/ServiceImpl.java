@@ -12,19 +12,16 @@ import com.hzgc.compare.worker.common.taskhandle.TaskToHandleQueue;
 import com.hzgc.compare.worker.compare.Comparators;
 import com.hzgc.compare.worker.compare.ComparatorsImpl;
 import com.hzgc.compare.worker.conf.Config;
-import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl1;
+import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
 import com.hzgc.compare.worker.persistence.HBaseClient;
 import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-@RpcService(Service.class)
+
 public class ServiceImpl implements Service{
     private int resultDefaultCount = 10;
-    private int compareSize = 500000;
+    private int compareSize = 500;
     private Config conf;
 
     public ServiceImpl(){
@@ -53,7 +50,7 @@ public class ServiceImpl implements Service{
         HBaseClient client = new HBaseClient();
         Comparators comparators = new ComparatorsImpl();
         // 根据条件过滤
-        List<Pair<String, byte[]>> dataFilterd =  comparators.filter(ipcIdList, null, dateStart, dateEnd);
+        List<Pair<String, byte[]>> dataFilterd =  comparators.<byte[]>filter(ipcIdList, null, dateStart, dateEnd);
         if(dataFilterd.size() > compareSize){
             // 若过滤结果太大，则需要第一次对比
             List<String> firstCompared =  comparators.compareFirst(feature1, 500, dataFilterd);
@@ -81,12 +78,52 @@ public class ServiceImpl implements Service{
 
     @Override
     public AllReturn<SearchResult> retrievalSamePerson(CompareParam param) {
-        return null;
+        List<String> ipcIdList = param.getArg1List();
+        String dateStart = param.getDateStart();
+        String dateEnd = param.getDateEnd();
+        List<Feature> features = param.getFeatures();
+        float sim = param.getSim();
+        int resultCount = param.getResultCount();
+        if (resultCount == 0){
+            resultCount = resultDefaultCount;
+        }
+        List<byte[]> feature1List = new ArrayList<>();
+        List<float[]> feature2List = new ArrayList<>();
+        for (Feature feature : features) {
+            feature1List.add(feature.getFeature1());
+            feature2List.add(feature.getFeature2());
+        }
+        SearchResult result;
+        HBaseClient client = new HBaseClient();
+        Comparators comparators = new ComparatorsImpl();
+        // 根据条件过滤
+        List<Pair<String, byte[]>> dataFilterd =  comparators.<byte[]>filter(ipcIdList, null, dateStart, dateEnd);
+        if(dataFilterd.size() > compareSize) {
+            // 若过滤结果太大，则需要第一次对比
+            List<String> firstCompared = comparators.compareFirstTheSamePerson(feature1List, 500, dataFilterd);
+            //根据对比结果从HBase读取数据
+            List<FaceObject> objs =  client.readFromHBase(firstCompared);
+            // 第二次对比
+            result = comparators.compareSecondTheSamePerson(feature2List, sim, objs);
+            //结果排序
+            result.sortBySim();
+            //取相似度最高的几个
+            result = result.take(resultDefaultCount);
+        } else {
+            //若过滤结果比较小，则直接进行第二次对比
+            List<FaceObject> objs = client.readFromHBase2(dataFilterd);
+            result = comparators.compareSecondTheSamePerson(feature2List, sim, objs);
+            //结果排序
+            result.sortBySim();
+            //取相似度最高的几个
+            result = result.take(resultCount);
+        }
+        return new AllReturn<>(result);
     }
 
     @Override
-    public AllReturn<List<SearchResult>> retrievalNotSamePerson(CompareParam param) {
-        List<SearchResult> result = new ArrayList<>();
+    public AllReturn<Map<String, SearchResult>> retrievalNotSamePerson(CompareParam param) {
+        Map<String, SearchResult> result = new HashMap<>();
         List<String> ipcIdList = param.getArg1List();
         String dateStart = param.getDateStart();
         String dateEnd = param.getDateEnd();
@@ -98,39 +135,34 @@ public class ServiceImpl implements Service{
         List<Pair<String, byte[]>> dataFilterd =  comparators.filter(ipcIdList, null, dateStart, dateEnd);
         if(dataFilterd.size() > compareSize){
             // 若过滤结果太大，则需要第一次对比
-            Map<Feature, List<String>> featureToRowkey = new HashMap<>();
-            for(Feature feature : features){
-                List<String> rowkeys = comparators.compareFirst(feature.getFeature1(), 500, dataFilterd);
-                featureToRowkey.put(feature, rowkeys);
-            }
+            List<String> Rowkeys = comparators.compareFirstNotSamePerson(features, 500, dataFilterd);
+
             //根据对比结果从HBase读取数据
-            Map<Feature, List<FaceObject>> objsMap = client.readFromHBase(featureToRowkey);
-            for(Map.Entry<Feature, List<FaceObject>> entry : objsMap.entrySet()){
-                SearchResult searchResult = comparators.compareSecond(entry.getKey().getFeature2(), sim, entry.getValue());
-                //结果排序
-                searchResult.sortBySim();
+            List<FaceObject> objs = client.readFromHBase(Rowkeys);
+
+            Map<String, SearchResult> resultTemp = comparators.compareSecondNotSamePerson(features, sim, objs);
+            for(Map.Entry<String, SearchResult> searchResult : resultTemp.entrySet()){
                 //取相似度最高的几个
-                searchResult = searchResult.take(resultDefaultCount);
-                result.add(searchResult);
+                SearchResult searchResult1 = searchResult.getValue().take(resultDefaultCount);
+                result.put(searchResult.getKey(), searchResult1);
+            }
+            return new AllReturn<>(result);
+        } else {
+            //若过滤结果比较小，则直接进行第二次对比
+            List<FaceObject> objs = client.readFromHBase2(dataFilterd);
+            Map<String, SearchResult> resultTemp = comparators.compareSecondNotSamePerson(features, sim, objs);
+            for(Map.Entry<String, SearchResult> searchResult : resultTemp.entrySet()){
+                //取相似度最高的几个
+                SearchResult searchResult1 = searchResult.getValue().take(resultDefaultCount);
+                result.put(searchResult.getKey(), searchResult1);
             }
             return new AllReturn<>(result);
         }
-        //若过滤结果比较小，则直接进行第二次对比
-        List<FaceObject> objs = client.readFromHBase2(dataFilterd);
-        for(Feature feature : features){
-            SearchResult searchResult = comparators.compareSecond(feature.getFeature2(), sim, objs);
-            //结果排序
-            searchResult.sortBySim();
-            //取相似度最高的几个
-            searchResult = searchResult.take(resultDefaultCount);
-            result.add(searchResult);
-        }
-        return new AllReturn<>(result);
     }
 
     @Override
     public void stopTheWorker() {
-        MemoryCacheImpl1 memoryCache = MemoryCacheImpl1.getInstance();
+        MemoryCacheImpl memoryCache = MemoryCacheImpl.getInstance();
         List<Quintuple<String, String, String, String, byte[]>> buffer = memoryCache.getBuffer();
         memoryCache.moveToCacheRecords(buffer);
         TaskToHandleQueue.getTaskQueue().addTask(new FlushTask(buffer));

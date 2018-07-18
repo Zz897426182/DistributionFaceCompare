@@ -3,13 +3,17 @@ package com.hzgc.compare.worker.persistence;
 import com.hzgc.compare.worker.common.Feature;
 import com.hzgc.compare.worker.common.FaceInfoTable;
 import com.hzgc.compare.worker.common.FaceObject;
+import com.hzgc.compare.worker.common.SearchResult;
 import com.hzgc.compare.worker.conf.Config;
 import com.hzgc.compare.worker.persistence.task.TimeToWrite;
+import com.hzgc.compare.worker.persistence.task.TimeToWrite2;
 import com.hzgc.compare.worker.util.FaceObjectUtil;
 import com.hzgc.compare.worker.util.HBaseHelper;
 import javafx.util.Pair;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Table;
@@ -34,6 +38,15 @@ public class HBaseClient {
      */
     public void timeToWrite(){
         TimeToWrite task = new TimeToWrite();
+        Thread thread = new Thread(task);
+        thread.start();
+    }
+
+    /**
+     * 启动任务，定期读取内存中的recordToHBase，保存在HBase中，并生成元数据保存入内存的buffer
+     */
+    public void timeToWrite2(){
+        TimeToWrite2 task = new TimeToWrite2();
         Thread thread = new Thread(task);
         thread.start();
     }
@@ -148,32 +161,37 @@ public class HBaseClient {
         return list;
     }
 
-//    /**
-//     * 对比结束，根据结果查询HBase数据
-//     * @param compareRes
-//     * @return
-//     */
-//    public SearchResult readFromHBase2(SearchResult compareRes){
-//        long start = System.currentTimeMillis();
-//        Connection conn = HBaseHelper.getHBaseConnection();
-//        try {
-//            Table table = conn.getTable(TableName.valueOf(FaceInfoTable.TABLE_NAME));
-//            List<Get> gets = new ArrayList<>();
-//            for(SearchResult.Record record : compareRes.getRecords()){
-//                gets.add(new Get(Bytes.toBytes((String) record.getValue())));
-//            }
-//            Result[]  results = table.get(gets);
-//            int index = 0;
-//            for (Result result : results){//对返回的结果集进行操作
-//                for (Cell kv : result.rawCells()) {
-//                    FaceObject object = FaceObjectUtil.jsonToObject(Bytes.toString(CellUtil.cloneValue(kv))) ;
-//                    compareRes.getRecords()[index] = new SearchResult.Record(compareRes.getRecords()[index].getKey(), object);
-//                }
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        System.out.println("The time used to get result is : " + (System.currentTimeMillis() - start));
-//        return compareRes;
-//    }
+    /**
+     * 对比结束，根据结果查询HBase数据
+     * @param compareRes
+     * @return
+     */
+    public SearchResult readFromHBase2(SearchResult compareRes){
+        long start = System.currentTimeMillis();
+        Connection conn = HBaseHelper.getHBaseConnection();
+        try {
+            Table table = conn.getTable(TableName.valueOf(FaceInfoTable.TABLE_NAME));
+            List<Get> gets = new ArrayList<>();
+            for(SearchResult.Record record : compareRes.getRecords()){
+                gets.add(new Get(Bytes.toBytes((String) record.getValue())));
+            }
+            Result[]  results = table.get(gets);
+            int index = 0;
+            for (Result result : results){//对返回的结果集进行操作
+                for (Cell kv : result.rawCells()) {
+                    FaceObject object = FaceObjectUtil.jsonToObject(Bytes.toString(CellUtil.cloneValue(kv))) ;
+//                    String rowkey = Bytes.toString(CellUtil.cloneRow(kv));
+//                    if(! rowkey.equals(compareRes.getRecords()[index].getValue())){
+//                        System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+//                    }
+                    compareRes.getRecords()[index] = new SearchResult.Record(compareRes.getRecords()[index].getKey(), object);
+                    index ++;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("The time used to get result is : " + (System.currentTimeMillis() - start));
+        return compareRes;
+    }
 }

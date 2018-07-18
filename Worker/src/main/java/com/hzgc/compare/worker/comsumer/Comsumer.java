@@ -4,7 +4,7 @@ package com.hzgc.compare.worker.comsumer;
 
 import com.hzgc.compare.worker.common.FaceObject;
 import com.hzgc.compare.worker.conf.Config;
-import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl1;
+import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
 import com.hzgc.compare.worker.util.FaceObjectUtil;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -18,7 +18,7 @@ import java.util.Properties;
 
 public class Comsumer extends Thread{
     private static Logger LOG = Logger.getLogger(Comsumer.class);
-    private MemoryCacheImpl1 memoryCache;
+    private MemoryCacheImpl memoryCache;
     private Config conf;
     private KafkaConsumer<String, String> comsumer;
 
@@ -36,9 +36,9 @@ public class Comsumer extends Thread{
         prop.put("group.id", conf.getValue(Config.KAFKA_GROUP_ID));
         prop.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         prop.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        comsumer = new KafkaConsumer<String, String>(prop);
+        comsumer = new KafkaConsumer<>(prop);
         LOG.info("Kafka comsumer is init.");
-        memoryCache = MemoryCacheImpl1.getInstance(conf);
+        memoryCache = MemoryCacheImpl.getInstance(conf);
     }
     /**
      * 接收从kafka传来的数据

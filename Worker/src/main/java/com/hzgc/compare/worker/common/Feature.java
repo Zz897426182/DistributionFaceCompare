@@ -1,6 +1,7 @@
 package com.hzgc.compare.worker.common;
 
 public class Feature{
+    private String id;
     private byte[] feature1;
     private float[] feature2;
     public Feature(byte[] feature1, float[] feature2){
@@ -14,5 +15,13 @@ public class Feature{
 
     public float[] getFeature2() {
         return feature2;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }
