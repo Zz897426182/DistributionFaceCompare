@@ -39,7 +39,7 @@ public class Comsumer extends Thread{
         prop.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         comsumer = new KafkaConsumer<>(prop);
         logger.info("Kafka comsumer is init.");
-        memoryCache = MemoryCacheImpl.getInstance(conf);
+        memoryCache = MemoryCacheImpl.getInstance();
     }
     /**
      * 接收从kafka传来的数据
@@ -62,10 +62,5 @@ public class Comsumer extends Thread{
 
     public void run() {
         receiveAndSave();
-    }
-
-    public void stopKafkaClient(){
-        logger.info("Stop the kafka comsumer.");
-        comsumer.close();
     }
 }
