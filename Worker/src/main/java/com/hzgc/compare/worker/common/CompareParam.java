@@ -55,4 +55,18 @@ public class CompareParam {
     public int getResultCount() {
         return resultCount;
     }
+
+    @Override
+    public String toString() {
+        return "CompareParam{" +
+                "arg1List=" + arg1List +
+                ", arg2List=" + arg2List +
+                ", dateStart='" + dateStart + '\'' +
+                ", dateEnd='" + dateEnd + '\'' +
+                ", features=" + features +
+                ", sim=" + sim +
+                ", resultCount=" + resultCount +
+                ", isTheSamePerson=" + isTheSamePerson +
+                '}';
+    }
 }

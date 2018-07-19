@@ -1,5 +1,7 @@
 package com.hzgc.compare.worker.common;
 
+import java.util.Arrays;
+
 public class Feature{
     private String id;
     private byte[] feature1;
@@ -23,5 +25,14 @@ public class Feature{
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "Feature{" +
+                "id='" + id + '\'' +
+                ", feature1=" + Arrays.toString(feature1) +
+                ", feature2=" + Arrays.toString(feature2) +
+                '}';
     }
 }

@@ -39,7 +39,7 @@ public class Client {
 //        Thread.sleep(1000 * 20);
 
         long compare2 = System.currentTimeMillis();
-        CompareParam param3 = new CompareParam(ipcIds, null,"2018-07-18", "2018-07-20", features, 0.9f, 25, true);
+        CompareParam param3 = new CompareParam(ipcIds, null,"2018-07-19", "2018-07-21", features, 0.9f, 25, true);
         AllReturn<SearchResult> resultAllReturn3 = service.retrievalOnePerson(param3);
         System.out.println("compare3 "+ (System.currentTimeMillis() - compare2));
         System.out.println(JsonUtil.objectToJson(resultAllReturn3.getResult()));

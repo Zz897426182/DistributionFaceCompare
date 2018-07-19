@@ -18,6 +18,8 @@ import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -27,6 +29,7 @@ import java.util.*;
  * 负责与HBas交互，定期插入数据，以及读取第一次比较结果
  */
 public class HBaseClient {
+    private static final Logger logger = LoggerFactory.getLogger(HBaseClient.class);
     private Config conf;
 
     public HBaseClient(){
@@ -37,6 +40,7 @@ public class HBaseClient {
      * 启动任务，定期读取内存中的recordToHBase，保存在HBase中，并生成元数据保存入内存的buffer
      */
     public void timeToWrite(){
+        logger.info("Start a time task to deal with records from recordToHBase.");
         TimeToWrite task = new TimeToWrite();
         Thread thread = new Thread(task);
         thread.start();
@@ -46,6 +50,7 @@ public class HBaseClient {
      * 启动任务，定期读取内存中的recordToHBase，保存在HBase中，并生成元数据保存入内存的buffer
      */
     public void timeToWrite2(){
+        logger.info("Start a time task to deal with records from recordToHBase.");
         TimeToWrite2 task = new TimeToWrite2();
         Thread thread = new Thread(task);
         thread.start();
@@ -57,12 +62,13 @@ public class HBaseClient {
      * @return
      */
     public List<FaceObject> readFromHBase(List<String> rowkeys){
+        logger.info("The size of rowkeys is " + rowkeys.size());
         List<FaceObject> list = new ArrayList<>();
         long start = System.currentTimeMillis();
         try {
             Table table = HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
             long getTable = System.currentTimeMillis();
-            System.out.println("The time used to get table is : " + (getTable - start));
+            logger.info("The time used to get table is : " + (getTable - start));
             List<Get> gets = new ArrayList<>();
             for(String rowkey : rowkeys){
                 gets.add(new Get(Bytes.toBytes(rowkey)));
@@ -74,7 +80,8 @@ public class HBaseClient {
                     list.add(value);
                 }
             }
-            System.out.println("The time used to get data from hbase is : " + (System.currentTimeMillis() - getTable));
+            logger.info("The time used to get data from hbase is : " + (System.currentTimeMillis() - getTable));
+            logger.info("The size of result is " + list.size());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -137,12 +144,13 @@ public class HBaseClient {
      * @return
      */
     public List<FaceObject> readFromHBase2(List<Pair<String, byte[]>> records){
+        logger.info("The size of records is " + records.size());
         List<FaceObject> list = new ArrayList<>();
         long start = System.currentTimeMillis();
         try {
             Table table = HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
             long getTable = System.currentTimeMillis();
-            System.out.println("The time used to get table is : " + (getTable - start));
+            logger.info("The time used to get table is : " + (getTable - start));
             List<Get> gets = new ArrayList<>();
             for(Pair<String, byte[]> record : records){
                 gets.add(new Get(Bytes.toBytes(record.getKey())));
@@ -154,7 +162,8 @@ public class HBaseClient {
                     list.add(value);
                 }
             }
-            System.out.println("The time used to get data from hbase is : " + (System.currentTimeMillis() - getTable));
+            logger.info("The time used to get data from hbase is : " + (System.currentTimeMillis() - getTable));
+            logger.info("The size of result is " + list.size());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -167,6 +176,7 @@ public class HBaseClient {
      * @return
      */
     public SearchResult readFromHBase2(SearchResult compareRes){
+        logger.info("The size of compareRes is " + compareRes.getRecords().length);
         long start = System.currentTimeMillis();
         Connection conn = HBaseHelper.getHBaseConnection();
         try {
@@ -191,7 +201,7 @@ public class HBaseClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("The time used to get result is : " + (System.currentTimeMillis() - start));
+        logger.info("The time used to get result is : " + (System.currentTimeMillis() - start));
         return compareRes;
     }
 }

@@ -35,17 +35,19 @@ public class Worker<A1, A2, D> {
         conf = Config.getConf();
         comsumer = new Comsumer();
         workId = conf.getValue(Config.WORKER_ID);
+        logger.info("To start worker " + workId);
+        logger.info("To init the memory module.");
         MemoryCacheImpl.<A1, A2, D>getInstance();
         memoryManager = new MemoryManager<A1, A2, D>();
+        logger.info("To init persistence module.");
         if(Config.SAVE_TO_LOCAL == conf.getValue(Config.WORKER_FILE_SAVE_SYSTEM, 0)){
             fileManager = new LocalFileManager();
         }
         hBaseClient = new HBaseClient();
-
+        logger.info("Load data from file System.");
         FileReader fileReader = new FileReader();
         fileReader.loadRecord();
         HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
-        logger.info("");
     }
 
     private void start(){
@@ -56,6 +58,7 @@ public class Worker<A1, A2, D> {
         }
         fileManager.checkFile();
         hBaseClient.timeToWrite2();
+        logger.info("Registry the service.");
         ServiceRegistry registry = new ServiceRegistry(conf.getValue(Config.ZOOKEEPER_ADDRESS));
         RpcServer rpcServer = new RpcServer(conf.getValue(Config.WORKER_ADDRESS),
                 conf.getValue(Config.WORKER_RPC_PORT, 4086), registry);

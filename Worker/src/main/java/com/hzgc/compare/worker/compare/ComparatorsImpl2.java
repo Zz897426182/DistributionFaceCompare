@@ -1,19 +1,20 @@
 package com.hzgc.compare.worker.compare;
 
-import com.hzgc.compare.worker.common.FaceObject;
 import com.hzgc.compare.worker.common.Feature;
 import com.hzgc.compare.worker.common.SearchResult;
 import com.hzgc.compare.worker.common.Triplet;
 import com.hzgc.compare.worker.jni.CompareResult;
 import com.hzgc.compare.worker.jni.FaceFeatureInfo;
 import com.hzgc.compare.worker.jni.FeatureCompared;
-import com.hzgc.compare.worker.jni.JNINativeMethod;
 import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
 import javafx.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class ComparatorsImpl2 {
+    private static final Logger logger = LoggerFactory.getLogger(ComparatorsImpl2.class);
 
     public List<Pair<String, float[]>> filter(List<String> arg1List, String arg2, String dateStart, String dateEnd) {
         List<Pair<String, float[]>> result = new ArrayList<>();
@@ -33,8 +34,8 @@ public class ComparatorsImpl2 {
                     result.addAll(cacheRecords.get(key));
                 }
             }
-            System.out.println("The time used to filter is : " + (System.currentTimeMillis() - start));
-            System.out.println("The size filterd is : " + result.size());
+            logger.info("The time used to filter is : " + (System.currentTimeMillis() - start));
+            logger.info("The size filterd is : " + result.size());
             return result;
         }
         for(String arg1 : arg1List) {
@@ -51,8 +52,8 @@ public class ComparatorsImpl2 {
                 }
             }
         }
-        System.out.println("The time used to filter is : " + (System.currentTimeMillis() - start));
-        System.out.println("The size filterd is : " + result.size());
+        logger.info("The time used to filter is : " + (System.currentTimeMillis() - start));
+        logger.info("The size filterd is : " + result.size());
         return result;
     }
 
@@ -82,9 +83,9 @@ public class ComparatorsImpl2 {
             index ++;
         }
         SearchResult result = new SearchResult(records);
-        System.out.println("The size of Compared is : " + records.length);
+        logger.info("The size of Compared is : " + records.length);
         result.sortBySim();
-        System.out.println("The time comparing used is : " + (System.currentTimeMillis() - start));
+        logger.info("The time comparing used is : " + (System.currentTimeMillis() - start));
         return result;
     }
 
@@ -119,8 +120,9 @@ public class ComparatorsImpl2 {
             index ++;
         }
         SearchResult result = new SearchResult(records);
+        logger.info("The size of Compared is : " + records.length);
         result.sortBySim();
-        System.out.println("The time comparing used is : " + (System.currentTimeMillis() - start));
+        logger.info("The time comparing used is : " + (System.currentTimeMillis() - start));
         return result;
     }
 
@@ -153,9 +155,10 @@ public class ComparatorsImpl2 {
             }
             SearchResult searchResult = new SearchResult(records);
             searchResult.sortBySim();
-            result.put(compareResult.getIndex(), searchResult);
+            String id = features.get(Integer.parseInt(compareResult.getIndex())).getId();
+            result.put(id, searchResult);
         }
-        System.out.println("The time second compare used is : " + (System.currentTimeMillis() - start));
+        logger.info("The time second compare used is : " + (System.currentTimeMillis() - start));
         return result;
     }
 }

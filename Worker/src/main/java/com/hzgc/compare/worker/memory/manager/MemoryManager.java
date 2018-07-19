@@ -4,6 +4,8 @@ import com.hzgc.compare.worker.common.Triplet;
 import com.hzgc.compare.worker.conf.Config;
 import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
 import javafx.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,6 +14,7 @@ import java.util.Map;
 import java.util.Timer;
 
 public class MemoryManager<A1,A2,D> {
+    private static final Logger logger = LoggerFactory.getLogger(MemoryManager.class);
     private Config conf;
     private Long cacheNumMax = 30000000L; //内存中存储数据的上限，默认值3000万，根据实际内存设置
     private Long checkTime = 1000L * 60 * 30; //内存检查时间间隔， 默认30分钟
@@ -36,6 +39,7 @@ public class MemoryManager<A1,A2,D> {
      * @return
      */
     public void startToCheck(){
+        logger.info("Start to check memory.");
         new Timer().schedule(new TimeToCheckMemory(this), checkTime, checkTime);
     }
 
@@ -46,6 +50,7 @@ public class MemoryManager<A1,A2,D> {
      * 直到数据量减少到阈值的80%以下
      */
     public void remove() {
+        logger.info("To remove records time out.");
         removeTimeOut(recordTimeOut);
     }
 
@@ -73,6 +78,7 @@ public class MemoryManager<A1,A2,D> {
     }
 
     public void timeToCheckFlush(){
+        logger.info("Start to flush buffer");
         new Timer().schedule(new TimeToFlushBuffer(), 5000, 5000);
     }
 

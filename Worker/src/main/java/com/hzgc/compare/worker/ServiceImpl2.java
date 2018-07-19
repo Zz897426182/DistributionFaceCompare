@@ -8,7 +8,10 @@ import com.hzgc.compare.worker.common.SearchResult;
 import com.hzgc.compare.worker.compare.ComparatorsImpl2;
 import com.hzgc.compare.worker.conf.Config;
 import com.hzgc.compare.worker.persistence.HBaseClient;
+import com.hzgc.compare.worker.util.FaceObjectUtil;
 import javafx.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +20,7 @@ import java.util.Map;
 
 @RpcService(Service.class)
 public class ServiceImpl2 implements Service{
+    private static final Logger logger = LoggerFactory.getLogger(ServiceImpl2.class);
     private int resultDefaultCount = 20;
     private Config conf;
 
@@ -27,6 +31,7 @@ public class ServiceImpl2 implements Service{
 
     @Override
     public AllReturn<SearchResult> retrievalOnePerson(CompareParam param) {
+        logger.info("The param is : " + FaceObjectUtil.objectToJson(param));
         List<String> ipcIdList = param.getArg1List();
         String dateStart = param.getDateStart();
         String dateEnd = param.getDateEnd();
@@ -40,19 +45,22 @@ public class ServiceImpl2 implements Service{
         HBaseClient client = new HBaseClient();
         ComparatorsImpl2 comparators = new ComparatorsImpl2();
         // 根据条件过滤
+        logger.info("To filter the records from memory.");
         List<Pair<String, float[]>> dataFilterd =  comparators.filter(ipcIdList, null, dateStart, dateEnd);
         // 执行对比
+        logger.info("To compare the result of filterd.");
         result = comparators.compareSecond(feature2, sim, dataFilterd);
-        //结果排序
-        result.sortBySim();
         //取相似度最高的几个
+        logger.info("Take the top " + resultCount);
         result = result.take(resultCount);
+        logger.info("Read records from HBase.");
         result = client.readFromHBase2(result);
         return new AllReturn<>(result);
     }
 
     @Override
     public AllReturn<SearchResult> retrievalSamePerson(CompareParam param) {
+        logger.info("The param is : " + FaceObjectUtil.objectToJson(param));
         List<String> ipcIdList = param.getArg1List();
         String dateStart = param.getDateStart();
         String dateEnd = param.getDateEnd();
@@ -70,18 +78,23 @@ public class ServiceImpl2 implements Service{
         HBaseClient client = new HBaseClient();
         ComparatorsImpl2 comparators = new ComparatorsImpl2();
         // 根据条件过滤
+        logger.info("To filter the records from memory.");
         List<Pair<String, float[]>> dataFilterd =  comparators.filter(ipcIdList, null, dateStart, dateEnd);
         // 执行对比
+        logger.info("To compare the result of filterd.");
         result = comparators.compareSecondTheSamePerson(feature2List, sim, dataFilterd);
         //取相似度最高的几个
+        logger.info("Take the top " + resultCount);
         result = result.take(resultCount);
         //从HBase读取数据
+        logger.info("Read records from HBase.");
         result = client.readFromHBase2(result);
         return new AllReturn<>(result);
     }
 
     @Override
     public AllReturn<Map<String, SearchResult>> retrievalNotSamePerson(CompareParam param) {
+        logger.info("The param is : " + FaceObjectUtil.objectToJson(param));
         List<String> ipcIdList = param.getArg1List();
         String dateStart = param.getDateStart();
         String dateEnd = param.getDateEnd();
@@ -97,8 +110,10 @@ public class ServiceImpl2 implements Service{
         HBaseClient client = new HBaseClient();
         ComparatorsImpl2 comparators = new ComparatorsImpl2();
         // 根据条件过滤
+        logger.info("To filter the records from memory.");
         List<Pair<String, float[]>> dataFilterd =  comparators.filter(ipcIdList, null, dateStart, dateEnd);
         // 执行对比
+        logger.info("To compare the result of filterd.");
         resultTemp = comparators.compareSecondNotSamePerson(features, sim, dataFilterd);
         for(Map.Entry<String, SearchResult> searchResult : resultTemp.entrySet()){
             SearchResult res1 = searchResult.getValue().take(resultCount);
