@@ -127,7 +127,7 @@ public class RpcServer {
                         socketChannel.pipeline()
                                 .addLast(new IdleStateHandler(4, 4, 4))
                                 .addLast(new RpcEncoder(RpcResponse.class))
-                                .addLast(new LengthFieldBasedFrameDecoder(65535,
+                                .addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,
                                         0,
                                         4,
                                         0,

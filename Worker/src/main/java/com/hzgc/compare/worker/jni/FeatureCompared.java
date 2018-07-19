@@ -14,12 +14,48 @@ public class FeatureCompared {
 
 //    public static native SearchResult compareSecond(List<FaceObject> data, float[] feature, float sim);
 
+    public static ArrayList<CompareResult> faceCompareFloat(int retResult, float[][] diku, float[][] queryList, float sim){
+        ArrayList<CompareResult> array = new ArrayList<>();
+        int index = 0;
+        for(float[] query : queryList){
+            CompareResult compareResult = new CompareResult();
+            compareResult.setIndex(String.valueOf(index));
+            ArrayList<FaceFeatureInfo> faceFeatureInfos = new ArrayList<>();
+            compareResult.setPictureInfoArrayList(faceFeatureInfos);
+            int id = 0;
+            for(float[] historyFeature : diku){
+                FaceFeatureInfo faceFeatureInfo = new FaceFeatureInfo();
+                faceFeatureInfo.setImageID(String.valueOf(id));
+                double similarityDegree = 0;
+                double currentFeatureMultiple = 0;
+                double historyFeatureMultiple = 0;
+                if (query.length == 512 && historyFeature.length == 512) {
+                    for (int i = 0; i < query.length; i++) {
+                        similarityDegree = similarityDegree + query[i] * historyFeature[i];
+                        currentFeatureMultiple = currentFeatureMultiple + Math.pow(query[i], 2);
+                        historyFeatureMultiple = historyFeatureMultiple + Math.pow(historyFeature[i], 2);
+                    }
+                    double tempSim = similarityDegree / Math.sqrt(currentFeatureMultiple) / Math.sqrt(historyFeatureMultiple);
+                    double actualValue = new BigDecimal((0.5 + (tempSim / 2)) * 100).
+                            setScale(2, BigDecimal.ROUND_HALF_UP).
+                            doubleValue();
+                    if (actualValue > sim) {
+                        faceFeatureInfo.setScore((float) actualValue);
+                        faceFeatureInfos.add(faceFeatureInfo);
+                    }
+                }
+                id ++;
+            }
+            index ++;
+            array.add(compareResult);
+        }
+        return array;
+    }
 
-    public static SearchResult compareSecond(List<FaceObject> data, float[] currentFeature, float sim){
+    public static SearchResult compareSecond(List<Pair<String, float[]>> data, float[] currentFeature, float sim){
         List<SearchResult.Record> list = new ArrayList<>();
-
-        for(FaceObject obj : data){
-            float[] historyFeature = obj.getAttribute().getFeature();
+        for(Pair<String, float[]> feature : data){
+            float[] historyFeature = feature.getValue();
             double similarityDegree = 0;
             double currentFeatureMultiple = 0;
             double historyFeatureMultiple = 0;
@@ -34,7 +70,7 @@ public class FeatureCompared {
                         setScale(2, BigDecimal.ROUND_HALF_UP).
                         doubleValue();
                 if (actualValue > sim) {
-                    list.add(new SearchResult.Record(actualValue, obj));
+                    list.add(new SearchResult.Record(actualValue, feature.getKey()));
                 }
             }
         }

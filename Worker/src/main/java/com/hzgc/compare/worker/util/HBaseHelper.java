@@ -12,12 +12,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HBaseHelper {
     private static Logger LOG = LoggerFactory.getLogger(HBaseHelper.class);
 
     private static Configuration innerHBaseConf = null;
     private static Connection innerHBaseConnection = null;
+    private static Map<String, Table> tables;
 
     public HBaseHelper() {
         initHBaseConfiguration();
@@ -93,7 +96,16 @@ public class HBaseHelper {
     public static Table getTable(String tableName) {
         if (!StringUtils.isBlank(tableName)) {
             try {
-                return HBaseHelper.getHBaseConnection().getTable(TableName.valueOf(tableName));
+                if(tables == null){
+                    tables = new HashMap<>();
+                }
+                Table table = tables.get(tableName);
+                if(table == null){
+                    System.out.println("To create The table : " + tableName);
+                    table = HBaseHelper.getHBaseConnection().getTable(TableName.valueOf(tableName));
+                    tables.put(tableName, table);
+                }
+                return table;
             } catch (IOException e) {
                 e.printStackTrace();
             }
