@@ -35,37 +35,41 @@ public class TimeToWrite implements Runnable{
         while (true) {
             try {
                 Thread.sleep(timeToWrite);
-                logger.info("To Write record into HBase.");
-                MemoryCacheImpl<String, String, byte[]> cache = MemoryCacheImpl.getInstance();
-                List<FaceObject> recordToHBase = cache.getObjects();
-                logger.info("The record num from kafka is :" + recordToHBase.size());
-                if(recordToHBase.size() == 0){
-                    continue;
-                }
-                List<Quintuple<String, String, String, String, byte[]>> bufferList = new ArrayList<>();
-                try {
-                    List<Put> putList = new ArrayList<>();
-                    Table table = HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
-                    for (FaceObject record : recordToHBase) {
-                        String rowkey = record.getDate() + "-" + record.getIpcId() + UuidUtil.getUuid().substring(0, 24);
-                        Put put = new Put(Bytes.toBytes(rowkey));
-                        put.addColumn(Bytes.toBytes(FaceInfoTable.CLU_FAMILY), Bytes.toBytes(FaceInfoTable.INFO), Bytes.toBytes(FaceObjectUtil.objectToJson(record)));
-                        putList.add(put);
-                        Quintuple<String, String, String, String, byte[]> bufferRecord =
-                                new Quintuple<>(record.getIpcId(), null, record.getDate(), rowkey, record.getAttribute().getFeature2());
-                        bufferList.add(bufferRecord);
-                    }
-                    table.put(putList);
-                    cache.addBuffer(bufferList);
-                    logger.info("Put record to hbase success .");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    cache.recordToHBase(recordToHBase);
-                    logger.error("Put records to hbase faild.");
-                }
+                writeToHBase();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public void writeToHBase(){
+        logger.info("To Write record into HBase.");
+        MemoryCacheImpl<String, String, byte[]> cache = MemoryCacheImpl.getInstance();
+        List<FaceObject> recordToHBase = cache.getObjects();
+        if(recordToHBase.size() == 0){
+            return;
+        }
+        logger.info("The record num from kafka is :" + recordToHBase.size());
+        List<Quintuple<String, String, String, String, byte[]>> bufferList = new ArrayList<>();
+        try {
+            List<Put> putList = new ArrayList<>();
+            Table table = HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
+            for (FaceObject record : recordToHBase) {
+                String rowkey = record.getDate() + "-" + record.getIpcId() + UuidUtil.getUuid().substring(0, 24);
+                Put put = new Put(Bytes.toBytes(rowkey));
+                put.addColumn(Bytes.toBytes(FaceInfoTable.CLU_FAMILY), Bytes.toBytes(FaceInfoTable.INFO), Bytes.toBytes(FaceObjectUtil.objectToJson(record)));
+                putList.add(put);
+                Quintuple<String, String, String, String, byte[]> bufferRecord =
+                        new Quintuple<>(record.getIpcId(), null, record.getDate(), rowkey, record.getAttribute().getFeature2());
+                bufferList.add(bufferRecord);
+            }
+            table.put(putList);
+            cache.addBuffer(bufferList);
+            logger.info("Put record to hbase success .");
+        } catch (IOException e) {
+            e.printStackTrace();
+            cache.addFaceObjects(recordToHBase);
+            logger.error("Put records to hbase faild.");
         }
     }
 }

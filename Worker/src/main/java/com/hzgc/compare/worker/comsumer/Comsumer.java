@@ -55,7 +55,7 @@ public class Comsumer extends Thread{
                 FaceObject obj = FaceObjectUtil.jsonToObject(record.value());
                 objList.add(obj);
             }
-            memoryCache.recordToHBase(objList);
+            memoryCache.addFaceObjects(objList);
 //            logger.info("Push records from kafka to memory , the size is : " + objList.size());
         }
     }

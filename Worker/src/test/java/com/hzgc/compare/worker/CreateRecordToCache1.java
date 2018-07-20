@@ -3,7 +3,6 @@ package com.hzgc.compare.worker;
 import com.hzgc.compare.worker.common.FaceObject;
 import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
 import com.hzgc.compare.worker.util.FaceObjectUtil;
-import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,12 +40,12 @@ public class CreateRecordToCache1 {
                 String timeStamp = ",\"timeStamp\":\"2018-07-13 11:28:47\",\"date\":\"";
                 String end = list.get(ran.nextInt(26));
                 String data = "{\"ipcId\":\"" +ipcId+ "\"" + timeStamp + date + end;
-                System.out.println(data);
+//                System.out.println(data);
 //                bw.write(ipcId + " " + date + " " + );//"\t\n"
                 FaceObject obj = FaceObjectUtil.jsonToObject(data);
                 arr.add(obj);
             }
-            MemoryCacheImpl.getInstance().recordToHBase(arr);
+            MemoryCacheImpl.getInstance().addFaceObjects(arr);
         }
     }
 }
