@@ -10,4 +10,8 @@ public class FlushTask extends TaskToHandle {
             super();
             this.records = records;
         }
+
+    public List <Quintuple <String, String, String, String, byte[]>> getRecords() {
+        return records;
     }
+}

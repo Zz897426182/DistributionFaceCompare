@@ -10,8 +10,8 @@ import java.util.TimerTask;
 public class TimeToCheckStream extends TimerTask {
     private Config conf;
     private Long streamTimeOut = 1000L * 60 * 60 * 24 * 10; //stream过期时间，默认10天
-    public TimeToCheckStream(Config conf){
-
+    public TimeToCheckStream(){
+        this.conf = Config.getConf();
     }
     public void run() {
 
