@@ -1,6 +1,9 @@
 package com.hzgc.compare.worker.persistence;
 
 
+import com.hzgc.compare.worker.common.Quintuple;
+
+import java.util.List;
 
 /**
  * FilterManager主要用于管理本地文件（或HDFS文件），主要作用是内存持久化，本地文件的创建和删除
@@ -16,6 +19,8 @@ public interface FileManager {
      */
     void flush();
 
+    void flush(List<Quintuple<String, String, String, String, byte[]>> buffer);
+
     /**
      * 若写出的数据不在当前时间段，则需要创建新的文件，建立新的输出流，并保存流
      */
@@ -25,10 +30,5 @@ public interface FileManager {
      * 启动定期任务，检查文件是否存在过期，并删除过期文件，以及对应的HBase数据
      */
     void checkFile();
-
-    /**
-     * 启动定时任务，定期查看TaskToHandle中有无FlushTask，如果有，则flush其中的记录，并删除该FlushTask
-     */
-    void timeToFlush();
 
 }
