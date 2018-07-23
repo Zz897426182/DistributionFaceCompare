@@ -3,18 +3,23 @@ package com.hzgc.compare.worker;
 import com.hzgc.compare.worker.common.FaceObject;
 import com.hzgc.compare.worker.common.Quintuple;
 import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
+import com.hzgc.compare.worker.memory.manager.MemoryManager;
+import com.hzgc.compare.worker.persistence.task.TimeToWrite;
 import com.hzgc.compare.worker.util.FaceObjectUtil;
 import com.hzgc.compare.worker.util.UuidUtil;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-public class CreateRecordToBuffer {
-    public static void createRecords(int num) throws IOException {
+public class CreateRecordForCompared {
+    public void createRecords(int days, int num) throws IOException {
         Random ran = new Random();
         List<String> ipcIdList = new ArrayList<String>();
         for(int i = 0; i < 100 ; i ++){
@@ -28,13 +33,14 @@ public class CreateRecordToBuffer {
             list.add(line.substring(line.indexOf("\"timeSlot\"") - 2 , line.length()));
         }
 
+        TimeToWrite task = new TimeToWrite();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 //        List<File> files = new ArrayList<File>();
 //        File file0 = new File("metadata" + File.separator + "metadata_0");
 //        files.add(file0);
 //        BufferedWriter bw = new BufferedWriter(new FileWriter(file0));
-        for(int i = 0 ; i < 1 ; i ++){
-            List<Quintuple<String, String, String, String, byte[]>> records = new ArrayList<>();
+        for(int i = 0 ; i < days ; i ++){
+            List<FaceObject> arr = new ArrayList<>();
             String date = sdf.format(new Date(System.currentTimeMillis() + i * 24 * 60 * 60 * 1000));
             for(int j = 0 ; j < num ; j++){
                 String ipcId = ipcIdList.get(ran.nextInt(100));
@@ -44,11 +50,12 @@ public class CreateRecordToBuffer {
 //                System.out.println(data);
 //                bw.write(ipcId + " " + date + " " + );//"\t\n"
                 FaceObject obj = FaceObjectUtil.jsonToObject(data);
-                String rowkey = obj.getDate() + "-" + obj.getIpcId() + UuidUtil.getUuid().substring(0, 24);
-                records.add(new Quintuple<String, String, String, String, byte[]>(obj.getIpcId(), null,
-                        obj.getDate(), rowkey, obj.getAttribute().getFeature2()));
+                arr.add(obj);
             }
-            MemoryCacheImpl.<String,String, byte[]>getInstance().addBuffer(records);
+            MemoryCacheImpl cache = MemoryCacheImpl.<String, String, byte[]>getInstance();
+            cache.addFaceObjects(arr);
+            task.writeToHBase();
+            cache.flush();
         }
     }
 }

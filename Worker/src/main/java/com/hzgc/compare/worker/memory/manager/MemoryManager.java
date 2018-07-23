@@ -9,16 +9,14 @@ import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
+import java.util.*;
 
 public class MemoryManager<A1,A2,D> {
     private static final Logger logger = LoggerFactory.getLogger(MemoryManager.class);
     private Config conf;
     private Long cacheNumMax = 30000000L; //内存中存储数据的上限，默认值3000万，根据实际内存设置
     private Long checkTime = 1000L * 60 * 30; //内存检查时间间隔， 默认30分钟
-    private Integer recordTimeOut = 360; //一级过期时间，单位： 天 ， 默认12个月，为了一次就删除到0.8以下，需要根据实际情况设置好这个值
+    private long recordTimeOut = 360; //一级过期时间，单位： 天 ， 默认12个月，为了一次就删除到0.8以下，需要根据实际情况设置好这个值
     private SimpleDateFormat sdf;
     public MemoryManager(){
         init();
@@ -32,6 +30,10 @@ public class MemoryManager<A1,A2,D> {
         checkTime = conf.getValue(Config.WORKER_MEMORY_CHECK_TIME, checkTime);
         recordTimeOut = conf.getValue(Config.WORKER_RECORD_TIME_OUT, recordTimeOut);
         sdf = new SimpleDateFormat("yyyy-MM-dd");
+    }
+
+    public void reLoadParam(){
+        init();
     }
 
     /**
@@ -58,11 +60,13 @@ public class MemoryManager<A1,A2,D> {
         long count = 0L;
         MemoryCacheImpl cache = MemoryCacheImpl.getInstance(conf);
         Map<Triplet<A1, A2, String>, List<Pair<String, D>>> records = cache.getCacheRecords();
-        for(Triplet<A1, A2, String> key : records.keySet()){
+        List<Triplet<A1, A2, String>> keyList = new ArrayList<>();
+        keyList.addAll(records.keySet());
+        for(Triplet<A1, A2, String> key : keyList){
             String date = key.getThird();
             try {
                 long time = sdf.parse(date).getTime();
-                if(System.currentTimeMillis() - time > timeOut * 24 * 60 * 60 * 1000){
+                if(System.currentTimeMillis() - time > timeOut * 24L * 60 * 60 * 1000){
                     records.remove(key);
                 } else {
                     count += records.get(key).size();
@@ -72,7 +76,7 @@ public class MemoryManager<A1,A2,D> {
             }
         }
         System.out.println("The Num of Memory Cache is : " + count);
-        if(count > cacheNumMax){
+        if(count > cacheNumMax * 0.8){
             removeTimeOut(timeOut - 1);
         }
     }
@@ -91,7 +95,9 @@ public class MemoryManager<A1,A2,D> {
         String oldest = "";
         MemoryCacheImpl cache = MemoryCacheImpl.getInstance(conf);
         Map<Triplet<A1, A2, String>, List<Pair<String, D>>> records = cache.getCacheRecords();
-        for(Triplet<A1, A2, String> key : records.keySet()){
+        Set<Triplet<A1, A2, String>> keySet = new HashSet<>();
+        keySet.addAll(records.keySet());
+        for(Triplet<A1, A2, String> key : keySet){
             String date = key.getThird();
             if(oldest.compareTo(date) < 0){
                 oldest = date;

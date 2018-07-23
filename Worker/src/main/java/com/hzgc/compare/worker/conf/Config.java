@@ -82,4 +82,8 @@ public class Config {
         }
         return Integer.parseInt(res);
     }
+
+    public void setValue(String name, String value){
+        ps.put(name, value);
+    }
 }

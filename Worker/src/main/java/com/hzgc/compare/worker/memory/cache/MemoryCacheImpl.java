@@ -8,10 +8,7 @@ import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 内存缓存模块，单例模式，内部存储三种数据buffer和cacheRecords，以及recordToHBase
@@ -24,7 +21,7 @@ public class MemoryCacheImpl<A1, A2, D> {
     private Config conf;
     private int flushProgram = 0; //flush 方案 0 定期flush  1 定量flush
     private Integer bufferSizeMax = 1000; // buffer存储上限，默认1000
-    private DoubleBufferQueue<FaceObject> recordToHBase; //这里应该是一个类似阻塞队列的集合
+    private DoubleBufferQueue<FaceObject> faceObjects; //这里应该是一个类似阻塞队列的集合
     private Map<Triplet<A1, A2, String>, List<Pair<String, D>>> cacheRecords;
     private DoubleBufferQueue<Quintuple<A1, A2, String, String, D>> buffer;
 
@@ -51,17 +48,17 @@ public class MemoryCacheImpl<A1, A2, D> {
 
     private void init(Config conf) {
         bufferSizeMax = conf.getValue(Config.WORKER_BUFFER_SIZE_MAX, bufferSizeMax);
-        recordToHBase = new DoubleBufferQueue<>();
-        cacheRecords = new HashMap<>();
+        faceObjects = new DoubleBufferQueue<>();
+        cacheRecords = new Hashtable<>();
         buffer = new DoubleBufferQueue<>();
     }
 
     /**
-     * 返回recordToHBase
+     * 返回faceObjects
      * @return
      */
     public List<FaceObject> getObjects() {
-        return recordToHBase.get();
+        return faceObjects.get();
     }
 
     public List<Quintuple<A1, A2, String, String, D>> getBuffer(){
@@ -83,9 +80,9 @@ public class MemoryCacheImpl<A1, A2, D> {
     /**
      * 增加recordToHBase
      */
-    public void recordToHBase(List<FaceObject> objs) {
+    public void addFaceObjects(List<FaceObject> objs) {
         if(objs.size() > 0) {
-            recordToHBase.push(objs);
+            faceObjects.push(objs);
         }
     }
 
