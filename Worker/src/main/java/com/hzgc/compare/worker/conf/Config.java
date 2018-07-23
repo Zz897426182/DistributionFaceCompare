@@ -35,6 +35,8 @@ public class Config {
     public static final String WORKER_ADDRESS = "worker.address";
     public static final String WORKER_RPC_PORT = "worker.rpc.port";
     public static final String WORKER_ID = "worker.id";
+    public static final String ROOT_PATH = "root.path";
+    public static final String DELETE_OPEN = "delete.open";
 
     public static Config getConf(Properties ps) {
         if(conf == null){

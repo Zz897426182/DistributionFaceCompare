@@ -1,6 +1,9 @@
 package com.hzgc.compare.worker.persistence;
 
+import com.hzgc.compare.worker.common.Quintuple;
 import com.hzgc.compare.worker.conf.Config;
+
+import java.util.List;
 
 public class HDFSFileManager implements FileManager {
     private Config conf;
@@ -17,6 +20,11 @@ public class HDFSFileManager implements FileManager {
 
     }
 
+
+    public void flush(List<Quintuple<String, String, String, String, byte[]>> buffer) {
+
+    }
+
     public void createFile() {
 
     }
@@ -25,7 +33,6 @@ public class HDFSFileManager implements FileManager {
 
     }
 
-    @Override
     public void timeToFlush() {
 
     }
