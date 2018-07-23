@@ -18,31 +18,29 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 定期读取内存中的recordToHBase，保存在HBase中，并生成元数据保存入内存的buffer
- */
-public class TimeToWrite implements Runnable{
-    private static final Logger logger = LoggerFactory.getLogger(TimeToWrite.class);
+public class TimeToWrite2 implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(TimeToWrite2.class);
     private Config conf;
     private Long timeToWrite = 1000L; //任务执行时间间隔，默认1秒
 
-    public TimeToWrite(){
+    public TimeToWrite2(){
         this.conf = Config.getConf();
         this.timeToWrite = conf.getValue(Config.WORKER_HBASE_WRITE_TIME, this.timeToWrite);
     }
+
     @Override
     public void run() {
         while (true) {
             try {
                 Thread.sleep(timeToWrite);
-                logger.info("To Write record into HBase.");
-                MemoryCacheImpl<String, String, byte[]> cache = MemoryCacheImpl.getInstance();
+                logger.info("To Write record into HBase");
+                MemoryCacheImpl<String, String, float[]> cache = MemoryCacheImpl.getInstance();
                 List<FaceObject> recordToHBase = cache.getObjects();
                 logger.info("The record num from kafka is :" + recordToHBase.size());
                 if(recordToHBase.size() == 0){
                     continue;
                 }
-                List<Quintuple<String, String, String, String, byte[]>> bufferList = new ArrayList<>();
+                List<Quintuple<String, String, String, String, float[]>> bufferList = new ArrayList<>();
                 try {
                     List<Put> putList = new ArrayList<>();
                     Table table = HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
@@ -51,13 +49,13 @@ public class TimeToWrite implements Runnable{
                         Put put = new Put(Bytes.toBytes(rowkey));
                         put.addColumn(Bytes.toBytes(FaceInfoTable.CLU_FAMILY), Bytes.toBytes(FaceInfoTable.INFO), Bytes.toBytes(FaceObjectUtil.objectToJson(record)));
                         putList.add(put);
-                        Quintuple<String, String, String, String, byte[]> bufferRecord =
-                                new Quintuple<>(record.getIpcId(), null, record.getDate(), rowkey, record.getAttribute().getFeature2());
+                        Quintuple<String, String, String, String, float[]> bufferRecord =
+                                new Quintuple<>(record.getIpcId(), null, record.getDate(), rowkey, record.getAttribute().getFeature());
                         bufferList.add(bufferRecord);
                     }
                     table.put(putList);
                     cache.addBuffer(bufferList);
-                    logger.info("Put record to hbase success .");
+                    logger.info("Put records to hbase success.");
                 } catch (IOException e) {
                     e.printStackTrace();
                     cache.recordToHBase(recordToHBase);

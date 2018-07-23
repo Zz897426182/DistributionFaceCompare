@@ -26,7 +26,7 @@ public class SearchResult {
             return this;
         }
         Record[] recordsTemp = new Record[num];
-        System.arraycopy(records, 0, new Record[num], 0, num);
+        System.arraycopy(records, 0, recordsTemp, 0, num);
         return new SearchResult(recordsTemp);
     }
 
@@ -34,8 +34,8 @@ public class SearchResult {
      * 将当前的records根据Sim排序
      */
     public void sortBySim(){ //TODO 选择合适的排序
-        Arrays.sort(records);
-//        quickSort(records, 0, records.length);
+//        Arrays.sort(records);
+        quickSort(records, 0, records.length - 1);
     }
 
     /**
@@ -72,6 +72,31 @@ public class SearchResult {
     private void quickSort(Record[] records , int begin, int end){
         int tbegin = begin;
         int tend = end;
+        if(begin >= end)
+        {
+            return;
+        }
+        Record key = records[begin];
+        int i = begin;
+        int j = end;
+        while (i < j){
+            while (records[j].sim <= key.sim && i < j){
+                j --;
+            }
+            while (records[i].sim >= key.sim && i < j){
+                i ++;
+            }
+
+            if(i < j){
+                Record temp = records[i];
+                records[i] = records[j];
+                records[j] = temp;
+            }
+        }
+        records[begin] = records[i];
+        records[i] = key;
+        quickSort(records, begin, i-1);
+        quickSort(records, i + 1, end);
     }
 
     public Record[] getRecords(){
@@ -97,6 +122,14 @@ public class SearchResult {
 
         public int compareTo(Record o) {
             return Double.compare(this.sim, o.sim);
+        }
+
+        @Override
+        public String toString() {
+            return "Record{" +
+                    "sim=" + sim +
+                    ", body=" + body +
+                    '}';
         }
     }
 }

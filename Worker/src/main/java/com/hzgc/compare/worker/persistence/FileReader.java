@@ -3,7 +3,7 @@ package com.hzgc.compare.worker.persistence;
 
 import com.hzgc.compare.worker.common.Triplet;
 import com.hzgc.compare.worker.conf.Config;
-import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl1;
+import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
 import javafx.util.Pair;
 import org.apache.log4j.Logger;
 import sun.misc.BASE64Decoder;
@@ -37,7 +37,7 @@ public class FileReader {
         init();
         BASE64Decoder decoder = new BASE64Decoder();
         LocalStreamCache streamCache = LocalStreamCache.getInstance();
-        MemoryCacheImpl1 memoryCacheImpl1 = MemoryCacheImpl1.getInstance();
+        MemoryCacheImpl memoryCacheImpl1 = MemoryCacheImpl.getInstance();
         Map <Triplet <String, String, String>, List <Pair <String, byte[]>>> cacheRecords =
                 memoryCacheImpl1.getCacheRecords();
         String workId = conf.getValue(Config.WORKER_ID);

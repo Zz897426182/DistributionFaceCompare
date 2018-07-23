@@ -18,7 +18,7 @@ public class RpcClient {
     private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(16,
             16,
             600L,
-            TimeUnit.SECONDS, new ArrayBlockingQueue<>(65535));
+            TimeUnit.SECONDS, new ArrayBlockingQueue<>(5));
 
     public RpcClient(String serverAddress) {
         this.serviceDiscovery = new ServiceDiscovery(serverAddress);
