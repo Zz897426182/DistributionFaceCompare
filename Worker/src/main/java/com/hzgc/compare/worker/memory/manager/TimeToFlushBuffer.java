@@ -1,6 +1,6 @@
 package com.hzgc.compare.worker.memory.manager;
 
-import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl1;
+import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
 
 import java.util.TimerTask;
 
@@ -8,6 +8,6 @@ public class TimeToFlushBuffer extends TimerTask{
 
     @Override
     public void run() {
-        MemoryCacheImpl1.getInstance().flush();
+        MemoryCacheImpl.getInstance().flush();
     }
 }
