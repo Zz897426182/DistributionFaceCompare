@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 内存缓存模块，单例模式，内部存储三种数据buffer和cacheRecords，以及recordToHBase
@@ -49,7 +50,7 @@ public class MemoryCacheImpl<A1, A2, D> {
     private void init(Config conf) {
         bufferSizeMax = conf.getValue(Config.WORKER_BUFFER_SIZE_MAX, bufferSizeMax);
         faceObjects = new DoubleBufferQueue<>();
-        cacheRecords = new Hashtable<>();
+        cacheRecords = new ConcurrentHashMap<>();
         buffer = new DoubleBufferQueue<>();
     }
 

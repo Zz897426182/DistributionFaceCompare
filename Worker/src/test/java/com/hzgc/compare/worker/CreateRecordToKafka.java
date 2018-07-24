@@ -26,7 +26,9 @@ public class CreateRecordToKafka {
         for(int i = 0; i < 100 ; i ++){
             ipcIdList.add(i + "");
         }
-        File file = new File("E:\\hzgc\\DistributionFaceCompare5\\Worker\\src\\test\\java\\com\\hzgc\\compare\\worker\\json.txt");
+        File file = new File("src" + File.separator + "test" + File.separator + "java"
+                + File.separator + "com" + File.separator + "hzgc" + File.separator + "compare"
+                + File.separator + "worker" + File.separator + "json.txt");
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String line;
         List<String> list = new ArrayList<String>();

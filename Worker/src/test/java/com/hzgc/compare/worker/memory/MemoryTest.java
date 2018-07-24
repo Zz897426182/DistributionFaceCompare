@@ -2,7 +2,7 @@ package com.hzgc.compare.worker.memory;
 
 import com.hzgc.compare.worker.CreateRecordToBuffer;
 import com.hzgc.compare.worker.CreateRecordToKafka;
-import com.hzgc.compare.worker.CreateRecordsToCach2;
+import com.hzgc.compare.worker.CreateRecordsToCach;
 import com.hzgc.compare.worker.common.FaceObject;
 import com.hzgc.compare.worker.common.Triplet;
 import com.hzgc.compare.worker.common.taskhandle.FlushTask;
@@ -23,13 +23,13 @@ import java.util.Map;
 
 public class MemoryTest {
     private Config config;
-    private MemoryCacheImpl cache;
-    MemoryManager manager;
-    TaskToHandleQueue queue;
+    private MemoryCacheImpl<String, String, byte[]> cache;
+    private MemoryManager manager;
+    private TaskToHandleQueue queue;
     @Before
     public void prepare(){
         config = Config.getConf();
-        cache = MemoryCacheImpl.<String, String, byte[]>getInstance(config);
+        cache = MemoryCacheImpl.getInstance(config);
         manager = new MemoryManager<String, String, byte[]>();
         queue = TaskToHandleQueue.getTaskQueue();
 
@@ -77,17 +77,16 @@ public class MemoryTest {
      */
     @Test
     public void testRemove(){
-        int sizeMax = 2000;
+        int sizeMax = 6000;
         int timeOut = 10;
         Config.getConf().setValue(Config.WORKER_RECORD_TIME_OUT, timeOut + "");
         Config.getConf().setValue(Config.WORKER_CACHE_SIZE_MAX, sizeMax + "");
         manager.reLoadParam();
         try {
-            CreateRecordsToCach2.createRecords(30, 200);
+            CreateRecordsToCach.createRecords(30, 500);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         manager.remove();
         Map<Triplet<String, String, String>, List<Pair<String, byte[]>>> map = cache.getCacheRecords();
         List<String> days = new ArrayList<>();

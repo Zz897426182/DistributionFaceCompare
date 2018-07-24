@@ -30,13 +30,13 @@ public class TimeToCheckFile extends TimerTask {
         if ("1".equals(tag)) {
             File pathFile = new File(path);
             File[] idFiles = pathFile.listFiles();
-            if (idFiles.length > 0) {
+            if (idFiles != null && idFiles.length > 0) {
                 //work_id文件
                 for (File f : idFiles) {
                     if (f.isDirectory()) {
                         //年-月份文件
                         File[] ymFiles = f.listFiles();
-                        if (ymFiles.length > 0) {
+                        if (ymFiles != null && ymFiles.length > 0) {
                             for (File file : ymFiles) {
                                 String fName = file.getName();
                                 Calendar calendar = Calendar.getInstance();
@@ -65,7 +65,7 @@ public class TimeToCheckFile extends TimerTask {
                                     System.out.println(fName);
                                     File[] files = file.listFiles();
                                     //删除月份下的文件
-                                    if (files.length > 0) {
+                                    if (files != null && files.length > 0) {
                                         for (File file1 : files) {
                                             file1.delete();
                                         }

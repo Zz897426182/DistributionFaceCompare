@@ -20,9 +20,9 @@ public class ComparatorsImpl2 {
         List<Pair<String, float[]>> result = new ArrayList<>();
         Map<Triplet<String, String, String>, List<Pair<String, float[]>>> cacheRecords =
                 MemoryCacheImpl.<String, String, float[]>getInstance().getCacheRecords();
-        Set<Triplet<String, String, String>> temp = new HashSet<>();
-        temp.addAll(cacheRecords.keySet());
-        Iterator<Triplet<String, String, String> > iterator =  temp.iterator();
+//        Set<Triplet<String, String, String>> temp = new HashSet<>();
+//        temp.addAll(cacheRecords.keySet());
+        Iterator<Triplet<String, String, String> > iterator =  cacheRecords.keySet().iterator();
         Long start = System.currentTimeMillis();
         if(arg1List == null || arg1List.size() == 0){
             while (iterator.hasNext()) {
