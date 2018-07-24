@@ -1,7 +1,6 @@
 package com.hzgc.compare.worker.memory;
 
 import com.hzgc.compare.worker.CreateRecordToBuffer;
-import com.hzgc.compare.worker.CreateRecordToCache1;
 import com.hzgc.compare.worker.CreateRecordToKafka;
 import com.hzgc.compare.worker.CreateRecordsToCach2;
 import com.hzgc.compare.worker.common.FaceObject;
@@ -18,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +35,8 @@ public class MemoryTest {
 
     }
 
-    @Test
+
+//    @Test
     public void testGetRecordsFromKafka(){
         Comsumer comsumer = new Comsumer();
         comsumer.start();
@@ -49,9 +50,16 @@ public class MemoryTest {
         Assert.check(faceObjectList.size() == 10000);
     }
 
+    /**
+     * 测试处理buffer中的数据
+     */
     @Test
     public void testDealWithBuffer(){
-        CreateRecordToBuffer.createRecords(1000);
+        try {
+            CreateRecordToBuffer.createRecords(1000);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         cache.flush();
         FlushTask task = queue.getTask(FlushTask.class);
         Assert.check(task != null);
@@ -64,10 +72,37 @@ public class MemoryTest {
         Assert.check(count == 1000);
     }
 
+    /**
+     * 测试内存清理
+     */
     @Test
     public void testRemove(){
-        CreateRecordsToCach2.createRecords();
-        manager.remove();
+        int sizeMax = 2000;
+        int timeOut = 10;
+        Config.getConf().setValue(Config.WORKER_RECORD_TIME_OUT, timeOut + "");
+        Config.getConf().setValue(Config.WORKER_CACHE_SIZE_MAX, sizeMax + "");
+        manager.reLoadParam();
+        try {
+            CreateRecordsToCach2.createRecords(30, 200);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        manager.remove();
+        Map<Triplet<String, String, String>, List<Pair<String, byte[]>>> map = cache.getCacheRecords();
+        List<String> days = new ArrayList<>();
+        for(Triplet<String, String, String> key : map.keySet()){
+            String day = key.getThird();
+            if(!days.contains(day)){
+                days.add(day);
+            }
+        }
+        Assert.check(days.size() <= 10);
+
+        int count = 0;
+        for(List<Pair<String, byte[]>> value : map.values()){
+            count += value.size();
+        }
+        Assert.check(count <= sizeMax * 0.8);
     }
 }

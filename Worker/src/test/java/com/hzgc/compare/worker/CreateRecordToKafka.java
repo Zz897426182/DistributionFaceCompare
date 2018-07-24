@@ -39,14 +39,14 @@ public class CreateRecordToKafka {
 //        File file0 = new File("metadata" + File.separator + "metadata_0");
 //        files.add(file0);
 //        BufferedWriter bw = new BufferedWriter(new FileWriter(file0));
-        for(int i = 0 ; i < days ; i ++){
+        for(long i = 0L ; i < days ; i ++){
             String date = sdf.format(new Date(System.currentTimeMillis() + i * 24 * 60 * 60 * 1000));
             for(int j = 0 ; j < num ; j++){
                 String ipcId = ipcIdList.get(ran.nextInt(100));
                 String timeStamp = ",\"timeStamp\":\"2018-07-13 11:28:47\",\"date\":\"";
                 String end = list.get(ran.nextInt(26));
                 String data = "{\"ipcId\":\"" +ipcId+ "\"" + timeStamp + date + end;
-                System.out.println(data);
+//                System.out.println(data);
 //                bw.write(ipcId + " " + date + " " + );//"\t\n"
                 producer.send(new ProducerRecord<>("feature", "1", data));
 

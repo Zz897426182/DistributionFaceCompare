@@ -42,13 +42,16 @@ public class HBaseTest {
 
     }
 
+    /**
+     * 测试内存中的数据FaceObject数据持久化到HBase，并保存元数据到buffer
+     */
     @Test
     public void testWriteHBase(){
         HBaseClient client = new HBaseClient();
         try {
             CreateRecordToCache1.createRecords(1, 1000);
             client.timeToWrite();
-            Thread.sleep(3000);
+            Thread.sleep(6000);
             List<Quintuple<String, String, String, String, byte[]>> buffer = cache.getBuffer();
             Assert.check(buffer.size() == 1000);
 
