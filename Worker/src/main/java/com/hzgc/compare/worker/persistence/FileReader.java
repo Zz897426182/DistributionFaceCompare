@@ -25,7 +25,6 @@ public class FileReader {
     private String path;
     private BASE64Decoder decoder = new BASE64Decoder();
     private LocalStreamCache streamCache = LocalStreamCache.getInstance();
-    private MemoryCacheImpl memoryCacheImpl1;
 
     public FileReader() {
         this.conf = Config.getConf();
@@ -87,9 +86,7 @@ public class FileReader {
      */
     private void loadRecordForMonth(File fi, String month){
         logger.info("Read month is : " + month);
-        memoryCacheImpl1 = MemoryCacheImpl.<String, String, byte[]>getInstance();
-        Map <Triplet <String, String, String>, List <Pair <String, byte[]>>> cacheRecords =
-                memoryCacheImpl1.getCacheRecords();
+        MemoryCacheImpl<String, String, byte[]> memoryCacheImpl1 = MemoryCacheImpl.getInstance();
         //得到目标月份的文件夹
         File monthdir = null;
         File[] files = fi.listFiles();
@@ -108,6 +105,8 @@ public class FileReader {
         if(files1 == null || files1.length == 0){
             return;
         }
+        long count = 0L;
+        Map<Triplet <String, String, String>, List <Pair <String, byte[]>>> temp = new HashMap<>();
         for(File f : files1){
             if(f.isFile()){
                 System.out.println(f.getName());
@@ -118,12 +117,16 @@ public class FileReader {
                     while ((line = bufferedReader.readLine()) != null) {
                         System.out.println(line);
                         String[] s = line.split("_");
-                        Triplet <String, String, String> triplet = new Triplet <>(s[0], null, s[1]);
+                        Triplet<String, String, String> key = new Triplet <>(s[0], null, s[1]);
                         byte[] bytes = decoder.decodeBuffer(s[3]);
-                        Pair <String, byte[]> pair = new Pair <>(s[2], bytes);
-                        ArrayList <Pair <String, byte[]>> li = new ArrayList <>();
-                        li.add(pair);
-                        cacheRecords.put(triplet, li);
+                        Pair<String, byte[]> value = new Pair <>(s[2], bytes);
+                        List<Pair<String, byte[]>> list = temp.get(key);
+                        if(list == null){
+                            list = new ArrayList<>();
+                            temp.put(key, list);
+                        }
+                        list.add(value);
+                        count ++ ;
                     }
                     bufferedReader.close();
                 } catch (IOException e) {
@@ -131,6 +134,8 @@ public class FileReader {
                 }
             }
         }
+        logger.info("The num of Records Loaded is : " + count);
+        memoryCacheImpl1.loadCacheRecords(temp);
     }
 
     /**
@@ -140,9 +145,7 @@ public class FileReader {
      */
     private void loadRecordForMonth2(File fi, String month){
         logger.info("Read month is : " + month);
-        memoryCacheImpl1 = MemoryCacheImpl.<String, String, float[]>getInstance();
-        Map <Triplet <String, String, String>, List <Pair <String, float[]>>> cacheRecords =
-                memoryCacheImpl1.getCacheRecords();
+        MemoryCacheImpl<String, String, float[]> memoryCacheImpl1 = MemoryCacheImpl.getInstance();
         //得到目标月份的文件夹
         File monthdir = null;
         File[] files = fi.listFiles();
@@ -161,6 +164,8 @@ public class FileReader {
         if(files1 == null || files1.length == 0){
             return;
         }
+        long count = 0L;
+        Map<Triplet <String, String, String>, List <Pair <String, float[]>>> temp = new HashMap<>();
         for(File f : files1){
             if(f.isFile()){
                 System.out.println(f.getName());
@@ -169,14 +174,18 @@ public class FileReader {
                     String line;
                     //数据封装
                     while ((line = bufferedReader.readLine()) != null) {
-                        System.out.println(line);
+//                        System.out.println(line);
                         String[] s = line.split("_");
-                        Triplet <String, String, String> triplet = new Triplet <>(s[0], null, s[1]);
+                        Triplet <String, String, String> key = new Triplet <>(s[0], null, s[1]);
                         float[] floats = FaceObjectUtil.jsonToArray(s[3]);
-                        Pair <String, float[]> pair = new Pair <>(s[2], floats);
-                        ArrayList <Pair <String, float[]>> li = new ArrayList <>();
-                        li.add(pair);
-                        cacheRecords.put(triplet, li);
+                        Pair<String, float[]> value = new Pair <>(s[2], floats);
+                        List<Pair<String, float[]>> list = temp.get(key);
+                        if(list == null){
+                            list = new ArrayList<>();
+                            temp.put(key, list);
+                        }
+                        list.add(value);
+                        count ++ ;
                     }
                     bufferedReader.close();
                 } catch (IOException e) {
@@ -184,6 +193,8 @@ public class FileReader {
                 }
             }
         }
+        logger.info("The num of Records Loaded is : " + count);
+        memoryCacheImpl1.loadCacheRecords(temp);
     }
 
     public void loadRecordFromHDFS(){
