@@ -4,25 +4,28 @@ import com.hzgc.compare.worker.conf.Config;
 
 import java.io.*;
 
-public class LocalStreamCache extends StreamCache {
+public class LocalStreamCache {
     private Config conf;
     private  static LocalStreamCache localStreamCache;
+    private BufferedWriter bufferedWriter;
+    private File file;
 
     private LocalStreamCache() {
         this.conf = Config.getConf();
     }
 
     public BufferedWriter getWriterStream(File file) {
-        BufferedWriter bufferedWriter = null;
-        try {
-            bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file,true)));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        if(bufferedWriter == null || !file.equals(this.file)) {
+            try {
+                bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true)));
+                this.file = file;
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
         return bufferedWriter;
     }
 
-    @Override
     public BufferedReader getReaderStream(File file) {
         BufferedReader bufferedReader = null;
         try {

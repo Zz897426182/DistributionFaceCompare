@@ -35,11 +35,11 @@ public class TaskToHandleQueue {
 
     public <T> T getTask(Class<T> clazz){
         lock.lock();
-        logger.info("Get a task from the queue, task class is " + clazz.getName());
         try {
             TaskToHandle res = null;
             for (TaskToHandle task : tasks) {
                 if (task.getClass() == clazz) {
+                    logger.info("Get a task from the queue, task class is " + clazz.getName());
                     res = task;
                     tasks.remove(task);
                     break;

@@ -1,7 +1,6 @@
 package com.hzgc.compare.worker.compare;
 
 import com.hzgc.compare.rpc.client.result.AllReturn;
-import com.hzgc.compare.worker.CreateRecordsToCach2;
 import com.hzgc.compare.worker.ServiceImpl;
 import com.hzgc.compare.worker.common.CompareParam;
 import com.hzgc.compare.worker.common.Feature;
@@ -12,7 +11,6 @@ import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
 import com.hzgc.compare.worker.memory.manager.MemoryManager;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +19,14 @@ import java.util.List;
 public class CompareTest {
 
     private Config config;
-    private MemoryCacheImpl cache;
-    MemoryManager manager;
-    TaskToHandleQueue queue;
+    private MemoryCacheImpl<String, String, byte[]> cache;
+    private MemoryManager manager;
+    private TaskToHandleQueue queue;
+
     @Before
     public void prepare(){
         config = Config.getConf();
-        cache = MemoryCacheImpl.<String, String, byte[]>getInstance(config);
+        cache = MemoryCacheImpl.getInstance(config);
         manager = new MemoryManager<String, String, byte[]>();
         queue = TaskToHandleQueue.getTaskQueue();
     }
