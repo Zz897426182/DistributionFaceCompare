@@ -95,9 +95,9 @@ public class MemoryManager<A1,A2,D> {
         String oldest = "";
         MemoryCacheImpl cache = MemoryCacheImpl.getInstance(conf);
         Map<Triplet<A1, A2, String>, List<Pair<String, D>>> records = cache.getCacheRecords();
-        Set<Triplet<A1, A2, String>> keySet = new HashSet<>();
-        keySet.addAll(records.keySet());
-        for(Triplet<A1, A2, String> key : keySet){
+//        Set<Triplet<A1, A2, String>> keySet = new HashSet<>();
+//        keySet.addAll(records.keySet());
+        for(Triplet<A1, A2, String> key : records.keySet()){
             String date = key.getThird();
             if(oldest.compareTo(date) < 0){
                 oldest = date;

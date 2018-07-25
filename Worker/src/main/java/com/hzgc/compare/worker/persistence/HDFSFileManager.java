@@ -5,7 +5,7 @@ import com.hzgc.compare.worker.conf.Config;
 
 import java.util.List;
 
-public class HDFSFileManager implements FileManager {
+public class HDFSFileManager<A1, A2, D> implements FileManager<A1, A2, D> {
     private Config conf;
     private Integer fileSavProgram = 1; //文件保存方案（几天的数据保存成一个文件），默认1
     private String fileParh = ""; //文件保存目录
@@ -21,7 +21,7 @@ public class HDFSFileManager implements FileManager {
     }
 
 
-    public void flush(List<Quintuple<String, String, String, String, byte[]>> buffer) {
+    public void flush(List<Quintuple<A1, A2, String, String, D>> buffer) {
 
     }
 
@@ -30,10 +30,6 @@ public class HDFSFileManager implements FileManager {
     }
 
     public void checkFile() {
-
-    }
-
-    public void timeToFlush() {
 
     }
 

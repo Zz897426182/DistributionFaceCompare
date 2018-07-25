@@ -22,6 +22,7 @@ public class Config {
     public static final String WORKER_HBASE_WRITE_TIME = "worker.hbase.write.time"; //写HBase任务的时间间隔
     public static final String WORKER_FILE_SAVE_PROGRAM = "worker.file.save.program"; //数据持久化方案（一个文件保存几天的数据）
     public static final String WORKER_FILE_PATH = "worker.file.path"; //文件保存路径
+    public static final String WORKER_FILE_SIZE = "worker.file.size"; //文件保存大小
     public static final String WORKER_LOAD_DATA_DAYS = "worker.load.data.days"; //项目启动时，加载多少天的数据到内存中
     public static final String WORKER_STREAM_TIME_OUT = "worker.stream.time.out"; //文件流过期时间
     public static final String WORKER_PORT = "worker.port"; //worker绑定本地端口

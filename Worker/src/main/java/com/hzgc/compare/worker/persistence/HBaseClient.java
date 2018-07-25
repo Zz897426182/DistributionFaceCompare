@@ -96,8 +96,11 @@ public class HBaseClient {
     public Map<Feature, List<FaceObject>> readFromHBase(Map<Feature, List<String>> data){
         Map<Feature, List<FaceObject>> result = new HashMap<>();
         Table table = HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
+        if(table == null){
+            logger.warn(" Get the table " + FaceInfoTable.TABLE_NAME + " faild .");
+            return null;
+        }
         List<Get> gets = new ArrayList<>();
-
         for(Map.Entry<Feature, List<String>> entry : data.entrySet()){
             List<String> rowkeys = entry.getValue();
             for(String rowkey : rowkeys){
@@ -149,6 +152,10 @@ public class HBaseClient {
         long start = System.currentTimeMillis();
         try {
             Table table = HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
+            if(table == null){
+                logger.warn(" Get the table " + FaceInfoTable.TABLE_NAME + " faild .");
+                return null;
+            }
             long getTable = System.currentTimeMillis();
             logger.info("The time used to get table is : " + (getTable - start));
             List<Get> gets = new ArrayList<>();

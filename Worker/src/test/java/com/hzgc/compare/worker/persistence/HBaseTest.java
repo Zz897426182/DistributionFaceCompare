@@ -2,7 +2,7 @@ package com.hzgc.compare.worker.persistence;
 
 
 
-import com.hzgc.compare.worker.CreateRecordToCache1;
+import com.hzgc.compare.worker.CreateRecordToFaceObjects;
 import com.hzgc.compare.worker.common.FaceInfoTable;
 import com.hzgc.compare.worker.common.FaceObject;
 import com.hzgc.compare.worker.common.Quintuple;
@@ -30,13 +30,13 @@ import java.util.List;
 
 public class HBaseTest {
     private Config config;
-    private MemoryCacheImpl cache;
-    MemoryManager manager;
-    TaskToHandleQueue queue;
+    private MemoryCacheImpl<String, String, byte[]> cache;
+    private MemoryManager manager;
+    private TaskToHandleQueue queue;
     @Before
     public void prepare(){
         config = Config.getConf();
-        cache = MemoryCacheImpl.<String, String, byte[]>getInstance(config);
+        cache = MemoryCacheImpl.getInstance(config);
         manager = new MemoryManager<String, String, byte[]>();
         queue = TaskToHandleQueue.getTaskQueue();
 
@@ -49,7 +49,7 @@ public class HBaseTest {
     public void testWriteHBase(){
         HBaseClient client = new HBaseClient();
         try {
-            CreateRecordToCache1.createRecords(1, 1000);
+            CreateRecordToFaceObjects.createRecords(1, 1000);
             client.timeToWrite();
             Thread.sleep(6000);
             List<Quintuple<String, String, String, String, byte[]>> buffer = cache.getBuffer();
@@ -62,6 +62,7 @@ public class HBaseTest {
                 gets.add(get);
             }
             List<FaceObject> list = new ArrayList<>();
+            assert table != null;
             Result[] results = table.get(gets);
             for (Result res : results){//对返回的结果集进行操作
                 for (Cell kv : res.rawCells()) {
