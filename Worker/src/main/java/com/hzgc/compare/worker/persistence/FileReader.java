@@ -174,7 +174,6 @@ public class FileReader {
                     while ((line = bufferedReader.readLine()) != null) {
                         String[] s = line.split("_");
                         Triplet <String, String, String> key = new Triplet <>(s[0], null, s[1]);
-                        System.out.println(s[3]);
                         float[] floats = FaceObjectUtil.jsonToArray(s[3]);
                         Pair<String, float[]> value = new Pair <>(s[2], floats);
                         List<Pair<String, float[]>> list = temp.get(key);
