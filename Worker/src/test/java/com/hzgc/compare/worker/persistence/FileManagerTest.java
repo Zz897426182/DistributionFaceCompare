@@ -33,10 +33,10 @@ public class FileManagerTest {
     }
 
     /*
-    * 删除过期文件
+    * 删除过期文件,三个月删除一次
     * */
     @Test
     public void testDelData(){
-        new Timer().schedule(new TimeToCheckFile(),1000);
+        new Timer().schedule(new TimeToCheckFile(),7776000000L);
     }
 }
