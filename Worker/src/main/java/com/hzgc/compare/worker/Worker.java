@@ -4,6 +4,7 @@ package com.hzgc.compare.worker;
 import com.hzgc.compare.rpc.server.RpcServer;
 import com.hzgc.compare.rpc.server.zk.ServiceRegistry;
 import com.hzgc.compare.worker.common.FaceInfoTable;
+import com.hzgc.compare.worker.common.taskhandle.TaskToHandleQueue;
 import com.hzgc.compare.worker.comsumer.Comsumer;
 import com.hzgc.compare.worker.conf.Config;
 import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
@@ -48,6 +49,7 @@ public class Worker<A1, A2, D> {
         FileReader fileReader = new FileReader();
         fileReader.loadRecordFromLocal();
         HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
+        TaskToHandleQueue.getTaskQueue();
     }
 
     private void start(){

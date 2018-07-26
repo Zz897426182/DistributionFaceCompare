@@ -51,7 +51,7 @@ public class HBaseTest {
         try {
             CreateRecordToFaceObjects.createRecords(1, 1000);
             client.timeToWrite();
-            Thread.sleep(6000);
+            Thread.sleep(7000);
             List<Quintuple<String, String, String, String, byte[]>> buffer = cache.getBuffer();
             Assert.check(buffer.size() == 1000);
 

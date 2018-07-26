@@ -182,16 +182,19 @@ public class ServiceImpl implements Service{
     }
 
     @Override
-    public void stopTheWorker() {
-        MemoryCacheImpl memoryCache = MemoryCacheImpl.getInstance();
-        List<Quintuple<String, String, String, String, byte[]>> buffer = memoryCache.getBuffer();
-        memoryCache.moveToCacheRecords(buffer);
-        TaskToHandleQueue.getTaskQueue().addTask(new FlushTask(buffer));
+    public AllReturn<Boolean> stopTheWorker() {
         try {
+            MemoryCacheImpl memoryCache = MemoryCacheImpl.getInstance();
+            List<Quintuple<String, String, String, String, byte[]>> buffer = memoryCache.getBuffer();
+            memoryCache.moveToCacheRecords(buffer);
+            TaskToHandleQueue.getTaskQueue().addTask(new FlushTask(buffer));
             Thread.sleep(2000L);
-        } catch (InterruptedException e) {
+            return new AllReturn<>(true);
+        } catch (Exception e) {
             e.printStackTrace();
+            return new AllReturn<>(false);
+        }finally {
+            System.exit(0);
         }
-        System.exit(0);
     }
 }

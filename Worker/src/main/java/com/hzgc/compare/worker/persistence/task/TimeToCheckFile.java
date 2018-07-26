@@ -17,6 +17,7 @@ public class TimeToCheckFile extends TimerTask {
 
     public TimeToCheckFile() {
         this.conf = Config.getConf();
+        init();
     }
 
     public void init() {
@@ -26,7 +27,6 @@ public class TimeToCheckFile extends TimerTask {
 
     @Override
     public void run() {
-        init();
         if ("1".equals(tag)) {
             File pathFile = new File(path);
             File[] idFiles = pathFile.listFiles();
