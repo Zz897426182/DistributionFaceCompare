@@ -109,7 +109,6 @@ public class FileReader {
         Map<Triplet <String, String, String>, List <Pair <String, byte[]>>> temp = new HashMap<>();
         for(File f : files1){
             if(f.isFile()){
-                System.out.println(f.getName());
                 BufferedReader bufferedReader = streamCache.getReaderStream(f);
                 try {
                     String line;
