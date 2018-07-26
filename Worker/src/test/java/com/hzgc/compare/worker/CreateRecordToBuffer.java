@@ -36,7 +36,7 @@ public class CreateRecordToBuffer {
 //        files.add(file0);
 //        BufferedWriter bw = new BufferedWriter(new FileWriter(file0));
         for(int i = 0 ; i < 1 ; i ++){
-            List<Quintuple<String, String, String, String, byte[]>> records = new ArrayList<>();
+            List<Quintuple<String, String, String, String, float[]>> records = new ArrayList<>();
             String date = sdf.format(new Date(System.currentTimeMillis() + i * 24 * 60 * 60 * 1000));
             for(int j = 0 ; j < num ; j++){
                 String ipcId = ipcIdList.get(ran.nextInt(100));
@@ -47,10 +47,10 @@ public class CreateRecordToBuffer {
 //                bw.write(ipcId + " " + date + " " + );//"\t\n"
                 FaceObject obj = FaceObjectUtil.jsonToObject(data);
                 String rowkey = obj.getDate() + "-" + obj.getIpcId() + UuidUtil.getUuid().substring(0, 24);
-                records.add(new Quintuple<String, String, String, String, byte[]>(obj.getIpcId(), null,
-                        obj.getDate(), rowkey, obj.getAttribute().getFeature2()));
+                records.add(new Quintuple<String, String, String, String, float[]>(obj.getIpcId(), null,
+                        obj.getDate(), rowkey, obj.getAttribute().getFeature()));
             }
-            MemoryCacheImpl.<String,String, byte[]>getInstance().addBuffer(records);
+            MemoryCacheImpl.<String,String, float[]>getInstance().addBuffer(records);
         }
     }
 }

@@ -168,15 +168,14 @@ public class FileReader {
         Map<Triplet <String, String, String>, List <Pair <String, float[]>>> temp = new HashMap<>();
         for(File f : files1){
             if(f.isFile()){
-                System.out.println(f.getName());
                 BufferedReader bufferedReader = streamCache.getReaderStream(f);
                 try {
                     String line;
                     //数据封装
                     while ((line = bufferedReader.readLine()) != null) {
-//                        System.out.println(line);
                         String[] s = line.split("_");
                         Triplet <String, String, String> key = new Triplet <>(s[0], null, s[1]);
+                        System.out.println(s[3]);
                         float[] floats = FaceObjectUtil.jsonToArray(s[3]);
                         Pair<String, float[]> value = new Pair <>(s[2], floats);
                         List<Pair<String, float[]>> list = temp.get(key);
