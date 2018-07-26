@@ -30,5 +30,5 @@ public interface Service {
      */
     AllReturn<Map<String, SearchResult>> retrievalNotSamePerson(CompareParam paramt);
 
-    void stopTheWorker();
+    AllReturn<Boolean> stopTheWorker();
 }

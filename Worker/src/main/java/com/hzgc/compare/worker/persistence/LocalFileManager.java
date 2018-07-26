@@ -18,7 +18,7 @@ import java.util.*;
 public class LocalFileManager<A1, A2, D> implements FileManager<A1, A2, D> {
     private Config conf;
     private String path = ""; //文件保存目录
-    private Long fileSize = 1L * 1024 * 1024L;
+    private Long fileSize = 256L * 1024 * 1024L;
     private Long timeToCheckFile = 24 * 60 * 60 * 1000L;
     private String work_id = "";
     private static Logger LOG = Logger.getLogger(LocalFileManager.class);

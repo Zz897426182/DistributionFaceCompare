@@ -26,7 +26,7 @@ public class Client {
         long star = System.currentTimeMillis();
         List<Feature> features = new ArrayList<>();
         features.add(new Feature(null, featute));
-//        CompareParam param = new CompareParam(new ArrayList<String>(), null,"2018-07-16", "2018-07-18", features, 0.8f, 25, true);
+//        CompareParam param = new CompareParam(new Ar磁盘rayList<String>(), null,"2018-07-16", "2018-07-18", features, 0.8f, 25, true);
 //        AllReturn<SearchResult> resultAllReturn = service.retrievalOnePerson(param);
 //        System.out.println("++++++++++++++++++++++++++++++++++");
 //        System.out.println("compare1 "+ (System.currentTimeMillis() - star));
@@ -39,7 +39,7 @@ public class Client {
 //        Thread.sleep(1000 * 20);
 
         long compare2 = System.currentTimeMillis();
-        CompareParam param3 = new CompareParam(null, null,"2018-07-23", "2018-07-25", features, 0.9f, 25, true);
+        CompareParam param3 = new CompareParam(ipcIds, null,"2018-07-25", "2018-07-27", features, 0.9f, 25, true);
         AllReturn<SearchResult> resultAllReturn3 = service.retrievalOnePerson(param3);
         System.out.println("compare3 "+ (System.currentTimeMillis() - compare2));
         System.out.println(JsonUtil.objectToJson(resultAllReturn3.getResult()));

@@ -125,7 +125,7 @@ public class ServiceImpl2 implements Service{
     }
 
     @Override
-    public void stopTheWorker() {
-
+    public AllReturn<Boolean> stopTheWorker() {
+        return new AllReturn<>(true);
     }
 }

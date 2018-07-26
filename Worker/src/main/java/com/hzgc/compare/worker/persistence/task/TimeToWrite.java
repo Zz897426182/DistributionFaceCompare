@@ -50,6 +50,7 @@ public class TimeToWrite implements Runnable{
             return;
         }
         logger.info("The record num from kafka is :" + recordToHBase.size());
+        long start = System.currentTimeMillis();
         List<Quintuple<String, String, String, String, byte[]>> bufferList = new ArrayList<>();
         try {
             List<Put> putList = new ArrayList<>();
@@ -66,6 +67,7 @@ public class TimeToWrite implements Runnable{
             table.put(putList);
             cache.addBuffer(bufferList);
             logger.info("Put record to hbase success .");
+            logger.info("The Time Used to write to HBase is : " + (System.currentTimeMillis()  - start));
         } catch (IOException e) {
             e.printStackTrace();
             cache.addFaceObjects(recordToHBase);
