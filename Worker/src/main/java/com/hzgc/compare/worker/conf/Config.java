@@ -28,6 +28,7 @@ public class Config {
     public static final String WORKER_PORT = "worker.port"; //worker绑定本地端口
     public static final String WORKER_FILE_SAVE_SYSTEM = "worker.file.save.system"; //数据持久化的文件系统 0 本地  1 HDFS
     public static final String WORKER_FLUSH_PROGRAM = "worker.flush.program"; //持久化触发方式 0 定期触发  1定量触发
+    public static final String WORKER_READFILES_PER_THREAD = "worker.readfiles_per_thread"; //每个线程读取的文件
     public static final String KAFKA_TOPIC = "kafka.topic";
     public static final String KAFKA_BOOTSTRAP_SERVERS = "kafka.bootstrap.servers";
     public static final String KAFKA_GROUP_ID = "kafka.group.id";
@@ -36,6 +37,7 @@ public class Config {
     public static final String WORKER_ADDRESS = "worker.address";
     public static final String WORKER_RPC_PORT = "worker.rpc.port";
     public static final String WORKER_ID = "worker.id";
+    public static final String ROOT_PATH = "root.path";
     public static final String DELETE_OPEN = "delete.open";
 
     public static Config getConf(Properties ps) {

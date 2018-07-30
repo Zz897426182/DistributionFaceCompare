@@ -39,8 +39,8 @@ public class ComparatorsImpl implements Comparators{
                 String key2 = key.getSecond();
                 String key3 = key.getThird();
                 if ((key2 == null || key2.equals(arg2)) &&
-                        key3.compareTo(dateStart) > 0 &&
-                        key3.compareTo(dateEnd) < 0) {
+                        key3.compareTo(dateStart) >= 0 &&
+                        key3.compareTo(dateEnd) <= 0) {
                     result.addAll(cacheRecords.get(key));
                 }
             }
@@ -55,8 +55,8 @@ public class ComparatorsImpl implements Comparators{
                 String key3 = key.getThird();
                 if ((key1 == null || key1.equals(arg1)) &&
                         (key2 == null || key2.equals(arg2)) &&
-                        key3.compareTo(dateStart) > 0 &&
-                        key3.compareTo(dateEnd) < 0) {
+                        key3.compareTo(dateStart) >= 0 &&
+                        key3.compareTo(dateEnd) <= 0) {
                     result.addAll(cacheRecords.get(key));
                 }
             }
@@ -189,8 +189,10 @@ public class ComparatorsImpl implements Comparators{
             index ++;
         }
         SearchResult result = new SearchResult(records);
+        long compared = System.currentTimeMillis();
+        logger.info("The time second compare used is : " + (compared - start));
         result.sortBySim();
-        logger.info("The time second compare used is : " + (System.currentTimeMillis() - start));
+        logger.info("The time used to sort is : " + (System.currentTimeMillis() - compared));
         return result;
     }
 
@@ -234,8 +236,10 @@ public class ComparatorsImpl implements Comparators{
             index ++;
         }
         SearchResult result = new SearchResult(records);
+        long compared = System.currentTimeMillis();
+        logger.info("The time second compare used is : " + (compared - start));
         result.sortBySim();
-        logger.info("The time second compare used is : " + (System.currentTimeMillis() - start));
+        logger.info("The time used to sort is : " + (System.currentTimeMillis() - compared));
         return result;
     }
 

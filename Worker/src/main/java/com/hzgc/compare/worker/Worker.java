@@ -55,6 +55,7 @@ public class Worker<A1, A2, D> {
     private void start(){
         comsumer.start();
         memoryManager.startToCheck();
+        memoryManager.toShowMemory();
         if(conf.getValue(Config.WORKER_FLUSH_PROGRAM, 0) == 0){
             memoryManager.timeToCheckFlush();
         }

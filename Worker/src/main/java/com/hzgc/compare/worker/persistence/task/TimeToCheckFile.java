@@ -21,7 +21,7 @@ public class TimeToCheckFile extends TimerTask {
     }
 
     public void init() {
-        path = conf.getValue(Config.WORKER_FILE_PATH);
+        path = conf.getValue(Config.ROOT_PATH);
         tag = conf.getValue(Config.DELETE_OPEN);
     }
 

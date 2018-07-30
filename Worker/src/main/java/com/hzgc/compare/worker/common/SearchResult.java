@@ -34,8 +34,8 @@ public class SearchResult {
      * 将当前的records根据Sim排序
      */
     public void sortBySim(){ //TODO 选择合适的排序
-//        Arrays.sort(records);
-        quickSort(records, 0, records.length - 1);
+        Arrays.sort(records);
+//        quickSort(records, 0, records.length - 1);
     }
 
     /**

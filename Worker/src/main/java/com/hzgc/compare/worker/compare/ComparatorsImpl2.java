@@ -31,8 +31,8 @@ public class ComparatorsImpl2 {
                 String key2 = key.getSecond();
                 String key3 = key.getThird();
                 if ((key2 == null || key2.equals(arg2)) &&
-                        key3.compareTo(dateStart) > 0 &&
-                        key3.compareTo(dateEnd) < 0) {
+                        key3.compareTo(dateStart) >= 0 &&
+                        key3.compareTo(dateEnd) <= 0) {
                     result.addAll(cacheRecords.get(key));
                 }
             }
@@ -48,8 +48,8 @@ public class ComparatorsImpl2 {
                 String key3 = key.getThird();
                 if ((key1 == null || key1.equals(arg1)) &&
                         (key2 == null || key2.equals(arg2)) &&
-                        key3.compareTo(dateStart) > 0 &&
-                        key3.compareTo(dateEnd) < 0) {
+                        key3.compareTo(dateStart) >= 0 &&
+                        key3.compareTo(dateEnd) <= 0) {
                     result.addAll(cacheRecords.get(key));
                 }
             }
@@ -86,8 +86,10 @@ public class ComparatorsImpl2 {
         }
         SearchResult result = new SearchResult(records);
         logger.info("The size of Compared is : " + records.length);
+        long compared = System.currentTimeMillis();
+        logger.info("The time comparing used is : " + (compared - start));
         result.sortBySim();
-        logger.info("The time comparing used is : " + (System.currentTimeMillis() - start));
+        logger.info("The time used to sort is : " + (System.currentTimeMillis() - compared));
         return result;
     }
 
@@ -123,8 +125,10 @@ public class ComparatorsImpl2 {
         }
         SearchResult result = new SearchResult(records);
         logger.info("The size of Compared is : " + records.length);
+        long compared = System.currentTimeMillis();
+        logger.info("The time comparing used is : " + (compared - start));
         result.sortBySim();
-        logger.info("The time comparing used is : " + (System.currentTimeMillis() - start));
+        logger.info("The time used to sort is : " + (System.currentTimeMillis() - compared));
         return result;
     }
 
