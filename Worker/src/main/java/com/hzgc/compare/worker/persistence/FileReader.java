@@ -25,6 +25,8 @@ public class FileReader {
     private String path;
     private BASE64Decoder decoder = new BASE64Decoder();
     private LocalStreamCache streamCache = LocalStreamCache.getInstance();
+    private int readFilesPerThread = 2;
+    private List<ReadFile> list = new ArrayList<>();
 
     public FileReader() {
         this.conf = Config.getConf();
@@ -33,6 +35,7 @@ public class FileReader {
 
     public void init(){
         path = conf.getValue(Config.WORKER_FILE_PATH);
+        readFilesPerThread = conf.getValue(Config.WORKER_READFILES_PER_THREAD, readFilesPerThread);
     }
 
     /**
@@ -76,6 +79,20 @@ public class FileReader {
         loadRecordForMonth2(dirForThisWorker, lastMonth);
         // 加载本月的记录
         loadRecordForMonth2(dirForThisWorker, ym);
+
+        for(ReadFile readFile1: list){
+            readFile1.start();
+        }
+
+        while (true){
+            boolean flug = true;
+            for(ReadFile readFile1: list){
+                flug = readFile1.isEnd() && flug;
+            }
+            if(flug){
+                break;
+            }
+        }
         logger.info("The time used to load record is : " + (System.currentTimeMillis() - start));
     }
 
@@ -106,15 +123,16 @@ public class FileReader {
             return;
         }
         long count = 0L;
-        Map<Triplet <String, String, String>, List <Pair <String, byte[]>>> temp = new HashMap<>();
+        Map<Triplet <String, String, String>, List <Pair <String, byte[]>>> temp = memoryCacheImpl1.getCacheRecords();
+
         for(File f : files1){
             if(f.isFile()){
+                logger.info("Read file : " + f.getAbsolutePath());
                 BufferedReader bufferedReader = streamCache.getReaderStream(f);
                 try {
                     String line;
                     //数据封装
                     while ((line = bufferedReader.readLine()) != null) {
-                        System.out.println(line);
                         String[] s = line.split("_");
                         Triplet<String, String, String> key = new Triplet <>(s[0], null, s[1]);
                         byte[] bytes = decoder.decodeBuffer(s[3]);
@@ -134,7 +152,7 @@ public class FileReader {
             }
         }
         logger.info("The num of Records Loaded is : " + count);
-        memoryCacheImpl1.loadCacheRecords(temp);
+//        memoryCacheImpl1.loadCacheRecords(temp);
     }
 
     /**
@@ -144,7 +162,7 @@ public class FileReader {
      */
     private void loadRecordForMonth2(File fi, String month){
         logger.info("Read month is : " + month);
-        MemoryCacheImpl<String, String, float[]> memoryCacheImpl1 = MemoryCacheImpl.getInstance();
+
         //得到目标月份的文件夹
         File monthdir = null;
         File[] files = fi.listFiles();
@@ -163,10 +181,57 @@ public class FileReader {
         if(files1 == null || files1.length == 0){
             return;
         }
+        ReadFile readFile = new ReadFile();
+        list.add(readFile);
+        int index = 0;
+        for(File file: files1){
+            if(index < readFilesPerThread){
+                readFile.addFile(file);
+                index ++;
+            }else{
+                readFile = new ReadFile();
+                list.add(readFile);
+                readFile.addFile(file);
+                index = 0;
+            }
+        }
+    }
+
+    public void loadRecordFromHDFS(){
+
+    }
+
+    public static void main(String args[]){
+        MemoryCacheImpl<String, String, float[]> memoryCacheImpl1 = MemoryCacheImpl.getInstance();
+        FileReader reader = new FileReader();
+        long start = System.currentTimeMillis();
+        reader.loadRecordFromLocal();
+        System.out.println(System.currentTimeMillis() - start);
+    }
+}
+
+class ReadFile extends Thread{
+    private static final Logger logger = LoggerFactory.getLogger(ReadFile.class);
+    private MemoryCacheImpl<String, String, float[]> memoryCacheImpl1 = MemoryCacheImpl.getInstance();
+    private LocalStreamCache streamCache = LocalStreamCache.getInstance();
+    private boolean end = false;
+    private List<File> list = new ArrayList<>();
+
+    void addFile(File file){
+        list.add(file);
+    }
+
+    boolean isEnd(){
+        return end;
+    }
+
+    @Override
+    public void run(){
         long count = 0L;
         Map<Triplet <String, String, String>, List <Pair <String, float[]>>> temp = new HashMap<>();
-        for(File f : files1){
+        for(File f : list){
             if(f.isFile()){
+                logger.info("Read file : " + f.getAbsolutePath());
                 BufferedReader bufferedReader = streamCache.getReaderStream(f);
                 try {
                     String line;
@@ -192,9 +257,7 @@ public class FileReader {
         }
         logger.info("The num of Records Loaded is : " + count);
         memoryCacheImpl1.loadCacheRecords(temp);
-    }
-
-    public void loadRecordFromHDFS(){
-
+        end = true;
     }
 }
+

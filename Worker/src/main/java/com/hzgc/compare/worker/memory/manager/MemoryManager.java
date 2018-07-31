@@ -86,6 +86,10 @@ public class MemoryManager<A1,A2,D> {
         new Timer().schedule(new TimeToFlushBuffer(), 5000, 5000);
     }
 
+    public void toShowMemory(){
+        new Timer().schedule(new ShowMemory(), 30000, 30000);
+    }
+
     /**
      * 判断该时间是否在内存中（与当前有效时间的最小值对比）
      * @param time

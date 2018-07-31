@@ -50,7 +50,7 @@ public class MemoryCacheImpl<A1, A2, D> {
     private void init(Config conf) {
         bufferSizeMax = conf.getValue(Config.WORKER_BUFFER_SIZE_MAX, bufferSizeMax);
         faceObjects = new DoubleBufferQueue<>();
-        cacheRecords = new ConcurrentHashMap<>();
+        cacheRecords = new ConcurrentHashMap<>();//ConcurrentHashMap
         buffer = new DoubleBufferQueue<>();
     }
 
@@ -137,6 +137,16 @@ public class MemoryCacheImpl<A1, A2, D> {
             TaskToHandleQueue.getTaskQueue().addTask(new FlushTask<>(buffer.getWithoutRemove()));
             moveToCacheRecords(buffer.get());
         }
+    }
+
+    public void showMemory(){
+        int cacheCount = 0;
+        for(Map.Entry<Triplet<A1, A2, String>, List<Pair<String, D>>> entry : cacheRecords.entrySet()){
+            cacheCount += entry.getValue().size();
+        }
+        logger.info("The size of cache is : " + cacheCount);
+        logger.info("The size of faceObject is : " + faceObjects.getWriteListSize());
+        logger.info("The size of buffer is : " + buffer.getWriteListSize());
     }
 
     /**

@@ -13,16 +13,16 @@ import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @RpcService(Service.class)
 public class ServiceImpl2 implements Service{
     private static final Logger logger = LoggerFactory.getLogger(ServiceImpl2.class);
     private int resultDefaultCount = 20;
     private Config conf;
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     public ServiceImpl2(){
         this.conf = Config.getConf();
@@ -41,6 +41,14 @@ public class ServiceImpl2 implements Service{
         if (resultCount == 0){
             resultCount = resultDefaultCount;
         }
+
+//        try {
+//            if(sdf.parse(param.getDateEnd()).getTime() - sdf.parse(param.getDateStart()).getTime() > 1000L * 60 * 60 * 24 * 10){
+//                List<String> periods = getPeriod(param.getDateStart(), param.getDateEnd());
+//            }
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
         SearchResult result;
         HBaseClient client = new HBaseClient();
         ComparatorsImpl2 comparators = new ComparatorsImpl2();
@@ -128,4 +136,27 @@ public class ServiceImpl2 implements Service{
     public AllReturn<Boolean> stopTheWorker() {
         return new AllReturn<>(true);
     }
+
+    private List<String> getPeriod(String start, String end) throws ParseException {
+        int days = 10;
+        List<String> list = new ArrayList<>();
+        long startTime = sdf.parse(start).getTime();
+        long endTime = sdf.parse(end).getTime();
+        String time1 = start;
+        while (startTime < endTime){
+            startTime += 1000L * 60 * 60 * 24 * (days - 1);
+            startTime = startTime < endTime ? startTime : endTime;
+            String time2 = sdf.format(new Date(startTime));
+            list.add(time1 + "," + time2);
+            startTime += 1000L * 60 * 60 * 24;
+            time1 = sdf.format(new Date(startTime));
+        }
+        return list;
+    }
+
+//    public static void main(String args[]) throws ParseException {
+//        ServiceImpl2 serviceImpl2 = new ServiceImpl2();
+//        List<String> list = serviceImpl2.getPeriod("2018-06-01", "2018-07-08");
+//        System.out.println(list);
+//    }
 }

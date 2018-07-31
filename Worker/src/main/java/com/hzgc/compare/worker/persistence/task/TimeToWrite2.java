@@ -41,7 +41,7 @@ public class TimeToWrite2 implements Runnable {
     }
 
     public void writeToHBase(){
-        logger.info("To Write record into HBase");
+//        logger.info("To Write record into HBase");
         MemoryCacheImpl<String, String, float[]> cache = MemoryCacheImpl.getInstance();
         List<FaceObject> recordToHBase = cache.getObjects();
         if(recordToHBase.size() == 0){
@@ -54,7 +54,7 @@ public class TimeToWrite2 implements Runnable {
             List<Put> putList = new ArrayList<>();
             Table table = HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
             for (FaceObject record : recordToHBase) {
-                String rowkey = record.getDate() + "-" + record.getIpcId() + UuidUtil.getUuid().substring(0, 24);
+                String rowkey = record.getDate().replace("-", "") + record.getIpcId() + UuidUtil.generateShortUuid();
                 Put put = new Put(Bytes.toBytes(rowkey));
                 put.addColumn(Bytes.toBytes(FaceInfoTable.CLU_FAMILY), Bytes.toBytes(FaceInfoTable.INFO), Bytes.toBytes(FaceObjectUtil.objectToJson(record)));
                 putList.add(put);
@@ -63,9 +63,9 @@ public class TimeToWrite2 implements Runnable {
                 bufferList.add(bufferRecord);
             }
             table.put(putList);
-            cache.addBuffer(bufferList);
             logger.info("Put records to hbase success.");
             logger.info("The Time Used to write to HBase is : " + (System.currentTimeMillis()  - start));
+            cache.addBuffer(bufferList);
         } catch (IOException e) {
             e.printStackTrace();
             cache.addFaceObjects(recordToHBase);
