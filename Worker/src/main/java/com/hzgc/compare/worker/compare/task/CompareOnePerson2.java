@@ -1,7 +1,8 @@
-package com.hzgc.compare.worker.compare;
+package com.hzgc.compare.worker.compare.task;
 
 import com.hzgc.compare.worker.common.CompareParam;
 import com.hzgc.compare.worker.common.SearchResult;
+import com.hzgc.compare.worker.compare.ComparatorsImpl2;
 import com.hzgc.compare.worker.conf.Config;
 import com.hzgc.compare.worker.persistence.HBaseClient;
 import javafx.util.Pair;
@@ -10,16 +11,30 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class CompareOnePerson implements Runnable{
-    private static final Logger logger = LoggerFactory.getLogger(CompareOnePerson.class);
+public class CompareOnePerson2 extends CompareTask{
+    private static final Logger logger = LoggerFactory.getLogger(CompareOnePerson2.class);
     private int resultDefaultCount = 20;
     private Config conf;
-    @Override
-    public void run() {
+    private CompareParam param;
+    private String dateStart;
+    private String dateEnd;
 
+
+    public CompareOnePerson2(CompareParam param, String dateStart, String dateEnd){
+        this.param = param;
+        this.dateStart = dateStart;
+        this.dateEnd = dateEnd;
     }
 
-    public SearchResult compare(CompareParam param, String dateStart, String dateEnd){
+    public SearchResult getSearchResult(){
+        return searchResult;
+    }
+
+    public boolean isEnd(){
+        return isEnd;
+    }
+
+    public SearchResult compare(){
         List<String> ipcIdList = param.getArg1List();
         float[] feature2 = param.getFeatures().get(0).getFeature2();
         float sim = param.getSim();

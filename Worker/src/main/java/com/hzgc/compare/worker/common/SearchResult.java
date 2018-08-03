@@ -3,6 +3,7 @@ package com.hzgc.compare.worker.common;
 import com.hzgc.compare.rpc.client.result.AllReturn;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 public class SearchResult {
     private static Integer size = 1000;
@@ -34,7 +35,8 @@ public class SearchResult {
      * 将当前的records根据Sim排序
      */
     public void sortBySim(){ //TODO 选择合适的排序
-        Arrays.sort(records);
+//        Arrays.sort(records);
+        Arrays.sort(records, (o1, o2) -> (int) (o2.getKey() - o1.getKey()));
 //        quickSort(records, 0, records.length - 1);
     }
 
@@ -44,7 +46,10 @@ public class SearchResult {
      * @return
      */
     public void merge(SearchResult result){
-        if(records.length == 0) {
+        if(result == null || result.getRecords().length == 0){
+            return;
+        }
+        if(records == null|| records.length == 0) {
             records = result.getRecords();
         } else {
             Record[] arr1 = records;

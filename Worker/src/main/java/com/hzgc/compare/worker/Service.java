@@ -30,5 +30,6 @@ public interface Service {
      */
     AllReturn<Map<String, SearchResult>> retrievalNotSamePerson(CompareParam paramt);
 
-    AllReturn<Boolean> stopTheWorker();
+    AllReturn<String> test() throws InterruptedException;
+
 }

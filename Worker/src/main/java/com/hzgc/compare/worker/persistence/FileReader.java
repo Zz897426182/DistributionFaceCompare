@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  *
@@ -27,6 +29,8 @@ public class FileReader {
     private LocalStreamCache streamCache = LocalStreamCache.getInstance();
     private int readFilesPerThread = 2;
     private List<ReadFile> list = new ArrayList<>();
+    private ExecutorService pool;
+    private int excutors = 12;
 
     public FileReader() {
         this.conf = Config.getConf();
@@ -36,6 +40,8 @@ public class FileReader {
     public void init(){
         path = conf.getValue(Config.WORKER_FILE_PATH);
         readFilesPerThread = conf.getValue(Config.WORKER_READFILES_PER_THREAD, readFilesPerThread);
+        excutors = conf.getValue(Config.WORKER_EXECUTORS_TO_COMPARE, excutors);
+        pool = Executors.newFixedThreadPool(excutors);
     }
 
     /**
@@ -80,6 +86,10 @@ public class FileReader {
         // 加载本月的记录
         loadRecordForMonth2(dirForThisWorker, ym);
 
+        if(list.size() == 0){
+            logger.info("There is no file to load.");
+            return;
+        }
         for(ReadFile readFile1: list){
             readFile1.start();
         }
@@ -93,6 +103,7 @@ public class FileReader {
                 break;
             }
         }
+        pool.shutdown();
         logger.info("The time used to load record is : " + (System.currentTimeMillis() - start));
     }
 
@@ -241,11 +252,7 @@ class ReadFile extends Thread{
                         Triplet <String, String, String> key = new Triplet <>(s[0], null, s[1]);
                         float[] floats = FaceObjectUtil.jsonToArray(s[3]);
                         Pair<String, float[]> value = new Pair <>(s[2], floats);
-                        List<Pair<String, float[]>> list = temp.get(key);
-                        if(list == null){
-                            list = new ArrayList<>();
-                            temp.put(key, list);
-                        }
+                        List<Pair<String, float[]>> list = temp.computeIfAbsent(key, k -> new ArrayList<>());
                         list.add(value);
                         count ++ ;
                     }

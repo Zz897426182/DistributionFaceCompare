@@ -25,6 +25,7 @@ public class ZookeeperClient {
                 .connectString(zkAddress)
                 .retryPolicy(retryPolicy)
                 .sessionTimeoutMs(RpcConfig.getZkSessionTime())
+                .connectionTimeoutMs(RpcConfig.getZkConnectTime())
                 .build();
         zkClient.start();
         try {

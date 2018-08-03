@@ -12,8 +12,8 @@ public class PersonImpl implements Person{
     }
 
     @Override
-    public AllReturn<Five> getFive() {
-
+    public AllReturn<Five> getFive() throws InterruptedException {
+        Thread.sleep(1000L * 10);
         Five five = new Five();
         return new AllReturn<>(five);
     }

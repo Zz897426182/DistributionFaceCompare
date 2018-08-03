@@ -159,11 +159,7 @@ public class MemoryCacheImpl<A1, A2, D> {
                     new Triplet<>(record.getFirst(), record.getSecond(), record.getThird());
 
             Pair<String, D> value = new Pair<>(record.getFourth(), record.getFifth());
-            List<Pair<String, D>> list = cacheRecords.get(key);
-            if(list == null){
-                list = new ArrayList<>();
-                cacheRecords.put(key, list);
-            }
+            List<Pair<String, D>> list = cacheRecords.computeIfAbsent(key, k -> new ArrayList<>());
             list.add(value);
         }
     }

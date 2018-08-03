@@ -11,190 +11,197 @@ import com.hzgc.compare.worker.common.taskhandle.FlushTask;
 import com.hzgc.compare.worker.common.taskhandle.TaskToHandleQueue;
 import com.hzgc.compare.worker.compare.Comparators;
 import com.hzgc.compare.worker.compare.ComparatorsImpl;
+import com.hzgc.compare.worker.compare.task.CompareNotSamePerson;
+import com.hzgc.compare.worker.compare.task.CompareOnePerson;
+import com.hzgc.compare.worker.compare.task.CompareSamePerson;
 import com.hzgc.compare.worker.conf.Config;
 import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
 import com.hzgc.compare.worker.persistence.HBaseClient;
+import com.hzgc.compare.worker.util.DateUtil;
 import com.hzgc.compare.worker.util.FaceObjectUtil;
 import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class ServiceImpl implements Service{
     private static final Logger logger = LoggerFactory.getLogger(ServiceImpl.class);
     private int resultDefaultCount = 10;
-    private int compareSize = 500;
     private Config conf;
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    private ExecutorService pool;
+    private int daysPerThread = 2; //分割成的时间段
+    private int daysToComapreMax = 4; //不使用多线程对比的最大时间段
+    private int excutors = 10;
 
     public ServiceImpl(){
         this.conf = Config.getConf();
-        resultDefaultCount = conf.getValue("", resultDefaultCount);
-        compareSize = conf.getValue("", compareSize);
+        excutors = conf.getValue(Config.WORKER_EXECUTORS_TO_COMPARE, excutors);
+        pool = Executors.newFixedThreadPool(excutors);
     }
 
     @Override
     public AllReturn<SearchResult> retrievalOnePerson(CompareParam param) {
         logger.info("The param is : " + FaceObjectUtil.objectToJson(param));
-        List<String> ipcIdList = param.getArg1List();
         String dateStart = param.getDateStart();
         String dateEnd = param.getDateEnd();
-        byte[] feature1 = param.getFeatures().get(0).getFeature1();
-        float[] feature2 = param.getFeatures().get(0).getFeature2();
-        float sim = param.getSim();
-        int resultCount = param.getResultCount();
-        if (resultCount == 0){
-            resultCount = resultDefaultCount;
+        long time1 = System.currentTimeMillis();
+        try {
+            if(sdf.parse(param.getDateEnd()).getTime() - sdf.parse(param.getDateStart()).getTime() >
+                    1000L * 60 * 60 * 24 * daysToComapreMax){
+                logger.info("The period of retrieval is large than predict.");
+                logger.info("Splite the period.");
+                List<String> periods = DateUtil.getPeriod(param.getDateStart(), param.getDateEnd(), daysPerThread);
+                List<CompareOnePerson> list = new ArrayList<>();
+                for(String period : periods){
+                    String[] time = period.split(",");
+                    CompareOnePerson compareOnePerson2 = new CompareOnePerson(param, time[0], time[1]);
+                    pool.submit(compareOnePerson2);
+                    list.add(compareOnePerson2);
+                }
+
+                while (true){
+                    boolean flug = true;
+                    for(CompareOnePerson compare : list){
+                        flug = compare.isEnd() && flug;
+                    }
+                    if(flug){
+                        break;
+                    }
+                }
+                SearchResult result = new SearchResult();
+                for(CompareOnePerson compare : list){
+                    result.merge(compare.getSearchResult());
+                }
+                logger.info("The time used of this Compare is : " + (System.currentTimeMillis() - time1));
+                return new AllReturn<>(result);
+            } else {
+                CompareOnePerson compareOnePerson2 = new CompareOnePerson(param, dateStart, dateEnd);
+                SearchResult result = compareOnePerson2.compare();
+                logger.info("The time used of this Compare is : " + (System.currentTimeMillis() - time1));
+                return new AllReturn<>(result);
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return new AllReturn<>(null);
         }
-        SearchResult result;
-        HBaseClient client = new HBaseClient();
-        Comparators comparators = new ComparatorsImpl();
-        // 根据条件过滤
-        logger.info("To filter the records from memory.");
-        List<Pair<String, byte[]>> dataFilterd =  comparators.<byte[]>filter(ipcIdList, null, dateStart, dateEnd);
-        if(dataFilterd.size() > compareSize){
-            // 若过滤结果太大，则需要第一次对比
-            logger.info("The result of filter is too bigger , to compare it first.");
-            List<String> firstCompared =  comparators.compareFirst(feature1, 500, dataFilterd);
-            //根据对比结果从HBase读取数据
-            logger.info("Read records from HBase with result of first compared.");
-            List<FaceObject> objs =  client.readFromHBase(firstCompared);
-            // 第二次对比
-            logger.info("Compare records second.");
-            result = comparators.compareSecond(feature2, sim, objs);
-            //取相似度最高的几个
-            logger.info("Take the top " + resultCount);
-            result = result.take(resultCount);
-        }else {
-            //若过滤结果比较小，则直接进行第二次对比
-            logger.info("Read records from HBase with result of filter.");
-            List<FaceObject> objs = client.readFromHBase2(dataFilterd);
-//            System.out.println("过滤结果" + objs.size() + " , " + objs.get(0));
-            logger.info("Compare records second directly.");
-            result = comparators.compareSecond(feature2, sim, objs);
-            //取相似度最高的几个
-            logger.info("Take the top " + resultCount);
-            result = result.take(resultCount);
-        }
-//        System.out.println("对比结果2" + result.getRecords().length + " , " + result.getRecords()[0]);
-        return new AllReturn<>(result);
+
     }
 
     @Override
     public AllReturn<SearchResult> retrievalSamePerson(CompareParam param) {
         logger.info("The param is : " + FaceObjectUtil.objectToJson(param));
-        List<String> ipcIdList = param.getArg1List();
         String dateStart = param.getDateStart();
         String dateEnd = param.getDateEnd();
-        List<Feature> features = param.getFeatures();
-        float sim = param.getSim();
-        int resultCount = param.getResultCount();
-        if (resultCount == 0){
-            resultCount = resultDefaultCount;
+        try {
+            long time1 = System.currentTimeMillis();
+            if(sdf.parse(param.getDateEnd()).getTime() - sdf.parse(param.getDateStart()).getTime() >
+                    1000L * 60 * 60 * 24 * daysToComapreMax){
+                logger.info("The period of retrieval is large than predict.");
+                logger.info("Splite the period.");
+                List<String> periods = DateUtil.getPeriod(param.getDateStart(), param.getDateEnd(), daysPerThread);
+                List<CompareSamePerson> list = new ArrayList<>();
+                for(String period : periods){
+                    String[] time = period.split(",");
+                    CompareSamePerson compareOnePerson2 = new CompareSamePerson(param, time[0], time[1]);
+                    pool.submit(compareOnePerson2);
+                    list.add(compareOnePerson2);
+                }
+
+                while (true){
+                    boolean flug = true;
+                    for(CompareSamePerson compare : list){
+                        flug = compare.isEnd() && flug;
+                    }
+                    if(flug){
+                        break;
+                    }
+                }
+                SearchResult result = new SearchResult();
+                for(CompareSamePerson compare : list){
+                    result.merge(compare.getSearchResult());
+                }
+                logger.info("The time used of this Compare is : " + (System.currentTimeMillis() - time1));
+                return new AllReturn<>(result);
+            } else {
+                CompareSamePerson compareOnePerson2 = new CompareSamePerson(param, dateStart, dateEnd);
+                SearchResult result = compareOnePerson2.compare();
+                logger.info("The time used of this Compare is : " + (System.currentTimeMillis() - time1));
+                return new AllReturn<>(result);
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return new AllReturn<>(null);
         }
-        List<byte[]> feature1List = new ArrayList<>();
-        List<float[]> feature2List = new ArrayList<>();
-        for (Feature feature : features) {
-            feature1List.add(feature.getFeature1());
-            feature2List.add(feature.getFeature2());
-        }
-        SearchResult result;
-        HBaseClient client = new HBaseClient();
-        Comparators comparators = new ComparatorsImpl();
-        // 根据条件过滤
-        logger.info("To filter the records from memory.");
-        List<Pair<String, byte[]>> dataFilterd =  comparators.<byte[]>filter(ipcIdList, null, dateStart, dateEnd);
-        if(dataFilterd.size() > compareSize) {
-            // 若过滤结果太大，则需要第一次对比
-            logger.info("The result of filter is too bigger , to compare it first.");
-            List<String> firstCompared = comparators.compareFirstTheSamePerson(feature1List, 500, dataFilterd);
-            //根据对比结果从HBase读取数据
-            logger.info("Read records from HBase with result of first compared.");
-            List<FaceObject> objs =  client.readFromHBase(firstCompared);
-            // 第二次对比
-            logger.info("Compare records second.");
-            result = comparators.compareSecondTheSamePerson(feature2List, sim, objs);
-            //取相似度最高的几个
-            logger.info("Take the top " + resultCount);
-            result = result.take(resultCount);
-        } else {
-            //若过滤结果比较小，则直接进行第二次对比
-            logger.info("Read records from HBase with result of filter.");
-            List<FaceObject> objs = client.readFromHBase2(dataFilterd);
-            logger.info("Compare records second directly.");
-            result = comparators.compareSecondTheSamePerson(feature2List, sim, objs);
-            //取相似度最高的几个
-            logger.info("Take the top " + resultCount);
-            result = result.take(resultCount);
-        }
-        return new AllReturn<>(result);
+
     }
 
     @Override
     public AllReturn<Map<String, SearchResult>> retrievalNotSamePerson(CompareParam param) {
         logger.info("The param is : " + FaceObjectUtil.objectToJson(param));
-        Map<String, SearchResult> result = new HashMap<>();
-        List<String> ipcIdList = param.getArg1List();
         String dateStart = param.getDateStart();
         String dateEnd = param.getDateEnd();
-        List<Feature> features = param.getFeatures();
-        float sim = param.getSim();
-        int resultCount = param.getResultCount();
-        if (resultCount <= 0 || resultCount > 50){
-            resultCount = resultDefaultCount;
-        }
-        HBaseClient client = new HBaseClient();
-        // 根据条件过滤
-        Comparators comparators = new ComparatorsImpl();
-        logger.info("To filter the records from memory.");
-        List<Pair<String, byte[]>> dataFilterd =  comparators.filter(ipcIdList, null, dateStart, dateEnd);
-        if(dataFilterd.size() > compareSize){
-            // 若过滤结果太大，则需要第一次对比
-            logger.info("The result of filter is too bigger , to compare it first.");
-            List<String> Rowkeys = comparators.compareFirstNotSamePerson(features, 500, dataFilterd);
-            //根据对比结果从HBase读取数据
-            logger.info("Read records from HBase with result of first compared.");
-            List<FaceObject> objs = client.readFromHBase(Rowkeys);
-            logger.info("Compare records second.");
-            Map<String, SearchResult> resultTemp = comparators.compareSecondNotSamePerson(features, sim, objs);
-            logger.info("Take the top " + resultCount);
-            for(Map.Entry<String, SearchResult> searchResult : resultTemp.entrySet()){
-                //取相似度最高的几个
-                SearchResult searchResult1 = searchResult.getValue().take(resultCount);
-                result.put(searchResult.getKey(), searchResult1);
+        try {
+            long time1 = System.currentTimeMillis();
+            if(sdf.parse(param.getDateEnd()).getTime() - sdf.parse(param.getDateStart()).getTime() >
+                    1000L * 60 * 60 * 24 * daysToComapreMax){
+                logger.info("The period of retrieval is large than predict.");
+                logger.info("Splite the period.");
+                List<String> periods = DateUtil.getPeriod(param.getDateStart(), param.getDateEnd(), daysPerThread);
+                List<CompareNotSamePerson> list = new ArrayList<>();
+                for(String period : periods){
+                    String[] time = period.split(",");
+                    CompareNotSamePerson compareOnePerson2 = new CompareNotSamePerson(param, time[0], time[1]);
+                    pool.submit(compareOnePerson2);
+                    list.add(compareOnePerson2);
+                }
+
+                while (true){
+                    boolean flug = true;
+                    for(CompareNotSamePerson compare : list){
+                        flug = compare.isEnd() && flug;
+                    }
+                    if(flug){
+                        break;
+                    }
+                }
+                Map<String, SearchResult> result = new Hashtable<>();
+                int index = 0;
+                for(CompareNotSamePerson compare : list){
+                    if(index == 0){
+                        result = compare.getSearchResult();
+                    } else{
+                        for(String key : result.keySet()){
+                            result.get(key).merge(compare.getSearchResult().get(key));
+                        }
+                    }
+                    index ++;
+                }
+                logger.info("The time used of this Compare is : " + (System.currentTimeMillis() - time1));
+                return new AllReturn<>(result);
+            } else {
+                CompareNotSamePerson compareOnePerson2 = new CompareNotSamePerson(param, dateStart, dateEnd);
+                Map<String, SearchResult> result = compareOnePerson2.compare();
+                logger.info("The time used of this Compare is : " + (System.currentTimeMillis() - time1));
+                return new AllReturn<>(result);
             }
-            return new AllReturn<>(result);
-        } else {
-            //若过滤结果比较小，则直接进行第二次对比
-            logger.info("Read records from HBase with result of filter.");
-            List<FaceObject> objs = client.readFromHBase2(dataFilterd);
-            logger.info("Compare records second directly.");
-            Map<String, SearchResult> resultTemp = comparators.compareSecondNotSamePerson(features, sim, objs);
-            logger.info("Take the top " + resultCount);
-            for(Map.Entry<String, SearchResult> searchResult : resultTemp.entrySet()){
-                //取相似度最高的几个
-                SearchResult searchResult1 = searchResult.getValue().take(resultCount);
-                result.put(searchResult.getKey(), searchResult1);
-            }
-            return new AllReturn<>(result);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return new AllReturn<>(null);
         }
     }
 
-    @Override
-    public AllReturn<Boolean> stopTheWorker() {
-        try {
-            MemoryCacheImpl memoryCache = MemoryCacheImpl.getInstance();
-            List<Quintuple<String, String, String, String, byte[]>> buffer = memoryCache.getBuffer();
-            memoryCache.moveToCacheRecords(buffer);
-            TaskToHandleQueue.getTaskQueue().addTask(new FlushTask(buffer));
-            Thread.sleep(2000L);
-            return new AllReturn<>(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new AllReturn<>(false);
-        }finally {
-            System.exit(0);
-        }
+    public AllReturn<String> test() throws InterruptedException{
+        Thread.sleep(1000L * 10);
+        logger.info("TEST ");
+        return new AllReturn<>("response");
     }
 }

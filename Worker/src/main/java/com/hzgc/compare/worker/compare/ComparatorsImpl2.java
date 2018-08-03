@@ -22,7 +22,7 @@ public class ComparatorsImpl2 {
                 MemoryCacheImpl.<String, String, float[]>getInstance().getCacheRecords();
 //        Set<Triplet<String, String, String>> temp = new HashSet<>();
 //        temp.addAll(cacheRecords.keySet());
-        Iterator<Triplet<String, String, String> > iterator =  cacheRecords.keySet().iterator();
+        Iterator<Triplet<String, String, String>> iterator =  cacheRecords.keySet().iterator();
         Long start = System.currentTimeMillis();
         if(arg1List == null || arg1List.size() == 0){
             while (iterator.hasNext()) {

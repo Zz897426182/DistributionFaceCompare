@@ -15,10 +15,15 @@ import java.util.*;
 public class Test2 {
     private static MemoryCacheImpl cache;
     public static void main(String args[]) throws IOException {
-        cache = MemoryCacheImpl.<String, String, float[]>getInstance();
-        Test2 test2 = new Test2();
-        test2.loadRecordFromLocal();
-
+//        cache = MemoryCacheImpl.<String, String, float[]>getInstance();
+//        Test2 test2 = new Test2();
+//        test2.loadRecordFromLocal();
+        String key = "key";
+        String value = "value";
+        Map<String, List<String>> map= new HashMap<>();
+        List list = map.computeIfAbsent(key, k -> new ArrayList<>());
+        list.add(value);
+        System.out.println(map.get(key).get(0));
     }
 
     public void loadRecordFromLocal() throws FileNotFoundException {
