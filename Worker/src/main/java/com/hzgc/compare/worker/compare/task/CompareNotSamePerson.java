@@ -64,7 +64,7 @@ public class CompareNotSamePerson implements Runnable {
             logger.info("Read records from HBase with result of first compared.");
             List<FaceObject> objs = client.readFromHBase(Rowkeys);
             logger.info("Compare records second.");
-            Map<String, SearchResult> resultTemp = comparators.compareSecondNotSamePerson(features, sim, objs);
+            Map<String, SearchResult> resultTemp = comparators.compareSecondNotSamePerson(features, sim, objs, param.getSort());
             logger.info("Take the top " + resultCount);
             for(Map.Entry<String, SearchResult> searchResult : resultTemp.entrySet()){
                 //取相似度最高的几个
@@ -77,7 +77,7 @@ public class CompareNotSamePerson implements Runnable {
             logger.info("Read records from HBase with result of filter.");
             List<FaceObject> objs = client.readFromHBase2(dataFilterd);
             logger.info("Compare records second directly.");
-            Map<String, SearchResult> resultTemp = comparators.compareSecondNotSamePerson(features, sim, objs);
+            Map<String, SearchResult> resultTemp = comparators.compareSecondNotSamePerson(features, sim, objs, param.getSort());
             logger.info("Take the top " + resultCount);
             for(Map.Entry<String, SearchResult> searchResult : resultTemp.entrySet()){
                 //取相似度最高的几个

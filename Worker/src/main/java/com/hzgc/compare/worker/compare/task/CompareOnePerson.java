@@ -62,7 +62,7 @@ public class CompareOnePerson extends CompareTask {
             List<FaceObject> objs =  client.readFromHBase(firstCompared);
             // 第二次对比
             logger.info("Compare records second.");
-            result = comparators.compareSecond(feature2, sim, objs);
+            result = comparators.compareSecond(feature2, sim, objs, param.getSort());
             //取相似度最高的几个
             logger.info("Take the top " + resultCount);
             result = result.take(resultCount);
@@ -72,7 +72,7 @@ public class CompareOnePerson extends CompareTask {
             List<FaceObject> objs = client.readFromHBase2(dataFilterd);
 //            System.out.println("过滤结果" + objs.size() + " , " + objs.get(0));
             logger.info("Compare records second directly.");
-            result = comparators.compareSecond(feature2, sim, objs);
+            result = comparators.compareSecond(feature2, sim, objs, param.getSort());
             //取相似度最高的几个
             logger.info("Take the top " + resultCount);
             result = result.take(resultCount);

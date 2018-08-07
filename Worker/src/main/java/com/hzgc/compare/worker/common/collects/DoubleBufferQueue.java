@@ -1,4 +1,4 @@
-package com.hzgc.compare.worker.common;
+package com.hzgc.compare.worker.common.collects;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,6 +1,6 @@
 package com.hzgc.compare.worker.memory.manager;
 
-import com.hzgc.compare.worker.common.Triplet;
+import com.hzgc.compare.worker.common.tuple.Triplet;
 import com.hzgc.compare.worker.conf.Config;
 import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
 import javafx.util.Pair;

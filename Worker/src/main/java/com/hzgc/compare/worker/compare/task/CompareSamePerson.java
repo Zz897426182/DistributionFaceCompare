@@ -68,7 +68,7 @@ public class CompareSamePerson extends CompareTask {
             List<FaceObject> objs =  client.readFromHBase(firstCompared);
             // 第二次对比
             logger.info("Compare records second.");
-            result = comparators.compareSecondTheSamePerson(feature2List, sim, objs);
+            result = comparators.compareSecondTheSamePerson(feature2List, sim, objs, param.getSort());
             //取相似度最高的几个
             logger.info("Take the top " + resultCount);
             result = result.take(resultCount);
@@ -77,7 +77,7 @@ public class CompareSamePerson extends CompareTask {
             logger.info("Read records from HBase with result of filter.");
             List<FaceObject> objs = client.readFromHBase2(dataFilterd);
             logger.info("Compare records second directly.");
-            result = comparators.compareSecondTheSamePerson(feature2List, sim, objs);
+            result = comparators.compareSecondTheSamePerson(feature2List, sim, objs, param.getSort());
             //取相似度最高的几个
             logger.info("Take the top " + resultCount);
             result = result.take(resultCount);

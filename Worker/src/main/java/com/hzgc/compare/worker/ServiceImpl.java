@@ -1,25 +1,14 @@
 package com.hzgc.compare.worker;
 
 import com.hzgc.compare.worker.common.CompareParam;
-import com.hzgc.compare.worker.common.Feature;
 import com.hzgc.compare.rpc.client.result.AllReturn;
-import com.hzgc.compare.rpc.server.annotation.RpcService;
-import com.hzgc.compare.worker.common.FaceObject;
-import com.hzgc.compare.worker.common.Quintuple;
 import com.hzgc.compare.worker.common.SearchResult;
-import com.hzgc.compare.worker.common.taskhandle.FlushTask;
-import com.hzgc.compare.worker.common.taskhandle.TaskToHandleQueue;
-import com.hzgc.compare.worker.compare.Comparators;
-import com.hzgc.compare.worker.compare.ComparatorsImpl;
 import com.hzgc.compare.worker.compare.task.CompareNotSamePerson;
 import com.hzgc.compare.worker.compare.task.CompareOnePerson;
 import com.hzgc.compare.worker.compare.task.CompareSamePerson;
 import com.hzgc.compare.worker.conf.Config;
-import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
-import com.hzgc.compare.worker.persistence.HBaseClient;
 import com.hzgc.compare.worker.util.DateUtil;
 import com.hzgc.compare.worker.util.FaceObjectUtil;
-import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

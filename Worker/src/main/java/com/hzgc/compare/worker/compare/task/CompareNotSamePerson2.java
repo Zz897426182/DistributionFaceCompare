@@ -17,6 +17,7 @@ import java.util.Map;
 public class CompareNotSamePerson2 implements Runnable{
     private static final Logger logger = LoggerFactory.getLogger(CompareNotSamePerson2.class);
     private int resultDefaultCount = 20;
+    private int compareSize = 500;
     private Config conf;
     private CompareParam param;
     private String dateStart;
@@ -57,12 +58,24 @@ public class CompareNotSamePerson2 implements Runnable{
         List<Pair<String, float[]>> dataFilterd =  comparators.filter(ipcIdList, null, dateStart, dateEnd);
         // 执行对比
         logger.info("To compare the result of filterd.");
-        resultTemp = comparators.compareSecondNotSamePerson(features, sim, dataFilterd);
+        resultTemp = comparators.compareSecondNotSamePerson(features, sim, dataFilterd, param.getSort());
         for(Map.Entry<String, SearchResult> searchResult : resultTemp.entrySet()){
-            SearchResult res1 = searchResult.getValue().take(resultCount);
+            SearchResult res1 = searchResult.getValue();
+            SearchResult res2 = res1;
+
+            List<Integer> sorts = param.getSort();
+            if(sorts != null && (sorts.size() > 1 || (sorts.size() == 1 && sorts.get(0) != 5))){
+                res2 = res1.take(compareSize);
+                //从HBase读取数据
+                SearchResult res3 = client.readFromHBase2(res2);
+                res3.sort(param.getSort());
+                result.put(searchResult.getKey(), res3.take(resultCount));
+                continue;
+            }
+            res2 = res1.take(resultCount);
             //从HBase读取数据
-            SearchResult res2 = client.readFromHBase2(res1);
-            result.put(searchResult.getKey(), res2);
+            SearchResult res3 = client.readFromHBase2(res2);
+            result.put(searchResult.getKey(), res3);
         }
         return result;
     }

@@ -1,10 +1,20 @@
 package com.hzgc.compare.worker.persistence;
 
+import com.hzgc.compare.worker.common.FaceInfoTable;
+import com.hzgc.compare.worker.common.FaceObject;
 import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
 import com.hzgc.compare.worker.memory.manager.MemoryManager;
 import com.hzgc.compare.worker.util.FaceObjectUtil;
+import com.hzgc.compare.worker.util.HBaseHelper;
 import javafx.beans.NamedArg;
 import javafx.util.Pair;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.util.Bytes;
 
 
 import java.io.*;
@@ -18,12 +28,26 @@ public class Test2 {
 //        cache = MemoryCacheImpl.<String, String, float[]>getInstance();
 //        Test2 test2 = new Test2();
 //        test2.loadRecordFromLocal();
-        String key = "key";
-        String value = "value";
-        Map<String, List<String>> map= new HashMap<>();
-        List list = map.computeIfAbsent(key, k -> new ArrayList<>());
-        list.add(value);
-        System.out.println(map.get(key).get(0));
+        try {
+            Table table = HBaseHelper.getHBaseConnection().getTable(TableName.valueOf(FaceInfoTable.TABLE_NAME));
+            Get get = new Get(Bytes.toBytes("faggsdhbsdg"));
+            Result result = table.get(get);
+            int index = 0;
+            if(result.rawCells() == null || result.rawCells().length == 0 ){
+                System.out.println("This Object From HBase is Null");
+            }
+                for (Cell kv : result.rawCells()) {
+                    FaceObject object = FaceObjectUtil.jsonToObject(Bytes.toString(CellUtil.cloneValue(kv))) ;
+//                    String rowkey = Bytes.toString(CellUtil.cloneRow(kv));
+//                    if(! rowkey.equals(compareRes.getRecords()[index].getValue())){
+//                        System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+//                    }
+
+                }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void loadRecordFromLocal() throws FileNotFoundException {

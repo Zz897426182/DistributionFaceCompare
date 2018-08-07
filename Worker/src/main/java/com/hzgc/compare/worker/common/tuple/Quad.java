@@ -1,4 +1,4 @@
-package com.hzgc.compare.worker.common;
+package com.hzgc.compare.worker.common.tuple;
 
 import javafx.beans.NamedArg;
 

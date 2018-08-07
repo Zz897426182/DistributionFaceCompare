@@ -16,6 +16,7 @@ public class CompareOnePerson2 extends CompareTask{
     private int resultDefaultCount = 20;
     private Config conf;
     private CompareParam param;
+    private int compareSize = 500;
     private String dateStart;
     private String dateEnd;
 
@@ -50,9 +51,18 @@ public class CompareOnePerson2 extends CompareTask{
         List<Pair<String, float[]>> dataFilterd =  comparators.filter(ipcIdList, null, dateStart, dateEnd);
         // 执行对比
         logger.info("To compare the result of filterd.");
-        result = comparators.compareSecond(feature2, sim, dataFilterd);
+        result = comparators.compareSecond(feature2, sim, dataFilterd, param.getSort());
         //取相似度最高的几个
         logger.info("Take the top " + resultCount);
+        List<Integer> sorts = param.getSort();
+        if(sorts != null && (sorts.size() > 1 || (sorts.size() == 1 && sorts.get(0) != 5))) {
+            result = result.take(compareSize);
+            logger.info("Read records from HBase.");
+            result = client.readFromHBase2(result);
+            result.sort(param.getSort());
+            result = result.take(resultCount);
+            return result;
+        }
         result = result.take(resultCount);
         logger.info("Read records from HBase.");
         result = client.readFromHBase2(result);

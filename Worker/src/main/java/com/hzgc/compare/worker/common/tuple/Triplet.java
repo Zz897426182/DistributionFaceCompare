@@ -1,21 +1,18 @@
-package com.hzgc.compare.worker.common;
+package com.hzgc.compare.worker.common.tuple;
 
 import javafx.beans.NamedArg;
 
-public class Quintuple<A, B, C, D ,E> {
+import java.io.Serializable;
+
+public class Triplet<A, B, C> implements Serializable{
     private A first;
     private B second;
     private C third;
-    private D fourth;
-    private E fifth;
 
-    public Quintuple(@NamedArg("first") A first, @NamedArg("second") B second,
-                     @NamedArg("third") C third, @NamedArg("fourth") D fourth, @NamedArg("fifth") E fifth) {
+    public Triplet(@NamedArg("first") A first, @NamedArg("second") B second, @NamedArg("third") C third) {
         this.first = first;
         this.second = second;
         this.third = third;
-        this.fourth = fourth;
-        this.fifth = fifth;
     }
 
     public A getFirst() {
@@ -29,19 +26,26 @@ public class Quintuple<A, B, C, D ,E> {
     public C getThird() {
         return third;
     }
-    public D getFourth(){return  fourth;}
-    public E getFifth(){return  fifth;}
 
+    @Override
+    public int hashCode() {
+        int result = first != null ? first.hashCode() : 0;
+        result = 31 * result + (second != null ? second.hashCode() : 0);
+        result = 31 * result + (third != null ? third.hashCode() : 0);
+        return result;
+    }
+
+    public String toString() {
+        return "(" + first + " , " + second + " , " + third + ")";
+    }
 
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o instanceof Quintuple) {
-            Quintuple triplet = (Quintuple) o;
+        if (o instanceof Triplet) {
+            Triplet triplet = (Triplet) o;
             if (first != null ? !first.equals(triplet.first) : triplet.first != null) return false;
             if (second != null ? !second.equals(triplet.second) : triplet.second != null) return false;
             if (third != null ? !third.equals(triplet.third) : triplet.third != null) return false;
-            if (fourth != null ? !fourth.equals(triplet.fourth) : triplet.fourth != null) return false;
-            if (fifth != null ? !fifth.equals(triplet.fifth) : triplet.fifth != null) return false;
             return true;
         }
         return false;

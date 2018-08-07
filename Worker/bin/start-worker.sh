@@ -36,7 +36,7 @@ fi
 function start_worker()
 {
     nohup java -server -Xms10g -Xmx20g -classpath $CONF_DIR:$LIB_JARS com.hzgc.compare.worker.Worker > ${LOG_FILE} 2>&1 &
-    echo "worker is started"
+    echo "start worker ..."
 }
 
 start_worker

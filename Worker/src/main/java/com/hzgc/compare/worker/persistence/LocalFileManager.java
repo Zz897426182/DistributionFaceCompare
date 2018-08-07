@@ -1,8 +1,8 @@
 package com.hzgc.compare.worker.persistence;
 
 
-import com.hzgc.compare.worker.common.Quad;
-import com.hzgc.compare.worker.common.Quintuple;
+import com.hzgc.compare.worker.common.tuple.Quad;
+import com.hzgc.compare.worker.common.tuple.Quintuple;
 import com.hzgc.compare.worker.conf.Config;
 import com.hzgc.compare.worker.persistence.task.TimeToCheckFile;
 import com.hzgc.compare.worker.persistence.task.TimeToCheckTask;

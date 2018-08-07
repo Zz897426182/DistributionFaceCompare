@@ -11,6 +11,8 @@ public class CompareParam {
     private float sim;
     private int resultCount;
     private boolean isTheSamePerson;
+    //排序参数
+    private List<Integer> sort;
 
     public CompareParam(List<String> arg1List, List<String> arg2List, String dateStart, String dateEnd,
                         List<Feature> features, float sim, int resultCount, boolean isTheSamePerson) {
@@ -54,6 +56,14 @@ public class CompareParam {
 
     public int getResultCount() {
         return resultCount;
+    }
+
+    public List<Integer> getSort() {
+        return sort;
+    }
+
+    public void setSort(List<Integer> sort) {
+        this.sort = sort;
     }
 
     @Override

@@ -1,7 +1,8 @@
 package com.hzgc.compare.worker.persistence;
 
 
-import com.hzgc.compare.worker.common.Triplet;
+import com.hzgc.compare.worker.common.collects.CustomizeArrayList;
+import com.hzgc.compare.worker.common.tuple.Triplet;
 import com.hzgc.compare.worker.conf.Config;
 import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
 import com.hzgc.compare.worker.util.FaceObjectUtil;
@@ -252,7 +253,7 @@ class ReadFile extends Thread{
                         Triplet <String, String, String> key = new Triplet <>(s[0], null, s[1]);
                         float[] floats = FaceObjectUtil.jsonToArray(s[3]);
                         Pair<String, float[]> value = new Pair <>(s[2], floats);
-                        List<Pair<String, float[]>> list = temp.computeIfAbsent(key, k -> new ArrayList<>());
+                        List<Pair<String, float[]>> list = temp.computeIfAbsent(key, k -> new CustomizeArrayList<>());
                         list.add(value);
                         count ++ ;
                     }

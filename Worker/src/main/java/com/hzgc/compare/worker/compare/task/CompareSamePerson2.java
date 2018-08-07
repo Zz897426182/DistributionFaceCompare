@@ -16,6 +16,7 @@ import java.util.List;
 public class CompareSamePerson2 extends CompareTask{
     private static final Logger logger = LoggerFactory.getLogger(CompareSamePerson2.class);
     private int resultDefaultCount = 20;
+    private int compareSize = 500;
     private Config conf;
     private CompareParam param;
     private String dateStart;
@@ -57,9 +58,18 @@ public class CompareSamePerson2 extends CompareTask{
         List<Pair<String, float[]>> dataFilterd =  comparators.filter(ipcIdList, null, dateStart, dateEnd);
         // 执行对比
         logger.info("To compare the result of filterd.");
-        result = comparators.compareSecondTheSamePerson(feature2List, sim, dataFilterd);
+        result = comparators.compareSecondTheSamePerson(feature2List, sim, dataFilterd, param.getSort());
         //取相似度最高的几个
         logger.info("Take the top " + resultCount);
+        List<Integer> sorts = param.getSort();
+        if(sorts != null && (sorts.size() > 1 || (sorts.size() == 1 && sorts.get(0) != 5))){
+            result = result.take(compareSize);
+            logger.info("Read records from HBase.");
+            result = client.readFromHBase2(result);
+            result.sort(sorts);
+            result = result.take(resultCount);
+            return result;
+        }
         result = result.take(resultCount);
         //从HBase读取数据
         logger.info("Read records from HBase.");

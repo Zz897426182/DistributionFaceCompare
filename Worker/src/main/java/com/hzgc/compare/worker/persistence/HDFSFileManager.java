@@ -1,6 +1,6 @@
 package com.hzgc.compare.worker.persistence;
 
-import com.hzgc.compare.worker.common.Quintuple;
+import com.hzgc.compare.worker.common.tuple.Quintuple;
 import com.hzgc.compare.worker.conf.Config;
 
 import java.util.List;
