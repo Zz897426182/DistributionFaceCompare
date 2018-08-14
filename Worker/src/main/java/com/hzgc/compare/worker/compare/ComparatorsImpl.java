@@ -3,7 +3,7 @@ package com.hzgc.compare.worker.compare;
 import com.hzgc.compare.worker.common.FaceObject;
 import com.hzgc.compare.worker.common.Feature;
 import com.hzgc.compare.worker.common.SearchResult;
-import com.hzgc.compare.worker.common.Triplet;
+import com.hzgc.compare.worker.common.tuple.Triplet;
 import com.hzgc.compare.worker.conf.Config;
 import com.hzgc.compare.worker.jni.CompareResult;
 import com.hzgc.compare.worker.jni.FaceFeatureInfo;
@@ -162,7 +162,7 @@ public class ComparatorsImpl implements Comparators{
     }
 
     @Override
-    public SearchResult compareSecond(float[] feature, float sim, List<FaceObject> datas) {
+    public SearchResult compareSecond(float[] feature, float sim, List<FaceObject> datas, List<Integer> sorts) {
         Long start = System.currentTimeMillis();
         float[][] diku = new float[datas.size()][512];
         int index = 0;
@@ -191,13 +191,13 @@ public class ComparatorsImpl implements Comparators{
         SearchResult result = new SearchResult(records);
         long compared = System.currentTimeMillis();
         logger.info("The time second compare used is : " + (compared - start));
-        result.sortBySim();
+        result.sort(sorts);
         logger.info("The time used to sort is : " + (System.currentTimeMillis() - compared));
         return result;
     }
 
     @Override
-    public SearchResult compareSecondTheSamePerson(List<float[]> features, float sim, List<FaceObject> datas) {
+    public SearchResult compareSecondTheSamePerson(List<float[]> features, float sim, List<FaceObject> datas, List<Integer> sorts) {
         Long start = System.currentTimeMillis();
         float[][] diku = new float[datas.size()][512];
         int index = 0;
@@ -238,13 +238,14 @@ public class ComparatorsImpl implements Comparators{
         SearchResult result = new SearchResult(records);
         long compared = System.currentTimeMillis();
         logger.info("The time second compare used is : " + (compared - start));
-        result.sortBySim();
+        result.sort(sorts);
         logger.info("The time used to sort is : " + (System.currentTimeMillis() - compared));
         return result;
     }
 
     @Override
-    public Map<String, SearchResult> compareSecondNotSamePerson(List<Feature> features, float sim, List<FaceObject> datas) {
+    public Map<String, SearchResult> compareSecondNotSamePerson(List<Feature> features, float sim,
+                                                                List<FaceObject> datas, List<Integer> sorts) {
         Long start = System.currentTimeMillis();
         Map<String, SearchResult> result = new HashMap<>();
         float[][] diku = new float[datas.size()][512];
@@ -274,7 +275,7 @@ public class ComparatorsImpl implements Comparators{
                 recordIndex ++;
             }
             SearchResult searchResult = new SearchResult(records);
-            searchResult.sortBySim();
+            searchResult.sort(sorts);
             String id = features.get(Integer.parseInt(compareResult.getIndex())).getId();
             result.put(id, searchResult);
         }

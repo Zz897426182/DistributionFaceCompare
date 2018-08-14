@@ -1,6 +1,6 @@
 package com.hzgc.compare.worker.memory.manager;
 
-import com.hzgc.compare.worker.common.Triplet;
+import com.hzgc.compare.worker.common.tuple.Triplet;
 import com.hzgc.compare.worker.conf.Config;
 import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
 import javafx.util.Pair;
@@ -14,9 +14,9 @@ import java.util.*;
 public class MemoryManager<A1,A2,D> {
     private static final Logger logger = LoggerFactory.getLogger(MemoryManager.class);
     private Config conf;
-    private Long cacheNumMax = 10000000L; //内存中存储数据的上限，默认值1000万，根据实际内存设置
+    private Long cacheNumMax = 5000000L; //内存中存储数据的上限，默认值1000万，根据实际内存设置
     private Long checkTime = 1000L * 60 * 30; //内存检查时间间隔， 默认30分钟
-    private long recordTimeOut = 360; //一级过期时间，单位： 天 ， 默认12个月，为了一次就删除到0.8以下，需要根据实际情况设置好这个值
+    private long recordTimeOut = 35; //一级过期时间，单位： 天 ， 默认12个月，为了一次就删除到0.8以下，需要根据实际情况设置好这个值
     private SimpleDateFormat sdf;
     public MemoryManager(){
         init();

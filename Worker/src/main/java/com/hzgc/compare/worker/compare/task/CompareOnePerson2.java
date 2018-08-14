@@ -1,7 +1,8 @@
-package com.hzgc.compare.worker.compare;
+package com.hzgc.compare.worker.compare.task;
 
 import com.hzgc.compare.worker.common.CompareParam;
 import com.hzgc.compare.worker.common.SearchResult;
+import com.hzgc.compare.worker.compare.ComparatorsImpl2;
 import com.hzgc.compare.worker.conf.Config;
 import com.hzgc.compare.worker.persistence.HBaseClient;
 import javafx.util.Pair;
@@ -10,16 +11,31 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class CompareOnePerson implements Runnable{
-    private static final Logger logger = LoggerFactory.getLogger(CompareOnePerson.class);
+public class CompareOnePerson2 extends CompareTask{
+    private static final Logger logger = LoggerFactory.getLogger(CompareOnePerson2.class);
     private int resultDefaultCount = 20;
     private Config conf;
-    @Override
-    public void run() {
+    private CompareParam param;
+    private int compareSize = 500;
+    private String dateStart;
+    private String dateEnd;
 
+
+    public CompareOnePerson2(CompareParam param, String dateStart, String dateEnd){
+        this.param = param;
+        this.dateStart = dateStart;
+        this.dateEnd = dateEnd;
     }
 
-    public SearchResult compare(CompareParam param, String dateStart, String dateEnd){
+    public SearchResult getSearchResult(){
+        return searchResult;
+    }
+
+    public boolean isEnd(){
+        return isEnd;
+    }
+
+    public SearchResult compare(){
         List<String> ipcIdList = param.getArg1List();
         float[] feature2 = param.getFeatures().get(0).getFeature2();
         float sim = param.getSim();
@@ -35,9 +51,18 @@ public class CompareOnePerson implements Runnable{
         List<Pair<String, float[]>> dataFilterd =  comparators.filter(ipcIdList, null, dateStart, dateEnd);
         // 执行对比
         logger.info("To compare the result of filterd.");
-        result = comparators.compareSecond(feature2, sim, dataFilterd);
+        result = comparators.compareSecond(feature2, sim, dataFilterd, param.getSort());
         //取相似度最高的几个
         logger.info("Take the top " + resultCount);
+        List<Integer> sorts = param.getSort();
+        if(sorts != null && (sorts.size() > 1 || (sorts.size() == 1 && sorts.get(0) != 5))) {
+            result = result.take(compareSize);
+            logger.info("Read records from HBase.");
+            result = client.readFromHBase2(result);
+            result.sort(param.getSort());
+            result = result.take(resultCount);
+            return result;
+        }
         result = result.take(resultCount);
         logger.info("Read records from HBase.");
         result = client.readFromHBase2(result);

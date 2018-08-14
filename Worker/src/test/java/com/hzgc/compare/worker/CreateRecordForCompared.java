@@ -1,12 +1,9 @@
 package com.hzgc.compare.worker;
 
 import com.hzgc.compare.worker.common.FaceObject;
-import com.hzgc.compare.worker.common.Quintuple;
 import com.hzgc.compare.worker.memory.cache.MemoryCacheImpl;
-import com.hzgc.compare.worker.memory.manager.MemoryManager;
 import com.hzgc.compare.worker.persistence.task.TimeToWrite;
 import com.hzgc.compare.worker.util.FaceObjectUtil;
-import com.hzgc.compare.worker.util.UuidUtil;
 
 import java.io.BufferedReader;
 import java.io.File;

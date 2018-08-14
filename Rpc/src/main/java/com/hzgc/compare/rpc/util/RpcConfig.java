@@ -19,6 +19,8 @@ public class RpcConfig {
     private static int rpcServerThreadPollQueueSize;
     private static long rpcClientResponseTimeThreshold;
     private static long rpcConnectManagerConnectTimeout;
+    private static int zkConnectTime;
+
     static {
         InputStream stream = RpcConfig.class.getClassLoader().getResourceAsStream("rpc.properties");
         properties = new Properties();
@@ -37,6 +39,7 @@ public class RpcConfig {
         setCuratorBaseSleepTime(Integer.parseInt(properties.getProperty(ProperConstant.curatorBaseSleepTime)));
         setCuratorMaxRetries(Integer.parseInt(properties.getProperty(ProperConstant.curatorMaxRetries)));
         setZkSessionTime(Integer.parseInt(properties.getProperty(ProperConstant.zkSessionTime)));
+        setZkConnectTime(Integer.parseInt(properties.getProperty(ProperConstant.zkConnectTime)));
         setRpcServerThreadPoolSize(Integer.parseInt(properties.getProperty(ProperConstant.rpcServerThreadPoolSize)));
         setRpcServerThreadPoolMaxSize(Integer.parseInt(properties.getProperty(ProperConstant.rpcServerThreadPoolMaxSize)));
         setRpcServerThreadPoolKeepAliveTime(Long.parseLong(properties.getProperty(ProperConstant.rpcServerThreadPoolKeepAliveTime)));
@@ -115,5 +118,12 @@ public class RpcConfig {
 
     public static void setRpcConnectManagerConnectTimeout(long rpcConnectManagerConnectTimeout) {
         RpcConfig.rpcConnectManagerConnectTimeout = rpcConnectManagerConnectTimeout;
+    }
+
+    public static void setZkConnectTime(int zkConnectTime) {
+        RpcConfig.zkConnectTime = zkConnectTime;
+    }
+    public static int getZkConnectTime() {
+        return zkConnectTime;
     }
 }

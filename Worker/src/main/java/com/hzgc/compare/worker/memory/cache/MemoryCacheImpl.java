@@ -1,8 +1,13 @@
 package com.hzgc.compare.worker.memory.cache;
 
 import com.hzgc.compare.worker.common.*;
+import com.hzgc.compare.worker.common.collects.BatchBufferQueue;
+import com.hzgc.compare.worker.common.collects.CustomizeArrayList;
+import com.hzgc.compare.worker.common.collects.DoubleBufferQueue;
 import com.hzgc.compare.worker.common.taskhandle.FlushTask;
 import com.hzgc.compare.worker.common.taskhandle.TaskToHandleQueue;
+import com.hzgc.compare.worker.common.tuple.Quintuple;
+import com.hzgc.compare.worker.common.tuple.Triplet;
 import com.hzgc.compare.worker.conf.Config;
 import javafx.util.Pair;
 import org.slf4j.Logger;
@@ -22,7 +27,7 @@ public class MemoryCacheImpl<A1, A2, D> {
     private Config conf;
     private int flushProgram = 0; //flush 方案 0 定期flush  1 定量flush
     private Integer bufferSizeMax = 1000; // buffer存储上限，默认1000
-    private DoubleBufferQueue<FaceObject> faceObjects; //这里应该是一个类似阻塞队列的集合
+    private BatchBufferQueue<FaceObject> faceObjects; //这里应该是一个类似阻塞队列的集合
     private Map<Triplet<A1, A2, String>, List<Pair<String, D>>> cacheRecords;
     private DoubleBufferQueue<Quintuple<A1, A2, String, String, D>> buffer;
 
@@ -49,7 +54,7 @@ public class MemoryCacheImpl<A1, A2, D> {
 
     private void init(Config conf) {
         bufferSizeMax = conf.getValue(Config.WORKER_BUFFER_SIZE_MAX, bufferSizeMax);
-        faceObjects = new DoubleBufferQueue<>();
+        faceObjects = new BatchBufferQueue<>();
         cacheRecords = new ConcurrentHashMap<>();//ConcurrentHashMap
         buffer = new DoubleBufferQueue<>();
     }
@@ -145,7 +150,7 @@ public class MemoryCacheImpl<A1, A2, D> {
             cacheCount += entry.getValue().size();
         }
         logger.info("The size of cache is : " + cacheCount);
-        logger.info("The size of faceObject is : " + faceObjects.getWriteListSize());
+        logger.info("The size of faceObject is : " + faceObjects.size());
         logger.info("The size of buffer is : " + buffer.getWriteListSize());
     }
 
@@ -159,11 +164,7 @@ public class MemoryCacheImpl<A1, A2, D> {
                     new Triplet<>(record.getFirst(), record.getSecond(), record.getThird());
 
             Pair<String, D> value = new Pair<>(record.getFourth(), record.getFifth());
-            List<Pair<String, D>> list = cacheRecords.get(key);
-            if(list == null){
-                list = new ArrayList<>();
-                cacheRecords.put(key, list);
-            }
+            List<Pair<String, D>> list = cacheRecords.computeIfAbsent(key, k -> new CustomizeArrayList<>());
             list.add(value);
         }
     }

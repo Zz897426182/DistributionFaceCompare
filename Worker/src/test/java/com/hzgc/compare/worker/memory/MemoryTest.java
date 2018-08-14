@@ -4,7 +4,7 @@ import com.hzgc.compare.worker.CreateRecordToBuffer;
 import com.hzgc.compare.worker.CreateRecordToKafka;
 import com.hzgc.compare.worker.CreateRecordsToCach;
 import com.hzgc.compare.worker.common.FaceObject;
-import com.hzgc.compare.worker.common.Triplet;
+import com.hzgc.compare.worker.common.tuple.Triplet;
 import com.hzgc.compare.worker.common.taskhandle.FlushTask;
 import com.hzgc.compare.worker.common.taskhandle.TaskToHandleQueue;
 import com.hzgc.compare.worker.comsumer.Comsumer;

@@ -68,9 +68,11 @@ public interface Comparators {
      * @param data
      * @return
      */
-    SearchResult compareSecond(float[] feature, float sim, List<FaceObject> data);
+    SearchResult compareSecond(float[] feature, float sim, List<FaceObject> data, List<Integer> sorts);
 
-    SearchResult compareSecondTheSamePerson(List<float[]> features, float sim, List<FaceObject> data);
+    SearchResult compareSecondTheSamePerson(List<float[]> features, float sim, List<FaceObject> data,
+                                            List<Integer> sorts);
 
-    Map<String, SearchResult> compareSecondNotSamePerson(List<Feature> features, float sim, List<FaceObject> data);
+    Map<String, SearchResult> compareSecondNotSamePerson(List<Feature> features, float sim, List<FaceObject> data,
+                                                         List<Integer> sorts);
 }

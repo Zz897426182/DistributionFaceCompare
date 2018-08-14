@@ -195,6 +195,9 @@ public class HBaseClient {
             Result[]  results = table.get(gets);
             int index = 0;
             for (Result result : results){//对返回的结果集进行操作
+                if(result.rawCells() == null || result.rawCells().length == 0 ){
+                    logger.warn("This Object From HBase is Null");
+                }
                 for (Cell kv : result.rawCells()) {
                     FaceObject object = FaceObjectUtil.jsonToObject(Bytes.toString(CellUtil.cloneValue(kv))) ;
 //                    String rowkey = Bytes.toString(CellUtil.cloneRow(kv));

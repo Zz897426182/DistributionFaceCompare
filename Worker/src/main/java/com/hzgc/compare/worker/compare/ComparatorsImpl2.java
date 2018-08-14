@@ -2,7 +2,7 @@ package com.hzgc.compare.worker.compare;
 
 import com.hzgc.compare.worker.common.Feature;
 import com.hzgc.compare.worker.common.SearchResult;
-import com.hzgc.compare.worker.common.Triplet;
+import com.hzgc.compare.worker.common.tuple.Triplet;
 import com.hzgc.compare.worker.jni.CompareResult;
 import com.hzgc.compare.worker.jni.FaceFeatureInfo;
 import com.hzgc.compare.worker.jni.FeatureCompared;
@@ -22,7 +22,7 @@ public class ComparatorsImpl2 {
                 MemoryCacheImpl.<String, String, float[]>getInstance().getCacheRecords();
 //        Set<Triplet<String, String, String>> temp = new HashSet<>();
 //        temp.addAll(cacheRecords.keySet());
-        Iterator<Triplet<String, String, String> > iterator =  cacheRecords.keySet().iterator();
+        Iterator<Triplet<String, String, String>> iterator =  cacheRecords.keySet().iterator();
         Long start = System.currentTimeMillis();
         if(arg1List == null || arg1List.size() == 0){
             while (iterator.hasNext()) {
@@ -60,7 +60,8 @@ public class ComparatorsImpl2 {
     }
 
 
-    public SearchResult compareSecond(float[] feature, float sim, List<Pair<String, float[]>> datas){
+    public SearchResult compareSecond(float[] feature, float sim, List<Pair<String, float[]>> datas,
+                                      List<Integer> sorts){
         Long start = System.currentTimeMillis();
         float[][] diku = new float[datas.size()][512];
         int index = 0;
@@ -88,12 +89,15 @@ public class ComparatorsImpl2 {
         logger.info("The size of Compared is : " + records.length);
         long compared = System.currentTimeMillis();
         logger.info("The time comparing used is : " + (compared - start));
+
         result.sortBySim();
         logger.info("The time used to sort is : " + (System.currentTimeMillis() - compared));
+
         return result;
     }
 
-    public SearchResult compareSecondTheSamePerson(List<float[]> features, float sim, List<Pair<String, float[]>> datas){
+    public SearchResult compareSecondTheSamePerson(List<float[]> features, float sim,
+                                                   List<Pair<String, float[]>> datas, List<Integer> sorts){
         Long start = System.currentTimeMillis();
         float[][] diku = new float[datas.size()][512];
         int index = 0;
@@ -132,7 +136,9 @@ public class ComparatorsImpl2 {
         return result;
     }
 
-    public Map<String, SearchResult> compareSecondNotSamePerson(List<Feature> features, float sim, List<Pair<String, float[]>> datas){
+    public Map<String, SearchResult> compareSecondNotSamePerson(List<Feature> features,
+                                                                float sim, List<Pair<String, float[]>> datas,
+                                                                List<Integer> sorts){
         Long start = System.currentTimeMillis();
         Map<String, SearchResult> result = new HashMap<>();
         float[][] diku = new float[datas.size()][512];

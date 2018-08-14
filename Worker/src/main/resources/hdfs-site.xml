@@ -33,31 +33,31 @@
     <!-- nn1的RPC通信地址 -->
     <property>
     <name>dfs.namenode.rpc-address.hzgc.nn1</name>
-    <value>172.18.18.100:9000</value>
+    <value>s105:9000</value>
     </property>
 
     <!-- nn1的http通信地址 -->
     <property>
     <name>dfs.namenode.http-address.hzgc.nn1</name>
-        <value>172.18.18.100:50070</value>
+        <value>s105:50070</value>
     </property>
     
     <!-- nn2的RPC通信地址 -->
     <property>
            <name>dfs.namenode.rpc-address.hzgc.nn2</name>
-    <value>172.18.18.101:9000</value>
+    <value>s106:9000</value>
     </property>
     
     <!-- nn2的http通信地址 -->
     <property>
     <name>dfs.namenode.http-address.hzgc.nn2</name>
-    <value>172.18.18.101:50070</value>
+    <value>s106:50070</value>
     </property>
     
     <!-- 指定NameNode的元数据在JournalNode上的存放位置 -->
     <property>
     <name>dfs.namenode.shared.edits.dir</name>
-    <value>qjournal://172.18.18.102:8485;172.18.18.101:8485;172.18.18.100:8485;/hzgc</value>
+    <value>qjournal://s107:8485;s106:8485;s105:8485;/hzgc</value>
     </property>
 
     <!-- 指定JournalNode在本地磁盘存放数据的位置 -->

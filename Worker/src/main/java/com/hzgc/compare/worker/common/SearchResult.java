@@ -3,6 +3,9 @@ package com.hzgc.compare.worker.common;
 import com.hzgc.compare.rpc.client.result.AllReturn;
 
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class SearchResult {
     private static Integer size = 1000;
@@ -34,8 +37,49 @@ public class SearchResult {
      * 将当前的records根据Sim排序
      */
     public void sortBySim(){ //TODO 选择合适的排序
-        Arrays.sort(records);
+//        Arrays.sort(records);
+        Arrays.sort(records, new Comparator<Record>() {
+            @Override
+            public int compare(Record o1, Record o2) {
+                return Double.compare(o2.sim, o1.sim);
+            }
+        });
 //        quickSort(records, 0, records.length - 1);
+    }
+
+    public void sort(List<Integer> sorts){
+        List<SortParam> sortParams = sorts.stream().map(param -> SortParam.values()[param]).collect(Collectors.toList());
+        Arrays.sort(records, new Comparator<Record>(){
+            @Override
+            public int compare(Record o1, Record o2) {
+                FaceObject face1 = (FaceObject)o1.getValue();
+                FaceObject face2 = (FaceObject)o2.getValue();
+                int flug = 0;
+                for(SortParam sortParam : sortParams){
+                    if(flug == 0){
+                        switch (sortParam){
+                            case IPC:
+                                flug = face1.getIpcId().compareTo(face2.getIpcId());
+                                break;
+                            case TIMEASC:
+                                flug = face1.getTimeStamp().compareTo(face2.getTimeStamp());
+                                break;
+                            case TIMEDESC:
+                                flug = face2.getTimeStamp().compareTo(face1.getTimeStamp());
+                                break;
+                            case SIMDASC:
+                                flug = Double.compare(o2.sim, o1.sim);
+                                break;
+                            case SIMDESC:
+                                flug = Double.compare(o1.sim, o2.sim);
+                                break;
+                        }
+                    }
+                }
+                return flug;
+            }
+        });
+
     }
 
     /**
@@ -44,7 +88,10 @@ public class SearchResult {
      * @return
      */
     public void merge(SearchResult result){
-        if(records.length == 0) {
+        if(result == null || result.getRecords().length == 0){
+            return;
+        }
+        if(records == null|| records.length == 0) {
             records = result.getRecords();
         } else {
             Record[] arr1 = records;

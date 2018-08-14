@@ -1,9 +1,8 @@
 package com.hzgc.compare.worker.persistence.task;
 
-import com.hzgc.compare.worker.common.Quintuple;
+import com.hzgc.compare.worker.common.tuple.Quintuple;
 import com.hzgc.compare.worker.common.taskhandle.FlushTask;
 import com.hzgc.compare.worker.common.taskhandle.TaskToHandleQueue;
-import com.hzgc.compare.worker.conf.Config;
 import com.hzgc.compare.worker.persistence.LocalFileManager;
 
 import java.util.List;

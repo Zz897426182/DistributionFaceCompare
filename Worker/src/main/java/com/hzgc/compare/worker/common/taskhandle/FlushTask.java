@@ -1,6 +1,6 @@
 package com.hzgc.compare.worker.common.taskhandle;
 
-import com.hzgc.compare.worker.common.Quintuple;
+import com.hzgc.compare.worker.common.tuple.Quintuple;
 
 import java.util.List;
 

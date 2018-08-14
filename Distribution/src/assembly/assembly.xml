@@ -16,16 +16,16 @@
             <outputDirectory>bin</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>../Rpc/target/facecompare-rpc-${project.parent.version}/conf</directory>
+            <directory>../Worker/target/facecompare-worker-${project.parent.version}/conf</directory>
             <includes>
                 <include>**</include>
             </includes>
             <outputDirectory>conf</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>../Worker/target/facecompare-worker-${project.parent.version}/conf</directory>
+            <directory>../Rpc/src/main/resources/conf</directory>
             <includes>
-                <include>**</include>
+                <include>rpc.properties</include>
             </includes>
             <outputDirectory>conf</outputDirectory>
         </fileSet>

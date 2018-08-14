@@ -14,10 +14,13 @@ import com.hzgc.compare.worker.persistence.FileReader;
 import com.hzgc.compare.worker.persistence.HBaseClient;
 import com.hzgc.compare.worker.persistence.LocalFileManager;
 import com.hzgc.compare.worker.util.HBaseHelper;
+import org.apache.hadoop.mapreduce.lib.map.MultithreadedMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -62,11 +65,13 @@ public class Worker<A1, A2, D> {
         fileManager.checkFile();
         fileManager.checkTaskTodo();
         hBaseClient.timeToWrite2();
-        logger.info("Registry the service.");
-        ServiceRegistry registry = new ServiceRegistry(conf.getValue(Config.ZOOKEEPER_ADDRESS));
-        RpcServer rpcServer = new RpcServer(conf.getValue(Config.WORKER_ADDRESS),
-                conf.getValue(Config.WORKER_RPC_PORT, 4086), registry);
-        rpcServer.start();
+        Thread thread = new Thread(new RPCRegistry());
+        thread.start();
+//        Config conf = Config.getConf();
+//        ServiceRegistry registry = new ServiceRegistry(conf.getValue(Config.ZOOKEEPER_ADDRESS));
+//        RpcServer rpcServer = new RpcServer(conf.getValue(Config.WORKER_ADDRESS),
+//                conf.getValue(Config.WORKER_RPC_PORT, 4086), registry);
+//        rpcServer.start();
     }
 
     void stop() {

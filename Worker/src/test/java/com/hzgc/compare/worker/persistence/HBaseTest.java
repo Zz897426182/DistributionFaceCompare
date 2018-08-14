@@ -5,7 +5,7 @@ package com.hzgc.compare.worker.persistence;
 import com.hzgc.compare.worker.CreateRecordToFaceObjects;
 import com.hzgc.compare.worker.common.FaceInfoTable;
 import com.hzgc.compare.worker.common.FaceObject;
-import com.hzgc.compare.worker.common.Quintuple;
+import com.hzgc.compare.worker.common.tuple.Quintuple;
 import com.hzgc.compare.worker.common.taskhandle.TaskToHandleQueue;
 
 import com.hzgc.compare.worker.conf.Config;
@@ -49,11 +49,11 @@ public class HBaseTest {
     public void testWriteHBase(){
         HBaseClient client = new HBaseClient();
         try {
-            CreateRecordToFaceObjects.createRecords(1, 1000);
-            client.timeToWrite();
-            Thread.sleep(7000);
+            CreateRecordToFaceObjects.createRecords(1, 1002);
+            client.timeToWrite2();
+            Thread.sleep(12000);
             List<Quintuple<String, String, String, String, byte[]>> buffer = cache.getBuffer();
-            Assert.check(buffer.size() == 1000);
+            Assert.check(buffer.size() == 1002);
 
             Table table = HBaseHelper.getTable(FaceInfoTable.TABLE_NAME);
             List<Get> gets = new ArrayList<>();
@@ -71,7 +71,7 @@ public class HBaseTest {
                     list.add(value);
                 }
             }
-            Assert.check(list.size() == 1000);
+            Assert.check(list.size() == 1002);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
